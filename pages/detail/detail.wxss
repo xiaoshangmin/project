@@ -1,0 +1,105 @@
+/* pages/detail/detail.wxss */
+.page {
+  background-color: var(--weui-BG-1);
+}
+
+.list {
+  margin-left: 25rpx;
+  margin-right: 40rpx;
+  margin-top: 25rpx;
+  /* border-bottom: 1rpx solid ; */
+}
+
+.avatar {
+  /* margin-right: 15rpx; */
+}
+
+.username {
+  color: #404040;
+  font-size: 30rpx;
+}
+
+.comment .username{
+  color: #6d6d6d;
+}
+
+.intro {
+  color: #bfbfbf;
+  font-size: 22rpx;
+}
+
+.address {
+  font-size: 24rpx;
+  color: #b4b4b4;
+}
+
+.content {
+  margin-top: 15rpx;
+  margin-bottom: 15rpx;
+  font-size: 32rpx;
+  color: #404040;
+}
+
+.images {
+  display: flex;
+  align-items: space-around;
+}
+
+.grids {
+  position: relative;
+  overflow: hidden;
+  width: 565rpx;
+}
+
+.grid {
+  position: relative;
+  float: left;
+  box-sizing: border-box;
+  margin-right: 10rpx;
+}
+
+.grid image {
+  width: 150rpx;
+  height: 150rpx;
+}
+
+.fac {
+  display: flex;
+  align-items: center;
+}
+
+.mlr-5 {
+  margin-left: 5rpx;
+  margin-right: 5rpx;
+}
+
+.mr-15{
+  margin-right: 15rpx;
+}
+
+.more {
+  float: right;
+}
+
+.num {
+  color: #969696;
+  /* margin-left: 5rpx; */
+}
+
+.comment-content {
+  margin-left: 115rpx;
+}
+
+.footer {
+  margin-top: 22rpx;
+  margin-bottom: 25rpx;
+}
+
+
+/* .weui-panel::before {
+  border-top: 0;
+} */
+
+.weui-panel__bd{
+  border-bottom: 2rpx solid var(--weui-BG-1);
+}

@@ -1,0 +1,19 @@
+/* pages/profile/profile.wxss */
+
+.fac{
+  display: flex;
+  align-items: center;
+  flex-direction: column;
+}
+
+.avatar{
+  width: 228rpx;
+  height: 228rpx;
+  border-radius: 50%;
+}
+
+.nickname{
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
+  font-size: 38rpx;
+}

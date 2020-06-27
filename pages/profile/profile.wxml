@@ -1,0 +1,35 @@
+<!--pages/profile/profile.wxml-->
+<view class="page">
+	<view class="container">
+		<view class="hd">
+			<view class="weui-flex">
+				<view class="weui-flex__item fac">
+					<button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
+					<block wx:else>
+						<image bindtap="bindViewTap" class="avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+						<text class="nickname">{{userInfo.nickName}}</text>
+					</block>
+				</view>
+			</view>
+		</view>
+
+		<view class="hd">
+			<view class="weui-cells weui-cells_after-title">
+				<navigator url="" class="weui-cell weui-cell_access" hover-class="weui-cell_active">
+					<view class="weui-cell__hd">
+						<image src="{{collect}}" style="margin-right: 16px;vertical-align: middle;width:23px; height: 23px;"></image>
+					</view>
+					<view class="weui-cell__bd">我的收藏</view>
+					<view class="weui-cell__ft weui-cell__ft_in-access"></view>
+				</navigator>
+				<navigator url="" class="weui-cell weui-cell_example weui-cell_access" hover-class="weui-cell_active">
+					<view class="weui-cell__hd">
+						<image src="{{message}}" style="margin-right: 16px;vertical-align: middle;width:23px; height: 23px;"></image>
+					</view>
+					<view class="weui-cell__bd">消息中心</view>
+					<view class="weui-cell__ft weui-cell__ft_in-access"></view>
+				</navigator>
+			</view>
+		</view>
+	</view>
+</view>

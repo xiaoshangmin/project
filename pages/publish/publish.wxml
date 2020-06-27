@@ -1,0 +1,10 @@
+<!--pages/publish/publish.wxml-->
+<view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
+	<view class="page__bd">
+		<textarea class="weui-textarea" placeholder="请输入文本" auto-height maxlength="-1" />
+
+        <view class="weui-btn-area">
+            <button class="weui-btn" type="primary" bindtap="submitForm">确定</button>
+        </view>
+    </view>
+</view>
