@@ -1,17 +1,31 @@
 /* pages/detail/detail.wxss */
 .page {
-  background-color: var(--weui-BG-1);
+  background-color: #ededed;
 }
 
-.list {
+.panel:first-child {
+  margin-top: 0;
+}
+
+.panel {
+  background-color: #fff;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+}
+.main {
   margin-left: 25rpx;
   margin-right: 40rpx;
-  margin-top: 25rpx;
-  /* border-bottom: 1rpx solid ; */
+  padding-bottom: 30rpx;
+}
+
+.fac {
+  display: flex;
+  align-items: center;
 }
 
 .avatar {
   /* margin-right: 15rpx; */
+  padding-right: 10rpx;
 }
 
 .username {
@@ -23,15 +37,23 @@
   color: #6d6d6d;
 }
 
+
 .intro {
   color: #bfbfbf;
   font-size: 22rpx;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  width: 590rpx;
 }
 
 .address {
   font-size: 24rpx;
   color: #b4b4b4;
+  margin-top: 15rpx;
+  margin-bottom: 15rpx;
 }
+
 
 .content {
   margin-top: 15rpx;

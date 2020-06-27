@@ -1,6 +1,6 @@
 /* pages/home/home.wxss */
 .page {
-  background-color: var(--weui-BG-1);
+  background-color: #ededed;
 }
 
 .container {
@@ -17,19 +17,25 @@
   color: var(--weui-FG-1)
 } */
 
-.list {
+.panel:first-child {
+  margin-top: 0;
+}
+
+.panel {
+  background-color: #fff;
+  margin-top: 20rpx;
+  padding-top: 20rpx;
+}
+.main {
   margin-left: 25rpx;
   margin-right: 40rpx;
-  margin-top: 25rpx;
+  padding-bottom: 30rpx;
 }
+
 
 .fac {
   display: flex;
   align-items: center;
-}
-
-.info {
-  /* width: 600rpx; */
 }
 
 .avatar {
@@ -53,6 +59,8 @@
 .address {
   font-size: 24rpx;
   color: #b4b4b4;
+  margin-top: 15rpx;
+  margin-bottom: 15rpx;
 }
 
 .content {
@@ -85,10 +93,6 @@
   height: 150rpx;
 }
 
-.operate {
-  display: flex;
-  align-items: center;
-}
 
 .more {
   float: right;
@@ -102,9 +106,4 @@
 .footer {
   margin-top: 22rpx;
   margin-bottom: 25rpx;
-}
-
-
-.weui-panel::before {
-  border-top: 0;
 }
