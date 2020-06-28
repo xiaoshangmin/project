@@ -1,10 +1,9 @@
 <!--pages/publish/publish.wxml-->
 <view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
-	<view class="page__bd">
-		<textarea class="weui-textarea" placeholder="请输入文本" auto-height maxlength="-1" />
-
-        <view class="weui-btn-area">
-            <button class="weui-btn" type="primary" bindtap="submitForm">确定</button>
-        </view>
-    </view>
+	<van-cell-group border="{{ false }}">
+		<van-field value="{{ message }}" type="textarea" placeholder="请输入留言" autosize border="{{ false }}" maxlength="-1" show-confirm-bar="{{false}}" auto-focus="{{true}}" bind:focus="f" />
+	</van-cell-group>
+	<van-uploader file-list="{{ fileList }}" multiple bind:after-read="afterRead" bind:before-read="beforeRead" use-before-read="{{ true }}" max-count="9" 
+    bind:delete="delete"/>
+	
 </view>

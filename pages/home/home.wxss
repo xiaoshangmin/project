@@ -7,16 +7,6 @@
   /* padding-bottom: 20rpx; */
 }
 
-/* .space {
-  margin: 5px;
-  padding: 0 10px;
-  text-align: left;
-  background-color: var(--weui-BG-1);
-  height: 50rpx;
-  line-height: 50rpx;
-  color: var(--weui-FG-1)
-} */
-
 .panel:first-child {
   margin-top: 0;
 }
@@ -59,8 +49,8 @@
 .address {
   font-size: 24rpx;
   color: #b4b4b4;
-  margin-top: 15rpx;
-  margin-bottom: 15rpx;
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
 }
 
 .content {

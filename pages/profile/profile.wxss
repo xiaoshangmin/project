@@ -1,6 +1,7 @@
 /* pages/profile/profile.wxss */
 
-.fac{
+
+.facdc{
   display: flex;
   align-items: center;
   flex-direction: column;

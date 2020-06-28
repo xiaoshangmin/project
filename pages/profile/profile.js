@@ -7,8 +7,8 @@ Page({
    * 页面的初始数据
    */
   data: {
-    message: '../../images/message.png',
-    collect: '../../images/collect.png',
+    message: '../../../../images/message.png',
+    collect: '../../../../images/collect.png',
     userInfo: {},
     hasUserInfo: false,
     canIUse: wx.canIUse('button.open-type.getUserInfo')

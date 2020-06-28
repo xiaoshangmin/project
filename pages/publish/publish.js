@@ -5,44 +5,50 @@ Page({
    * 页面的初始数据
    */
   data: {
-    files: []
+    files: [],
+    fileList: [],
+    btn: 0
   },
-
-  chooseImage: function (e) {
-    var that = this;
-    wx.chooseImage({
-      sizeType: ['original', 'compressed'], // 可以指定是原图还是压缩图，默认二者都有
-      sourceType: ['album', 'camera'], // 可以指定来源是相册还是相机，默认二者都有
-      success: function (res) {
-        // 返回选定照片的本地文件路径列表，tempFilePath可以作为img标签的src属性显示图片
-        that.setData({
-          files: that.data.files.concat(res.tempFilePaths)
-        });
-      }
-    })
+  afterRead(event) {
+    const {
+      file,
+      name
+    } = event.detail;
+    const fileList = this.data[`fileList${name}`];
+   
+    this.setData({
+      [`fileList${name}`]: fileList.concat(file)
+    });
   },
-  selectFile(files) {
-    console.log('files', files)
-    // 返回false可以阻止某次文件上传
+  beforeRead(event) {
+    const { file, callback = () => {} } = event.detail;
+    // console.log(file)
+    // if (file.path.indexOf('jpg') < 0) {
+    //   wx.showToast({ title: '请选择jpg图片上传', icon: 'none' });
+    //   callback(false);
+    //   return;
+    // }
+    callback(true);
   },
-  uplaodFile(files) {
-    console.log('upload files', files)
-    // 文件上传的函数，返回一个promise
-    return new Promise((resolve, reject) => {
-      setTimeout(() => {
-        reject('some error')
-      }, 1000)
+  oversize() {
+    wx.showToast({ title: '文件超出大小限制', icon: 'none' });
+  },
+  delete(event) {
+    const { index, name } = event.detail;
+    const fileList = this.data[`fileList${name}`];
+    fileList.splice(index, 1);
+    this.setData({ [`fileList${name}`]: fileList });
+  },
+  f(e) {
+    console.log(e.detail.height)
+    this.setData({
+      btn: e.detail.height
     })
   },
   /**
    * 生命周期函数--监听页面加载
    */
-  onLoad: function (options) {
-    this.setData({
-      selectFile: this.selectFile.bind(this),
-      uplaodFile: this.uplaodFile.bind(this)
-    })
-  },
+  onLoad: function (options) {},
 
   /**
    * 生命周期函数--监听页面初次渲染完成

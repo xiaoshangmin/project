@@ -1,4 +1,9 @@
 {
   "usingComponents": {
+    "van-row": "@vant/weapp/row/index",
+    "van-col": "@vant/weapp/col/index",
+    "van-cell": "@vant/weapp/cell/index",
+    "van-icon": "@vant/weapp/icon/index",
+    "van-cell-group": "@vant/weapp/cell-group/index"
   }
 }
