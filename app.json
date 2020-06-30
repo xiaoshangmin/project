@@ -1,11 +1,11 @@
 {
   "pages": [
     "pages/home/home",
-    "pages/index/index",
     "pages/logs/logs",
     "pages/detail/detail",
-    "pages/profile/profile",
-    "pages/publish/publish"
+    "pages/user/user",
+    "pages/publish/publish",
+    "pages/mypost/mypost"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -14,28 +14,19 @@
     "navigationBarTextStyle": "black"
   },
   "tabBar": {
-    "backgroundColor": "#f9f9f9",
-    "borderStyle": "white",
-    "selectedColor": "#00b38b",
-    "color": "#666666",
+    "custom": true,
+    "color": "#000000",
+    "selectedColor": "#000000",
+    "backgroundColor": "#000000",
     "list": [
       {
-        "pagePath": "pages/home/home",
-        "iconPath": "images/tabbar_icon_home_default.png",
-        "selectedIconPath": "images/tabbar_icon_home_active.png",
-        "text": "推荐"
+        "pagePath": "pages/home/home"
       },
       {
-        "pagePath": "pages/publish/publish",
-        "iconPath": "images/tabbar_icon_publish_default.png",
-        "selectedIconPath": "images/tabbar_icon_publish_active.png",
-        "text": "发布"
+        "pagePath": "pages/publish/publish"
       },
       {
-        "pagePath": "pages/profile/profile",
-        "iconPath": "images/tabbar_icon_my_default.png",
-        "selectedIconPath": "images/tabbar_icon_my_active.png",
-        "text": "我"
+        "pagePath": "pages/user/user"
       }
     ]
   },

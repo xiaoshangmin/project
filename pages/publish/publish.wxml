@@ -1,9 +1,8 @@
 <!--pages/publish/publish.wxml-->
 <view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
 	<van-cell-group border="{{ false }}">
-		<van-field value="{{ message }}" type="textarea" placeholder="请输入留言" autosize border="{{ false }}" maxlength="-1" show-confirm-bar="{{false}}" auto-focus="{{true}}" bind:focus="f" />
+		<van-field value="{{ message }}" type="textarea" placeholder="freeStyle" autosize border="{{ false }}" maxlength="-1" show-confirm-bar="{{false}}" auto-focus="{{true}}" bind:focus="f" />
 	</van-cell-group>
-	<van-uploader file-list="{{ fileList }}" multiple bind:after-read="afterRead" bind:before-read="beforeRead" use-before-read="{{ true }}" max-count="9" 
-    bind:delete="delete"/>
-	
+	<van-uploader file-list="{{ fileList }}" multiple bind:after-read="afterRead" bind:before-read="beforeRead" use-before-read="{{ true }}" max-count="9" bind:delete="delete" />
+
 </view>

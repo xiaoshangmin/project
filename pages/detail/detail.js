@@ -43,7 +43,7 @@ Page({
       "user": {
         "id": "1",
         "avatar": 'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-        "username": "不知道取什么名字",
+        "username": "赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱",
         "intro": "赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱"
       }
     }, {
@@ -61,19 +61,19 @@ Page({
     hotComments: [{
       "id": 12,
       "content": "内哦你如果内哦你如果内哦你如果内哦你如果内哦你如果",
-      "pictures": 'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
+      "pictures": 'https://img0.zealer.com/video_list_cover/2019/9/30/1569816791121.jpeg',
       "like": 88,
       "user": {
         "id": "1",
         "avatar": 'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-        "username": "不知道取什么名字",
+        "username": "赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱",
         "intro": "赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱"
       }
     }, {
       "id": 12,
       "content": "内哦你如果内哦你如果内哦你如果内哦你如果内哦你如果",
-      "pictures": 'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-      "like": 88,
+      "pictures": 'https://i.loli.net/2020/06/30/EubZkAHr51xJqnU.png',
+      "like": 999,
       "user": {
         "id": "1",
         "avatar": 'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',

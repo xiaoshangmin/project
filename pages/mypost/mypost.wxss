@@ -2,9 +2,6 @@
 .page {
   background-color: #ededed;
 }
-.container{
-  padding-bottom: 53px;
-}
 
 .panel:first-child {
   margin-top: 0;

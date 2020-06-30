@@ -1,7 +1,5 @@
 {
-  "navigationBarTitleText": "动态广场",
-  "enablePullDownRefresh": true,
-  "onReachBottomDistance": 100,
+  "navigationBarTitleText": "我的动态",
   "usingComponents": {
     "van-row": "@vant/weapp/row/index",
     "van-col": "@vant/weapp/col/index"

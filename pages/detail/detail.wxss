@@ -1,7 +1,8 @@
-/* pages/detail/detail.wxss */
+/* pages/home/home.wxss */
 .page {
   background-color: #ededed;
 }
+
 
 .panel:first-child {
   margin-top: 0;
@@ -12,10 +13,18 @@
   margin-top: 20rpx;
   padding-top: 20rpx;
 }
-.main {
+
+.main,
+.hot-comment {
   margin-left: 25rpx;
   margin-right: 40rpx;
   padding-bottom: 30rpx;
+  padding-top: 20rpx;
+}
+
+.comments {
+  width: 100%;
+  border-bottom: 1px solid #dbdbdb;
 }
 
 .fac {
@@ -23,37 +32,50 @@
   align-items: center;
 }
 
-.avatar {
-  /* margin-right: 15rpx; */
-  padding-right: 10rpx;
+.info {
+  width: 65%;
 }
 
-.username {
+.avatar {
+  width: 15%;
+}
+
+.prase {
+  width: 20%;
+  justify-content: flex-end;
+}
+
+.main .username {
   color: #404040;
   font-size: 30rpx;
+  font-weight: 400;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
-.comment .username{
-  color: #6d6d6d;
+.hot-comment .username {
+  color: #717171;
+  font-size: 28rpx;
+  white-space: nowrap;
+  text-overflow: ellipsis;
+  overflow: hidden;
 }
 
-
-.intro {
-  color: #bfbfbf;
+.intro,.comment-time {
+  color: #c0c0c0;
   font-size: 22rpx;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  width: 590rpx;
 }
 
 .address {
   font-size: 24rpx;
   color: #b4b4b4;
-  margin-top: 15rpx;
-  margin-bottom: 15rpx;
+  margin-top: 20rpx;
+  margin-bottom: 20rpx;
 }
-
 
 .content {
   margin-top: 15rpx;
@@ -62,9 +84,12 @@
   color: #404040;
 }
 
-.images {
-  display: flex;
-  align-items: space-around;
+.comment-content {
+  margin-left: 105rpx;
+  
+}
+.comment-content image{
+  width: 200rpx;
 }
 
 .grids {
@@ -85,19 +110,6 @@
   height: 150rpx;
 }
 
-.fac {
-  display: flex;
-  align-items: center;
-}
-
-.mlr-5 {
-  margin-left: 5rpx;
-  margin-right: 5rpx;
-}
-
-.mr-15{
-  margin-right: 15rpx;
-}
 
 .more {
   float: right;
@@ -105,23 +117,16 @@
 
 .num {
   color: #969696;
-  /* margin-left: 5rpx; */
+  margin-left: 5rpx;
 }
 
-.comment-content {
-  margin-left: 115rpx;
+.comment-num {
+  color: #969696;
+  margin-right: 8rpx;
+  font-size: 26rpx;
 }
 
 .footer {
   margin-top: 22rpx;
   margin-bottom: 25rpx;
-}
-
-
-/* .weui-panel::before {
-  border-top: 0;
-} */
-
-.weui-panel__bd{
-  border-bottom: 2rpx solid var(--weui-BG-1);
 }

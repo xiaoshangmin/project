@@ -15,13 +15,16 @@ Page({
       name
     } = event.detail;
     const fileList = this.data[`fileList${name}`];
-   
+
     this.setData({
       [`fileList${name}`]: fileList.concat(file)
     });
   },
   beforeRead(event) {
-    const { file, callback = () => {} } = event.detail;
+    const {
+      file,
+      callback = () => {}
+    } = event.detail;
     // console.log(file)
     // if (file.path.indexOf('jpg') < 0) {
     //   wx.showToast({ title: '请选择jpg图片上传', icon: 'none' });
@@ -31,16 +34,23 @@ Page({
     callback(true);
   },
   oversize() {
-    wx.showToast({ title: '文件超出大小限制', icon: 'none' });
+    wx.showToast({
+      title: '文件超出大小限制',
+      icon: 'none'
+    });
   },
   delete(event) {
-    const { index, name } = event.detail;
+    const {
+      index,
+      name
+    } = event.detail;
     const fileList = this.data[`fileList${name}`];
     fileList.splice(index, 1);
-    this.setData({ [`fileList${name}`]: fileList });
+    this.setData({
+      [`fileList${name}`]: fileList
+    });
   },
   f(e) {
-    console.log(e.detail.height)
     this.setData({
       btn: e.detail.height
     })
@@ -61,7 +71,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-
+    this.getTabBar().init();
   },
 
   /**
