@@ -2,7 +2,8 @@
 .page {
   background-color: #ededed;
 }
-.container{
+
+.container {
   padding-bottom: 53px;
 }
 
@@ -15,6 +16,7 @@
   margin-top: 20rpx;
   padding-top: 20rpx;
 }
+
 .main {
   margin-left: 25rpx;
   margin-right: 40rpx;
@@ -91,6 +93,17 @@
   color: #969696;
   margin-left: 5rpx;
 }
+
+.publish-btn {
+  position: fixed;
+  bottom: 120rpx;
+  right:50rpx;
+  display: flex;
+  width: 80rpx;
+  height: 80rpx;
+  justify-content: center;
+}
+
 
 .footer {
   margin-top: 22rpx;

@@ -8,12 +8,12 @@ Component({
         "active_icon": "wap-home",
         "text": ""
       },
-      {
-        "url": "/pages/publish/publish",
-        "icon": "search",
-        "active_icon": "search",
-        "text": ""
-      },
+      // {
+      //   "url": "/pages/publish/publish",
+      //   "icon": "search",
+      //   "active_icon": "search",
+      //   "text": ""
+      // },
       {
         "url": "/pages/user/user",
         "icon": "user-circle-o",

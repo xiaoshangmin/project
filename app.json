@@ -22,9 +22,7 @@
       {
         "pagePath": "pages/home/home"
       },
-      {
-        "pagePath": "pages/publish/publish"
-      },
+      
       {
         "pagePath": "pages/user/user"
       }

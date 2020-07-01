@@ -1,10 +1,16 @@
 <view class="page">
 	<view class="container">
+		<!-- 浮动的发布按钮 -->
+		<view class="publish-btn">
+			<van-image width="80rpx" height="80rpx" src="../../../../images/tabbar_icon_publish_active.png" round fit="cover" bindtap="toPublish" />
+		</view>
+
 		<view class="panel" wx:for="{{list}}" wx:key="index" wx:for-index="idx" wx:for-item="item" data-cid="{{item.id}}" bindtap="toDetail">
 			<view class="main">
 				<view class="fac">
 					<view class="avatar">
-						<image src="{{item.user.avatar}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image>
+						<!-- <image src="{{item.user.avatar}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image> -->
+						<van-image width="80rpx" height="80rpx" src="{{item.user.avatar}}" round fit="cover" />
 					</view>
 					<view class="info">
 						<view class="username">{{item.user.username}}</view>
@@ -20,7 +26,8 @@
 					<van-col span="20">
 						<view class="grids">
 							<view class="grid" wx:for="{{item.urls}}" wx:key="url" wx:for-item="url">
-								<image src="{{url}}" data-src="{{url}}" data-id="{{idx}}" mode="aspectFill" catchtap='previewImage'></image>
+								<!-- <image src="{{url}}" data-src="{{url}}" data-id="{{idx}}" mode="aspectFill" catchtap='previewImage'></image> -->
+								<van-image width="150rpx" height="150rpx" src="{{url}}" fit="cover" catchtap='previewImage' data-src="{{url}}" data-id="{{idx}}" />
 							</view>
 						</view>
 					</van-col>

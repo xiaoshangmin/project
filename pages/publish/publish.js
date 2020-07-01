@@ -7,7 +7,9 @@ Page({
   data: {
     files: [],
     fileList: [],
-    btn: 0
+    bottom: 0,
+    show: false,
+    value:'',
   },
   afterRead(event) {
     const {
@@ -15,7 +17,7 @@ Page({
       name
     } = event.detail;
     const fileList = this.data[`fileList${name}`];
-
+    console.log(event.detail)
     this.setData({
       [`fileList${name}`]: fileList.concat(file)
     });
@@ -44,16 +46,48 @@ Page({
       index,
       name
     } = event.detail;
+
     const fileList = this.data[`fileList${name}`];
     fileList.splice(index, 1);
     this.setData({
       [`fileList${name}`]: fileList
     });
   },
-  f(e) {
+  focus(e) {
     this.setData({
-      btn: e.detail.height
+      bottom: e.detail.height + 5
     })
+  },
+  blur(e) {
+    this.setData({
+      bottom: 5
+    })
+  },
+  chooseImage() {
+    wx.chooseImage({
+      count: 9,
+      success: (result) => {
+        console.log(result)
+        let name = '';
+        const fileList = this.data[`fileList${name}`];
+        console.log(fileList.length)
+        this.setData({
+          [`fileList${name}`]: fileList.concat(result.tempFiles)
+        });
+      },
+      fail: (res) => {},
+      complete: (res) => {},
+    })
+  },
+  group() {
+    this.setData({
+      show: !this.data.show
+    })
+  },
+  onClose() {
+    this.setData({
+      show: false
+    });
   },
   /**
    * 生命周期函数--监听页面加载
@@ -71,7 +105,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
-    this.getTabBar().init();
+    // this.getTabBar().init();
   },
 
   /**

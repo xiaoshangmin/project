@@ -1,1 +1,23 @@
 /* pages/publish/publish.wxss */
+
+.group {
+  display: flex;
+  align-items: center;
+}
+
+.ai {
+  padding-left: 40rpx;
+}
+
+.upload {
+  margin-left: 20rpx;
+  margin-top: 20rpx;
+}
+
+.btn-area {
+  width: 100%;
+  position: fixed;
+  display: flex;
+  justify-content: flex-end;
+  background-color: #fff;
+}

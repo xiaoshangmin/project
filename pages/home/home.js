@@ -5,7 +5,7 @@ Page({
    * 页面的初始数据
    */
   data: {
-    
+
     list: [{
         "id": 12,
         "content": "内哦你如果内哦你如果内哦你如果内哦你如果内哦你如果",
@@ -70,7 +70,9 @@ Page({
   },
 
   onChange(event) {
-    this.setData({ active: event.detail });
+    this.setData({
+      active: event.detail
+    });
   },
 
   previewImage(e) {
@@ -89,7 +91,7 @@ Page({
       url: '../detail/detail?cid=' + cid,
     })
   },
-  saveImage(e){
+  saveImage(e) {
     console.log(e)
   },
   getList() {
@@ -177,10 +179,15 @@ Page({
     })
   },
 
-  f(){
+  f() {
 
   },
 
+  toPublish() {
+    wx.navigateTo({
+      url: '../publish/publish',
+    })
+  },
   /**
    * 生命周期函数--监听页面加载
    */

@@ -16,12 +16,12 @@
 				<van-cell title="我的帖子" is-link size="large" link-type="navigateTo" url="/pages/mypost/mypost">
 					<van-icon name="bell" color="#25b195" slot="icon" size="1.2em" />
 				</van-cell>
-				<van-cell title="我的收藏" is-link size="large">
+				<van-cell title="我的收藏" is-link size="large" link-type="navigateTo" url="/pages/publish/publish">
 					<van-icon name="star" color="#25b195" slot="icon" size="1.2em" />
 				</van-cell>
-				<van-cell title="我的消息" is-link size="large">
+				<!-- <van-cell title="我的消息" is-link size="large">
 					<van-icon name="bell" color="#25b195" slot="icon" size="1.2em" />
-				</van-cell>
+				</van-cell> -->
 
 			</van-cell-group>
 		</view>

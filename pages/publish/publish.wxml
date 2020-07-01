@@ -1,8 +1,30 @@
 <!--pages/publish/publish.wxml-->
 <view class="page" xmlns:wx="http://www.w3.org/1999/xhtml">
-	<van-cell-group border="{{ false }}">
-		<van-field value="{{ message }}" type="textarea" placeholder="freeStyle" autosize border="{{ false }}" maxlength="-1" show-confirm-bar="{{false}}" auto-focus="{{true}}" bind:focus="f" />
-	</van-cell-group>
-	<van-uploader file-list="{{ fileList }}" multiple bind:after-read="afterRead" bind:before-read="beforeRead" use-before-read="{{ true }}" max-count="9" bind:delete="delete" />
+	<view class="group van-hairline--top-bottom">
+		<view>
+			<van-cell title="这么过分一定要发出来" is-link border="{{false}}" bindtap="group" />
+		</view>
+		<view class="ai van-hairline--left">
+			a,a,a,a,,a,
+		</view>
+	</view>
 
+	<van-action-sheet show="{{ show }}" title="标题" close-on-click-overlay bind:close="onClose">
+		<van-search value="{{ value }}" placeholder="请输入搜索关键词" />
+		<van-cell-group>
+			<van-cell title="单元格" value="内容" />
+			<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
+		</van-cell-group>
+	</van-action-sheet>
+
+	<van-cell-group border="{{ false }}">
+		<van-field size="large" value="{{ message }}" placeholder-style="height:100rpx;" type="textarea" placeholder="freeStyle" autosize border="{{ false }}" maxlength="-1" show-confirm-bar="{{false}}" focus="{{true}}" auto-focus="{{true}}" bind:focus="focus" bind:blur="blur" />
+	</van-cell-group>
+	<view class="upload" wx:if="{{ fileList.length > 0}}">
+		<van-uploader file-list="{{ fileList }}" multiple preview-size="110px" bind:after-read="afterRead" bind:before-read="beforeRead" use-before-read="{{ true }}" max-count="9" bind:delete="delete" />
+	</view>
+	<view class="btn-area" style="bottom:{{bottom}}px;">
+		<van-button round color="#25b195" size="small" bindtap="chooseImage">选图</van-button>
+		<van-button round color="#25b195" size="small">发送</van-button>
+	</view>
 </view>
