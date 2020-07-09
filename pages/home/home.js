@@ -1,4 +1,5 @@
 // pages/home/home.js
+const app = getApp()
 Page({
 
   /**
@@ -50,7 +51,7 @@ Page({
           'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
           'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png'
         ],
-        "like": 88,
+        "like": 8888,
         "comment": 99,
         "collect": 13,
         "share": 45,
@@ -66,7 +67,8 @@ Page({
           "intro": "赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱"
         }
       },
-    ]
+    ],
+    show: false
   },
 
   onChange(event) {
@@ -85,14 +87,10 @@ Page({
   },
 
   toDetail(e) {
-    console.log(e)
     const cid = e.currentTarget.dataset.cid
     wx.navigateTo({
       url: '../detail/detail?cid=' + cid,
     })
-  },
-  saveImage(e) {
-    console.log(e)
   },
   getList() {
     var that = this
@@ -179,20 +177,82 @@ Page({
     })
   },
 
-  f() {
+  more(e) {
+    const cid = e.currentTarget.dataset.cid
+    console.log(cid)
+    wx.showToast({
+      title: 'more',
+    })
+  },
+  share(e) {
+    const cid = e.currentTarget.dataset.cid
+    console.log(cid)
+    wx.showToast({
+      title: 'share',
+    })
+  },
+  collect(e) {
+    const cid = e.currentTarget.dataset.cid
+    if (app.globalData.isAuthUserInfo) {
+      wx.showToast({
+        title: 'collect',
+      })
+    } else {
+      this.setData({
+        show: true
+      })
+    }
 
+  },
+  like(e) {
+    const cid = e.currentTarget.dataset.cid
+    if (app.globalData.isAuthUserInfo) {
+      wx.showToast({
+        title: 'like',
+      })
+      wx.vibrateShort()
+    } else {
+      this.setData({
+        show: true
+      })
+    }
+  },
+  comment(e) {
+    console.log(e)
+    const cid = e.currentTarget.dataset.cid
+    wx.navigateTo({
+      url: '../detail/detail?cid=' + cid,
+    })
   },
 
   toPublish() {
-    wx.navigateTo({
-      url: '../publish/publish',
-    })
+    if (app.globalData.isAuthUserInfo) {
+      wx.navigateTo({
+        url: '../publish/publish',
+      })
+    } else {
+      this.setData({
+        show: true
+      })
+    }
+  },
+  getUserInfo(event) {
+    console.log(event.detail);
+  },
+
+  onClose() {
+    this.setData({
+      close: false
+    });
   },
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    wx.startPullDownRefresh()
+    // wx.startPullDownRefresh()
+    app.userInfoReadyCallback = res => {
+      console.log(res.userInfo)
+    }
   },
 
   /**

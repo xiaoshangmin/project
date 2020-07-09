@@ -1,6 +1,6 @@
 <view class="page">
 	<view class="container">
-		<view class="panel" wx:for="{{list}}" wx:key="index" wx:for-index="idx" wx:for-item="item" data-cid="{{item.id}}" bindtap="toDetail">
+		<view class="panel" wx:for="{{list}}" wx:key="index" wx:for-index="idx" wx:for-item="item" data-cid="{{item.id}}">
 			<view class="main">
 				<view class="fac">
 					<view class="avatar">

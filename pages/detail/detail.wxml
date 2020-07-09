@@ -71,7 +71,7 @@
 		</view>
 
 		<view class="panel">
-			<van-cell title="最新评论" />
+			<van-cell title="热门评论" />
 			<view class="comments" wx:for="{{hotComments}}" wx:key="*this" wx:for-item="item">
 				<view class="hot-comment">
 					<view class="fac">
@@ -104,7 +104,7 @@
 
 
 		<view class="panel">
-			<van-cell title="热门评论" />
+			<van-cell title="最新评论" />
 			<view class="comments" wx:for="{{hotComments}}" wx:key="*this" wx:for-item="item">
 				<view class="hot-comment">
 					<view class="fac">

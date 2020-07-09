@@ -1,5 +1,9 @@
 /* pages/publish/publish.wxss */
 
+.setPage{
+  overflow-y: hidden;
+}
+
 .group {
   display: flex;
   align-items: center;
@@ -12,6 +16,35 @@
 .upload {
   margin-left: 20rpx;
   margin-top: 20rpx;
+}
+
+/* .top{
+  position: fixed;
+  z-index: 9;
+  height: 200rpx;
+  width: 100%;
+  background-color: #fff;
+  margin-top: 80rpx;
+} */
+
+.top {
+  position: fixed;
+  z-index: 9;
+  width: 100%;
+  background-color: #fff;
+  border-radius: 30rpx;
+}
+
+.title {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  height: 80rpx;
+
+}
+
+.group-list {
+  margin-top: 190rpx;
 }
 
 .btn-area {

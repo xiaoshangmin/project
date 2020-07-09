@@ -1,4 +1,5 @@
 // pages/detail/detail.js
+const app = getApp()
 Page({
 
   /**
@@ -109,6 +110,7 @@ Page({
       selector: '#comment',
       duration: 300
     })
+    console.log(app.globalData.isAuthUserInfo)
   },
 
   /**

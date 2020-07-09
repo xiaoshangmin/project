@@ -2,14 +2,17 @@
 	<view class="container">
 		<!-- 浮动的发布按钮 -->
 		<view class="publish-btn">
-			<van-image width="80rpx" height="80rpx" src="../../../../images/tabbar_icon_publish_active.png" round fit="cover" bindtap="toPublish" />
+			<van-image width="90rpx" height="90rpx" src="../../../../images/tabbar_icon_publish_active.png" round fit="cover" bindtap="toPublish" />
+			<!-- <button open-type="getUserInfo" bindgetuserinfo="bindGetUserInfo">	</button> -->
 		</view>
+
+		<van-dialog title="授权确认" message="微信授权登录" show="{{ show }}" show-cancel-button confirm-button-open-type="getUserInfo" bind:close="onClose" bind:getuserinfo="getUserInfo">
+		</van-dialog>
 
 		<view class="panel" wx:for="{{list}}" wx:key="index" wx:for-index="idx" wx:for-item="item" data-cid="{{item.id}}" bindtap="toDetail">
 			<view class="main">
 				<view class="fac">
 					<view class="avatar">
-						<!-- <image src="{{item.user.avatar}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image> -->
 						<van-image width="80rpx" height="80rpx" src="{{item.user.avatar}}" round fit="cover" />
 					</view>
 					<view class="info">
@@ -35,42 +38,42 @@
 				<van-row>
 					<view class="address">{{item.poi.address}}</view>
 				</van-row>
-				<van-row>
-					<van-col span="4">
-						<view class="like fac">
-							<image src="../../images/like.png" style="width:40rpx;height:40rpx"></image>
+				<van-row custom-class="operate">
+					<van-col span="5">
+						<view class="like fac" catchtap="like" data-cid="{{item.id}}">
+							<image src="../../images/like.png"></image>
 							<view class="num">
 								{{item.like}}
 							</view>
 						</view>
 					</van-col>
-					<van-col span="4">
-						<view class="comment fac">
-							<image src="../../images/comment.png" style="width:40rpx;height:40rpx"></image>
+					<van-col span="5">
+						<view class="comment fac" catchtap="comment" data-cid="{{item.id}}">
+							<image src="../../images/comment.png"></image>
 							<view class="num">
 								{{item.comment}}
 							</view>
 						</view>
 					</van-col>
-					<van-col span="4">
-						<view class="collect fac">
-							<image src="../../images/collect.png" style="width:40rpx;height:40rpx"></image>
+					<van-col span="5">
+						<view class="collect fac" catchtap="collect" data-cid="{{item.id}}">
+							<image src="../../images/collect.png"></image>
 							<view class="num">
 								{{item.collect}}
 							</view>
 						</view>
 					</van-col>
-					<van-col span="4">
-						<view class="share fac">
-							<image src="../../images/share.png" style="width:40rpx;height:40rpx"></image>
+					<van-col span="5">
+						<view class="share fac" catchtap="share" data-cid="{{item.id}}">
+							<image src="../../images/share.png"></image>
 							<view class="num">
 								{{item.share}}
 							</view>
 						</view>
 					</van-col>
 					<view>
-						<view class="more fac" catchtap="f">
-							<image src="../../images/more.png" style="width:40rpx;height:40rpx"></image>
+						<view class="more fac" catchtap="more" data-cid="{{item.id}}">
+							<image src="../../images/more.png"></image>
 						</view>
 					</view>
 				</van-row>

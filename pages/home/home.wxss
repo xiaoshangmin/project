@@ -23,6 +23,10 @@
   padding-bottom: 30rpx;
 }
 
+.operate image {
+  width: 50rpx;
+  height: 50rpx;
+}
 
 .fac {
   display: flex;
@@ -96,11 +100,11 @@
 
 .publish-btn {
   position: fixed;
-  bottom: 120rpx;
-  right:50rpx;
+  bottom: 220rpx;
+  right: 50rpx;
   display: flex;
-  width: 80rpx;
-  height: 80rpx;
+  width: 90rpx;
+  height: 90rpx;
   justify-content: center;
 }
 
