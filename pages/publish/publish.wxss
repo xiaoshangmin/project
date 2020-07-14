@@ -1,7 +1,8 @@
 /* pages/publish/publish.wxss */
 
-.setPage{
-  overflow-y: hidden;
+
+.word {
+  margin-bottom: 30rpx;
 }
 
 .group {
@@ -9,42 +10,33 @@
   align-items: center;
 }
 
-.ai {
-  padding-left: 40rpx;
+.tips {
+  font-size: 22rpx;
 }
 
 .upload {
   margin-left: 20rpx;
-  margin-top: 20rpx;
+  margin-bottom: 20rpx;
 }
 
-/* .top{
-  position: fixed;
-  z-index: 9;
-  height: 200rpx;
-  width: 100%;
-  background-color: #fff;
-  margin-top: 80rpx;
-} */
+.placeholder{
+  height: 100rpx;
+}
 
 .top {
   position: fixed;
   z-index: 9;
   width: 100%;
   background-color: #fff;
-  border-radius: 30rpx;
+  border-radius: 20rpx;
 }
 
-.title {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  height: 80rpx;
-
+.search {
+  padding-top: 20rpx;
 }
 
 .group-list {
-  margin-top: 190rpx;
+  margin-top: 130rpx;
 }
 
 .btn-area {
@@ -52,5 +44,7 @@
   position: fixed;
   display: flex;
   justify-content: flex-end;
+  padding: 20rpx 0rpx;
   background-color: #fff;
+  z-index: 50;
 }

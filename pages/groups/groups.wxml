@@ -1,0 +1,36 @@
+<!--pages/groups/groups.wxml-->
+<!-- 圈子弹层 -->
+<view class="container">
+	<van-sticky>
+		<view class="search">
+			<van-search value="{{ searchGroupKeyWords }}" placeholder="搜索圈子" bind:change="onChange">
+			</van-search>
+		</view>
+	</van-sticky>
+	<view class="group-list">
+		<van-cell-group>
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="今天没什么好笑的" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="2" data-title="今天没什么好笑的" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="今天没什么好笑的" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="2" data-title="今天没什么好笑的" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="今天没什么好笑的" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="2" data-title="今天没什么好笑的" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="今天没什么好笑的" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="2" data-title="今天没什么好笑的" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="今天没什么好笑的" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="2" data-title="今天没什么好笑的" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="今天没什么好笑的" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="2" data-title="今天没什么好笑的" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="今天没什么好笑的" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="2" data-title="今天没什么好笑的" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="今天没什么好笑的" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="2" data-title="今天没什么好笑的" />
+			<van-cell title="这么过分一定要发出来" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="1" data-title="这么过分一定要发出来" />
+			<van-cell title="今天没什么好笑的" value="" label="描述信息" border="{{ false }}" clickable bind:click="onSelectGroup" data-id="2" data-title="今天没什么好笑的" />
+		</van-cell-group>
+	</view>
+</view>

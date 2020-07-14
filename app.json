@@ -5,7 +5,8 @@
     "pages/detail/detail",
     "pages/user/user",
     "pages/publish/publish",
-    "pages/mypost/mypost"
+    "pages/mypost/mypost",
+    "pages/groups/groups"
   ],
   "window": {
     "backgroundTextStyle": "dark",
@@ -22,7 +23,6 @@
       {
         "pagePath": "pages/home/home"
       },
-      
       {
         "pagePath": "pages/user/user"
       }

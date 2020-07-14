@@ -11,26 +11,26 @@ const request = (url, data, method, load) => {
     // })
   }
   return new Promise((resolve, reject) => {
-    
     wx.request({
       url: url,
       data: data,
       method: method,
-      success(res) { 
+      success(res) {
         if (res.statusCode === 200) {
-          resolve(res)
+          resolve(res.data)
         } else {
           reject(res)
         }
       },
       fail(err) {
-        reject(err) 
+        reject(err)
         // wx.showModal({
         //   title: '温馨提示',
         //   content: '网络请求失败',
         //   showCancel: false
         // })
-      }, complete(res) {
+      },
+      complete(res) {
         if (load) {
           // wx.hideNavigationBarLoading()
           // wx.hideLoading();

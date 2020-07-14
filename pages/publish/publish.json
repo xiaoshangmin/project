@@ -1,6 +1,5 @@
 {
   "navigationBarTitleText": "发布新动态",
-  "disableScroll": true,
   "usingComponents": {
     "van-row": "@vant/weapp/row/index",
     "van-col": "@vant/weapp/col/index",
@@ -9,8 +8,6 @@
     "van-field": "@vant/weapp/field/index",
     "van-uploader": "@vant/weapp/uploader/index",
     "van-button": "@vant/weapp/button/index",
-    "van-popup": "@vant/weapp/popup/index",
-    "van-search": "@vant/weapp/search/index",
-    "van-sticky": "@vant/weapp/sticky/index"
+    "van-toast": "@vant/weapp/toast/index"
   }
 }

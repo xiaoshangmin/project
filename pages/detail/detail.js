@@ -105,11 +105,13 @@ Page({
    */
   onLoad: function (options) {
     console.log(options)
-    wx.pageScrollTo({
-      // scrollTop: 450,
-      selector: '#comment',
-      duration: 300
-    })
+    if (options.cid) {
+      wx.pageScrollTo({
+        // scrollTop: 450,
+        selector: '#comment',
+        duration: 300
+      })
+    }
     console.log(app.globalData.isAuthUserInfo)
   },
 
@@ -160,5 +162,8 @@ Page({
    */
   onShareAppMessage: function () {
 
+  },
+  onShareTimeline: function (res) {
+    console.log(res)
   }
 })

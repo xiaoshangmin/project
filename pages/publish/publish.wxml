@@ -1,57 +1,24 @@
 <!--pages/publish/publish.wxml-->
 
-
-	<van-popup show="{{ show }}" bind:close="onClose" round id="container" position="bottom" custom-style="height: 80%;">
-		<view class="top">
-			<view class="title">
-				标题
-			</view>
-			<view class="search">
-				<van-search value="{{ value }}" placeholder="请输入搜索关键词" />
-			</view>
-		</view>
-		<view class="group-list">
-			<van-cell-group>
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-				<van-cell title="单元格" value="内容" label="描述信息" border="{{ false }}" />
-			</van-cell-group>
-		</view>
-	</van-popup>
-
-<view class="page" class="{{setPage}}">
-
-	<view class="group van-hairline--top-bottom">
-		<view>
-			<van-cell title="这么过分一定要发出来" is-link border="{{false}}" bindtap="group" />
-		</view>
-		<view class="ai van-hairline--left">
-			a,a,a,a,,a,
-		</view>
+<view class="container">
+	<van-toast id="custom-toast" />
+	<view class="">
+		<van-cell title="{{selectGroupInfo.title}}" icon="location-o" is-link border="{{true}}" bindtap="group">
+			<span class="tips">{{selectGroupInfo.tips}}</span>
+		</van-cell>
 	</view>
-
-	<van-cell-group border="{{ false }}">
-		<van-field size="large" value="{{ message }}" placeholder-style="height:100rpx;" type="textarea" placeholder="分享你的想法" autosize border="{{ false }}" maxlength="-1" show-confirm-bar="{{false}}" focus="{{true}}" auto-focus="{{true}}" bind:focus="focus" bind:blur="blur" />
-	</van-cell-group>
+	<view class="word">
+		<van-cell-group border="{{ false }}">
+			<van-field size="large" value="{{content}}" type="textarea" placeholder="分享你的想法" autosize="{{autosize}}" clickable show-word-limit disable-default-padding border="{{ false }}" maxlength="1024" show-confirm-bar="{{false}}" focus="{{true}}" auto-focus="{{true}}" bind:focus="focus" bind:blur="blur" bind:change="contentOnChange" />
+		</van-cell-group>
+	</view>
 	<view class="upload" wx:if="{{ fileList.length > 0}}">
-		<van-uploader file-list="{{ fileList }}" multiple preview-size="110px" bind:after-read="afterRead" max-count="9" bind:delete="delete" image-fit="cover" />
+		<van-uploader file-list="{{ fileList }}" multiple preview-size="110px" bind:after-read="afterRead" max-count="9" bind:delete="delete" image-fit="aspectFill" sizeType="{{sizeType}}" />
 	</view>
-	<view class="btn-area" style="bottom:{{bottom}}px;">
+	<view class="placeholder"></view>
+	<view class="btn-area van-hairline--top" style="bottom:{{bottom}}px;">
 		<van-button round color="#25b195" size="small" bindtap="chooseImage">选图</van-button>
 		<van-button round color="#25b195" size="small" bindtap="post">发送</van-button>
 	</view>
+
 </view>

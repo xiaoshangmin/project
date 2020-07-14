@@ -1,6 +1,8 @@
 // pages/publish/publish.js
 const qiniu = require("../../utils/qiniuUploader");
 const config = require('../../config');
+const api = require('../../utils/api');
+import Toast from '../../miniprogram_npm/@vant/weapp/toast/toast';
 Page({
 
   /**
@@ -11,8 +13,17 @@ Page({
     qiniuFileList: [],
     bottom: 0,
     show: false,
-    value: '',
-    setPage: '',
+    autosize: {
+      maxHeight: 180,
+      minHeight: 100
+    },
+    selectGroupInfo: {
+      "id": 0,
+      "title": '未选择圈子',
+      "tips": "合适的[圈子]会有更多的赞",
+    },
+    sizeType: ['compressed'],
+    content: '',
     // 图片上传（从相册）返回对象。上传完成后，此属性被赋值
     imageObject: {},
     // 图片上传（从相册）进度对象。开始上传后，此属性被赋值
@@ -55,6 +66,7 @@ Page({
   chooseImage() {
     wx.chooseImage({
       count: 9,
+      sizeType: ['compressed'],
       success: (result) => {
         // console.log(result)
         this.didPressChooesImage(result.tempFiles)
@@ -64,31 +76,48 @@ Page({
     })
   },
   post() {
-    console.log(this.data.qiniuFileList)
+    let data = {
+      pictures: this.data.qiniuFileList,
+      content: this.data.content,
+      groupInfo: this.data.selectGroupInfo
+    }
+    console.log(data)
+    api.post(config.api.create, data).then(res => {
+      console.log(res.data.group,99)
+    });
   },
   focus(e) {
+    console.log(e)
     this.setData({
-      bottom: e.detail.height + 5
+      bottom: e.detail.height
     })
   },
   blur(e) {
     this.setData({
-      bottom: 5
+      bottom: 0
     })
   },
   group() {
-    this.setData({
-      show: !this.data.show,
-      setPage: 'setPage'
+    // this.setData({
+    //   show: !this.data.show,
+    //   setPage: 'setPage'
+    // })
+    wx.navigateTo({
+      url: '../groups/groups',
     })
   },
-  onClose() {
+
+  onCancel() {
     this.setData({
-      show: false,
-      setPage: ''
-    });
+      show: !this.data.show
+    })
   },
 
+  contentOnChange(e) {
+    this.setData({
+      content: e.detail
+    })
+  },
   /**
    * 
    * @param {*} tempFiles 新增的图片数据
@@ -96,6 +125,14 @@ Page({
   didPressChooesImage(tempFiles) {
 
     const fileList = this.data.fileList;
+
+    Toast.loading({
+      duration: 0, // 持续展示 toast
+      forbidClick: true, // 禁用背景点击
+      message: '上传中',
+      loadingType: 'spinner',
+      selector: '#custom-toast',
+    });
 
     this.setData({
       fileList: fileList.concat(tempFiles)
@@ -107,6 +144,7 @@ Page({
       this.doDidPressChooesImage(len, res.path)
       len++;
     })
+    Toast.clear();
   },
   /**
    * 上传图片
@@ -118,6 +156,7 @@ Page({
     qiniu.upload(filePath, (res) => {
         delete res.avinfo
         delete res.exif
+        delete res.hash
         qiniuFileList[index] = res
         this.setData({
           qiniuFileList

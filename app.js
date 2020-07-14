@@ -1,4 +1,6 @@
 //app.js
+const api = require("utils/api");
+const config = require('config');
 App({
 
   globalData: {
@@ -7,19 +9,11 @@ App({
   },
 
   onLaunch: function () {
-    console.log('app.onlaunch')
     // 展示本地存储能力
     // var logs = wx.getStorageSync('logs') || []
     // logs.unshift(Date.now())
     // wx.setStorageSync('logs', logs)
 
-    // 登录
-    // wx.login({
-    //   success: res => {
-    //     // 发送 res.code 到后台换取 openId, sessionKey, unionId
-    //     console.log(res)
-    //   }
-    // })
     // 获取用户信息
     wx.getSetting({
       success: res => {
@@ -42,5 +36,46 @@ App({
       }
     })
   },
-  
+
+  doWxLogin() {
+    return new Promise((resolve, reject) => {
+      // 登录
+      wx.login({
+        success: res => {
+          // 发送 res.code 到后台换取 openId, sessionKey, unionId
+          api.post(config.api.wxlogin, {
+            code: res.code
+          }).then(res => {
+            // console.log(res)
+            resolve(res)
+          })
+        }
+      })
+    })
+  },
+  getUserInfo() {
+    wx.checkSession({
+      success: res => {
+        wx.getUserInfo({
+          success: res => {
+            console.log(res)
+            this.globalData.isAuthUserInfo = true
+            this.globalData.userInfo = res.userInfo
+            let data = {
+              "encryptedData": res.encryptedData,
+              "iv": res.iv
+            }
+            api.post(config.api.decrypt, data).then(res => {
+
+            })
+          }
+        })
+      },
+      fail: res => {
+        this.doWxLogin().then(res => {
+          this.getUserInfo()
+        })
+      }
+    })
+  }
 })

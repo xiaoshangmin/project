@@ -31,7 +31,7 @@
 		"userConfirmedUseCompilerModuleSwitch": false
 	},
 	"compileType": "miniprogram",
-	"libVersion": "2.10.4",
+	"libVersion": "2.11.3",
 	"appid": "wx9e7b38d98e8bc248",
 	"projectname": "project",
 	"debugOptions": {
@@ -83,6 +83,13 @@
 					"id": -1,
 					"name": "pages/publish/publish",
 					"pathName": "pages/publish/publish",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/groups/groups",
+					"pathName": "pages/groups/groups",
 					"scene": null
 				}
 			]

@@ -4,8 +4,12 @@ let config = {
   api: {
     host,
     qiniu_host,
-    qiniu_uptoken: `${host}/misc/upload/uptoken`
+    qiniu_uptoken: `${host}/misc/upload/uptoken`,
+    create: `${host}/content/feed/submit`,
+    recommend: `${host}/content/feed/recommend`,
+    grouplist: `${host}/group/group/list`,
+    wxlogin: `${host}/user/user/wxlogin`,
+    decrypt: `${host}/user/user/decrypt`,
   }
 };
 module.exports = config
- 

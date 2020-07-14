@@ -31,7 +31,10 @@
   display: flex;
   align-items: center;
 }
-
+.operate image {
+  width: 43rpx;
+  height: 43rpx;
+}
 .info {
   width: 65%;
 }
@@ -119,7 +122,15 @@
   color: #969696;
   margin-left: 5rpx;
 }
-
+button[plain] {
+  border: 0;
+  width: auto;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+  line-height: 0rpx;
+}
 .comment-num {
   color: #969696;
   margin-right: 8rpx;

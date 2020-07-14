@@ -24,8 +24,8 @@
 }
 
 .operate image {
-  width: 50rpx;
-  height: 50rpx;
+  width: 43rpx;
+  height: 43rpx;
 }
 
 .fac {
@@ -55,7 +55,10 @@
   font-size: 24rpx;
   color: #b4b4b4;
   margin-top: 20rpx;
-  margin-bottom: 20rpx;
+}
+
+.operate{
+  margin-top: 25rpx;
 }
 
 .content {
@@ -68,6 +71,16 @@
 .images {
   display: flex;
   align-items: space-around;
+}
+
+button[plain] {
+  border: 0;
+  width: auto;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+  line-height: 0rpx;
 }
 
 .grids {
@@ -107,7 +120,6 @@
   height: 90rpx;
   justify-content: center;
 }
-
 
 .footer {
   margin-top: 22rpx;
