@@ -1,5 +1,4 @@
-/* pages/home/home.wxss */
-.page {
+page {
   background-color: #ededed;
 }
 
@@ -12,12 +11,36 @@
   margin-top: 20rpx;
   padding-top: 20rpx;
 }
+
 .main {
   margin-left: 25rpx;
   margin-right: 40rpx;
   padding-bottom: 30rpx;
 }
 
+
+.group-area {
+  height: 50rpx;
+  color: #4ba6ed;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  background-color: #f0f2f4;
+  border-radius: 50rpx;
+  padding: 0rpx 15rpx;
+}
+
+.group-name{
+  font-size: 25rpx;
+  font-weight: 600;
+  margin-left: 5rpx;
+}
+
+
+.operate image {
+  width: 46rpx;
+  height: 46rpx;
+}
 
 .fac {
   display: flex;
@@ -46,7 +69,27 @@
   font-size: 24rpx;
   color: #b4b4b4;
   margin-top: 20rpx;
+}
+
+.info {
   margin-bottom: 20rpx;
+}
+
+.operate {
+  margin-top: 25rpx;
+  height: 70rpx;
+}
+
+.like-area,
+.comment-area,
+.share-area,
+/* .empty-area, */
+.more-area {
+  width: 25%;
+}
+
+.more-area {
+  justify-content: flex-end;
 }
 
 .content {
@@ -59,6 +102,16 @@
 .images {
   display: flex;
   align-items: space-around;
+}
+
+button[plain] {
+  border: 0;
+  width: auto;
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+  line-height: 0rpx;
 }
 
 .grids {
@@ -75,10 +128,9 @@
 }
 
 .grid image {
-  width: 150rpx;
-  height: 150rpx;
+  max-width: 300rpx;
+  /* max-height: 300rpx; */
 }
-
 
 .more {
   float: right;
@@ -87,6 +139,16 @@
 .num {
   color: #969696;
   margin-left: 5rpx;
+}
+
+.publish-btn {
+  position: fixed;
+  bottom: 220rpx;
+  right: 50rpx;
+  display: flex;
+  width: 90rpx;
+  height: 90rpx;
+  justify-content: center;
 }
 
 .footer {

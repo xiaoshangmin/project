@@ -27,11 +27,11 @@
 			"outputPath": ""
 		},
 		"useIsolateContext": true,
-		"useCompilerModule": false,
-		"userConfirmedUseCompilerModuleSwitch": false
+		"useCompilerModule": true,
+		"userConfirmedUseCompilerModuleSwitch": true
 	},
 	"compileType": "miniprogram",
-	"libVersion": "2.11.3",
+	"libVersion": "2.10.3",
 	"appid": "wx9e7b38d98e8bc248",
 	"projectname": "project",
 	"debugOptions": {
@@ -66,10 +66,10 @@
 			"current": -1,
 			"list": [
 				{
-					"id": -1,
+					"id": 0,
 					"name": "pages/detail/detail",
 					"pathName": "pages/detail/detail",
-					"query": "",
+					"query": "cid=47",
 					"scene": null
 				},
 				{
@@ -90,6 +90,28 @@
 					"id": -1,
 					"name": "pages/groups/groups",
 					"pathName": "pages/groups/groups",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/mypost/mypost",
+					"pathName": "pages/mypost/mypost",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/user/user",
+					"pathName": "pages/user/user",
+					"query": "",
+					"scene": null
+				},
+				{
+					"id": -1,
+					"name": "pages/groupContent/groupContent",
+					"pathName": "pages/groupContent/groupContent",
+					"query": "gid=12",
 					"scene": null
 				}
 			]

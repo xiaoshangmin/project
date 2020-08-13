@@ -2,6 +2,7 @@
 const qiniu = require("../../utils/qiniuUploader");
 const config = require('../../config');
 const api = require('../../utils/api');
+const util = require('../../utils/util');
 import Toast from '../../miniprogram_npm/@vant/weapp/toast/toast';
 Page({
 
@@ -13,6 +14,7 @@ Page({
     qiniuFileList: [],
     bottom: 0,
     show: false,
+    disabled: true,
     autosize: {
       maxHeight: 180,
       minHeight: 100
@@ -24,11 +26,6 @@ Page({
     },
     sizeType: ['compressed'],
     content: '',
-    // 图片上传（从相册）返回对象。上传完成后，此属性被赋值
-    imageObject: {},
-    // 图片上传（从相册）进度对象。开始上传后，此属性被赋值
-    imageProgress: {},
-    // 此属性在qiniuUploader.upload()中被赋值，用于中断上传
     cancelTask: function () {}
   },
 
@@ -60,7 +57,7 @@ Page({
       fileList,
       qiniuFileList
     });
-
+    this.changeBtnStatus()
   },
 
   chooseImage() {
@@ -76,18 +73,47 @@ Page({
     })
   },
   post() {
-    let data = {
-      pictures: this.data.qiniuFileList,
-      content: this.data.content,
-      groupInfo: this.data.selectGroupInfo
-    }
-    console.log(data)
-    api.post(config.api.create, data).then(res => {
-      console.log(res.data.group,99)
-    });
+    var that = this;
+    wx.requestSubscribeMessage({
+      tmplIds: ['y-2W59bHJuuRUpo1yAD-qUPH5gSEoWSrz35oeQ54-sU', 'NFHp7Gy2S5-y9YTcMN_are6OHoaoWZPjn_g-rbAlEEQ'],
+      success(res) {
+        console.log(res)
+      },
+      complete(res) {
+        let data = {
+          pictures: that.data.qiniuFileList,
+          content: that.data.content,
+          gid: that.data.selectGroupInfo['id']
+        }
+        Toast.loading({
+          duration: 0, // 持续展示 toast
+          forbidClick: true, // 禁用背景点击
+          message: '发布中',
+          loadingType: 'spinner',
+          selector: '#custom-toast',
+        });
+        api.post(config.api.create, data).then(res => {
+          console.log(res)
+          Toast.clear()
+          if (res.status) {
+            Toast({
+              duration: 2000,
+              selector: '#custom-toast',
+              message: res.msg,
+            });
+          } else {
+            wx.redirectTo({
+              url: '../mypost/mypost'
+            })
+          }
+        }).catch(res => {
+          Toast.clear()
+        });
+      }
+    })
+
   },
   focus(e) {
-    console.log(e)
     this.setData({
       bottom: e.detail.height
     })
@@ -117,22 +143,22 @@ Page({
     this.setData({
       content: e.detail
     })
+    this.changeBtnStatus()
   },
   /**
-   * 
+   * 上传图片
    * @param {*} tempFiles 新增的图片数据
    */
   didPressChooesImage(tempFiles) {
 
     const fileList = this.data.fileList;
-
-    Toast.loading({
-      duration: 0, // 持续展示 toast
-      forbidClick: true, // 禁用背景点击
-      message: '上传中',
-      loadingType: 'spinner',
-      selector: '#custom-toast',
-    });
+    // Toast.loading({
+    //   duration: 0, // 持续展示 toast
+    //   forbidClick: true, // 禁用背景点击
+    //   message: '上传中',
+    //   loadingType: 'spinner',
+    //   selector: '#custom-toast',
+    // });
 
     this.setData({
       fileList: fileList.concat(tempFiles)
@@ -141,10 +167,12 @@ Page({
     let len = fileList.length;
 
     tempFiles.forEach((res) => {
+      console.log('uploading img', res.path)
       this.doDidPressChooesImage(len, res.path)
       len++;
     })
-    Toast.clear();
+
+    // Toast.clear();
   },
   /**
    * 上传图片
@@ -154,14 +182,12 @@ Page({
   doDidPressChooesImage(index, filePath) {
     let qiniuFileList = this.data.qiniuFileList
     qiniu.upload(filePath, (res) => {
-        delete res.avinfo
-        delete res.exif
-        delete res.hash
         qiniuFileList[index] = res
         this.setData({
           qiniuFileList
         });
-        console.log(this.data.qiniuFileList);
+        console.log('doDidPressChooesImage', this.data.qiniuFileList);
+        this.changeBtnStatus()
       }, (error) => {
         console.error('error: ' + JSON.stringify(error));
       },
@@ -169,6 +195,15 @@ Page({
         cancelTask
       })
     );
+  },
+  changeBtnStatus() {
+    let disabled = true;
+    if (this.data.content || this.data.qiniuFileList.length >= 1) {
+      disabled = false;
+    }
+    this.setData({
+      disabled
+    })
   },
   /**
    * 生命周期函数--监听页面加载
@@ -228,9 +263,9 @@ Page({
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage: function () {
+  // onShareAppMessage: function () {
 
-  }
+  // }
 })
 
 
@@ -245,7 +280,7 @@ function initQiniu() {
     // uptokenFunc 这个属性的值可以是一个用来生成uptoken的函数，详情请见 README.md
     uptokenFunc: function () {},
 
-    domain: 'http://qiniu.wowyou.cc',
+    domain: 'http://cdn.wowyou.cc',
     shouldUseQiniuFileName: true
   };
   // 将七牛云相关配置初始化进本sdk

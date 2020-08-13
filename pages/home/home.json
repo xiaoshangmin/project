@@ -1,12 +1,17 @@
 {
   "navigationBarTitleText": "动态广场",
   "enablePullDownRefresh": true,
-  "onReachBottomDistance": 100,
+  "onReachBottomDistance": 500,
   "usingComponents": {
     "van-row": "@vant/weapp/row/index",
     "van-col": "@vant/weapp/col/index",
+    "van-cell": "@vant/weapp/cell/index",
+  "van-cell-group": "@vant/weapp/cell-group/index",
     "van-image": "@vant/weapp/image/index",
     "van-button": "@vant/weapp/button/index",
-    "van-dialog": "@vant/weapp/dialog/index"
+    "van-dialog": "@vant/weapp/dialog/index",
+    "van-divider": "@vant/weapp/divider/index",
+    "van-icon": "@vant/weapp/icon/index",
+    "van-loading": "@vant/weapp/loading/index"
   }
 }

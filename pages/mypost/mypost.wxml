@@ -1,73 +1,106 @@
 <view class="page">
 	<view class="container">
-		<view class="panel" wx:for="{{list}}" wx:key="index" wx:for-index="idx" wx:for-item="item" data-cid="{{item.id}}">
+
+
+		<van-action-sheet show="{{ show }}" actions="{{ actions }}" bind:cancel="onCancel" bind:select="onSelect" cancel-text="取消" bind:click-overlay="onCancel" close-on-click-overlay />
+
+
+		<view class="panel" wx:for="{{list}}" wx:key="index" wx:for-index="idx" wx:for-item="item">
 			<view class="main">
-				<view class="fac">
-					<view class="avatar">
-						<image src="{{item.user.avatar}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image>
+				<view class="info" data-cid="{{item.id}}" bindtap="toDetail">
+					<view class="fac">
+						<view class="avatar">
+							<van-image width="80rpx" height="80rpx" src="{{item.user.avatar.smallPicUrl}}" round fit="cover" />
+						</view>
+						<view class="userinfo">
+							<view class="username">{{item.user.nickname}}</view>
+							<view class="intro">{{item.user.brief_intro}}</view>
+						</view>
 					</view>
-					<view class="info">
-						<view class="username">{{item.user.username}}</view>
-						<view class="intro">{{item.user.intro}}</view>
+					<van-row>
+						<van-col span="23">
+							<view class="content">{{item.content}}</view>
+						</van-col>
+					</van-row>
+					<van-row>
+						<van-col span="20">
+							<view class="grids">
+								<block wx:if="{{ item.pictures.length == 1}}">
+									<view class="grid" wx:for="{{item.pictures}}" wx:key="key" wx:for-item="picture">
+										<block wx:if="{{ picture.h > picture.w }}">
+											<van-image width="230rpx" height="auto" src="{{picture.smallPicUrl}}" fit="widthFix" catchtap='previewImage' data-src="{{picture.middlePicUrl}}" data-cid="{{item.id}}" />
+										</block>
+										<block wx:elif="{{ picture.h < picture.w }}">
+											<van-image width="310rpx" height="180rpx" src="{{picture.smallPicUrl}}" fit="cover" catchtap='previewImage' data-src="{{picture.middlePicUrl}}" data-cid="{{item.id}}" />
+										</block>
+										<block wx:else>
+											<van-image width="270rpx" height="270rpx" src="{{picture.smallPicUrl}}" fit="cover" catchtap='previewImage' data-src="{{picture.middlePicUrl}}" data-cid="{{item.id}}" />
+										</block>
+									</view>
+								</block>
+								<block wx:else>
+									<view class="grid" wx:for="{{item.pictures}}" wx:key="key" wx:for-item="picture">
+										<van-image width="150rpx" height="150rpx" src="{{picture.smallPicUrl}}" fit="cover" catchtap='previewImage' data-src="{{picture.middlePicUrl}}" data-cid="{{item.id}}" />
+									</view>
+								</block>
+							</view>
+						</van-col>
+					</van-row>
+				</view>
+				<!-- <van-row>
+					<view class="address">{{item.poi.address}}</view>
+				</van-row> -->
+				<view wx:if="{{item.group.name}}">
+					<view class="group-area" catchtap="toGroup" data-gid="{{item.group.id}}" data-name="{{item.group.name}}">
+						<van-icon name="../../../../images/home-group.png" size="32rpx" color="#b4b4b4" />
+						<view class="group-name">{{item.group.name}}</view>
 					</view>
 				</view>
-				<van-row>
-					<van-col span="23">
-						<view class="content">{{item.content}}</view>
-					</van-col>
-				</van-row>
-				<van-row>
-					<van-col span="20">
-						<view class="grids">
-							<view class="grid" wx:for="{{item.urls}}" wx:key="url" wx:for-item="url">
-								<image src="{{url}}" data-src="{{url}}" data-id="{{idx}}" mode="aspectFill" catchtap='previewImage'></image>
+
+				<view class="operate fac">
+					<block wx:if="{{likedList[item.id].liked}}">
+						<view catchtap="unlike" data-cid="{{item.id}}" class="fac like-area">
+							<view class="like-icon">
+								<van-icon name="good-job" size="46rpx" />
 							</view>
-						</view>
-					</van-col>
-				</van-row>
-				<van-row>
-					<view class="address">{{item.poi.address}}</view>
-				</van-row>
-				<van-row>
-					<van-col span="4">
-						<view class="like fac">
-							<image src="../../images/like.png" style="width:40rpx;height:40rpx"></image>
 							<view class="num">
-								{{item.like}}
+								{{likedList[item.id].like_count}}
 							</view>
 						</view>
-					</van-col>
-					<van-col span="4">
-						<view class="comment fac">
-							<image src="../../images/comment.png" style="width:40rpx;height:40rpx"></image>
+					</block>
+					<block wx:else>
+						<view catchtap="like" data-cid="{{item.id}}" class="fac like-area">
+							<view class="like-icon">
+								<van-icon name="good-job-o" size="46rpx" color="#999999" />
+							</view>
 							<view class="num">
-								{{item.comment}}
+								{{likedList[item.id].like_count}}
 							</view>
 						</view>
-					</van-col>
-					<van-col span="4">
-						<view class="collect fac">
-							<image src="../../images/collect.png" style="width:40rpx;height:40rpx"></image>
-							<view class="num">
-								{{item.collect}}
-							</view>
-						</view>
-					</van-col>
-					<van-col span="4">
-						<view class="share fac">
-							<image src="../../images/share.png" style="width:40rpx;height:40rpx"></image>
-							<view class="num">
-								{{item.share}}
-							</view>
-						</view>
-					</van-col>
-					<view>
-						<view class="more fac" catchtap="f">
-							<image src="../../images/more.png" style="width:40rpx;height:40rpx"></image>
+					</block>
+					<view class="comment-area fac" catchtap="comment" data-cid="{{item.id}}">
+						<van-icon name="comment-o" size="46rpx" color="#999999" />
+						<view class="num">
+							{{item.comment_count}}
 						</view>
 					</view>
-				</van-row>
+					<view class="share-area fac">
+						<button open-type="share" plain="true" data-cid="{{item.id}}" data-user="{{item.user.username}}">
+							<van-icon name="share" size="46rpx" color="#999999" />
+						</button>
+						<view class="num">
+							{{item.share_count}}
+						</view>
+					</view>
+						<view class="empty-area"></view>
+					<view class="more-area fac" catchtap="more" data-cid="{{item.id}}">
+						<image src="../../images/more.png"></image>
+					</view>
+				</view>
 			</view>
+		</view>
+		<view wx:if="{{ finish }}">
+			<van-divider contentPosition="center">暂无更多了</van-divider>
 		</view>
 	</view>
 </view>

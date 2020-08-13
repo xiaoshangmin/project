@@ -7,6 +7,7 @@ Page({
    * 页面的初始数据
    */
   data: {
+    list:[],
     searchGroupKeyWords: '',
     selectGroupInfo: {
       "id": 0,
@@ -45,11 +46,24 @@ Page({
     //   selectGroupInfo
     // })
   },
+  getList() {
+    wx.showNavigationBarLoading(); //在标题栏中显示加载图标
+    let list = this.data.list;
+    api.post(config.api.grouplist).then(res => {
+      console.log(res)
+      let data = res.data
+      list = list.concat(data)
+      this.setData({
+        list
+      })
+      wx.hideNavigationBarLoading(); //完成停止加载图标
+    })
+  },
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-
+    this.getList();
   },
 
   /**

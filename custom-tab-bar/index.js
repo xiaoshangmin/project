@@ -4,7 +4,7 @@ Component({
     active: 0,
     list: [{
         "url": "/pages/home/home",
-        "icon": "home-o",
+        "icon": "wap-home-o",
         "active_icon": "wap-home",
         "text": ""
       },
@@ -16,8 +16,8 @@ Component({
       // },
       {
         "url": "/pages/user/user",
-        "icon": "user-circle-o",
-        "active_icon": "like",
+        "icon": "manager-o",
+        "active_icon": "manager",
         "text": ""
       }
     ]

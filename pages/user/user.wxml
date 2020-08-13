@@ -1,28 +1,32 @@
 <!--pages/profile/profile.wxml-->
 <view class="page">
 	<view class="container">
+		<image src="{{bg}}" style="position: absolute;height: 700rpx;width: 100%;top: 0;left: 0;filter: brightness(0.70);z-index: -1;border-bottom-left-radius:10rpx;border-bottom-right-radius:10rpx;" mode="aspectFill"></image>
 		<view class="hd">
-			<van-row custom-class="facdc">
-				<button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo"> 获取头像昵称 </button>
-				<block wx:else>
-					<image bindtap="bindViewTap" class="avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
-					<text class="nickname">{{userInfo.nickName}}</text>
-				</block>
-			</van-row>
+			<button wx:if="{{!hasUserInfo && canIUse}}" open-type="getUserInfo" bindgetuserinfo="getUserInfo" size="mini"> 获取头像昵称 </button>
+			<block wx:else>
+				<view class="user-avatar fac">
+					<view class="avatar">
+						<image class="avatar" src="{{userInfo.avatarUrl}}" mode="cover"></image>
+					</view>
+					<view class="edit">
+						<!-- <button plain="true">编辑资料</button> -->
+					</view>
+					<view class="feedback">
+						<button open-type='feedback' plain="true">意见反馈</button>
+					</view>
+				</view>
+				<text class="nickname">{{userInfo.nickName}}</text>
+			</block>
 		</view>
-
 		<view class="bd">
 			<van-cell-group>
 				<van-cell title="我的帖子" is-link size="large" link-type="navigateTo" url="/pages/mypost/mypost">
 					<van-icon name="bell" color="#25b195" slot="icon" size="1.2em" />
 				</van-cell>
-				<van-cell title="我的收藏" is-link size="large" link-type="navigateTo" url="/pages/mypost/mypost">
+				<!-- <van-cell title="我的收藏" is-link size="large" link-type="navigateTo" url="/pages/mypost/mypost">
 					<van-icon name="star" color="#25b195" slot="icon" size="1.2em" />
-				</van-cell>
-				<!-- <van-cell title="我的消息" is-link size="large">
-					<van-icon name="bell" color="#25b195" slot="icon" size="1.2em" />
 				</van-cell> -->
-
 			</van-cell-group>
 		</view>
 	</view>

@@ -1,16 +1,18 @@
 {
+  "navigationBarTitleText": "",
+  "enablePullDownRefresh": true,
   "onReachBottomDistance": 500,
   "usingComponents": {
     "van-row": "@vant/weapp/row/index",
     "van-col": "@vant/weapp/col/index",
     "van-cell": "@vant/weapp/cell/index",
     "van-cell-group": "@vant/weapp/cell-group/index",
-    "van-action-sheet": "@vant/weapp/action-sheet/index",
-    "van-uploader": "@vant/weapp/uploader/index",
     "van-image": "@vant/weapp/image/index",
     "van-button": "@vant/weapp/button/index",
-    "van-dialog": "@vant/weapp/dialog/index",
+    "van-tab": "@vant/weapp/tab/index",
+    "van-tabs": "@vant/weapp/tabs/index",
+    "van-divider": "@vant/weapp/divider/index",
     "van-icon": "@vant/weapp/icon/index",
-    "van-field": "@vant/weapp/field/index"
+    "van-loading": "@vant/weapp/loading/index"
   }
 }

@@ -1,140 +1,206 @@
 <view class="page">
 	<view class="container">
+
+		<van-dialog title="授权确认" message="微信授权登录" show="{{ showAuth }}" show-cancel-button confirm-button-open-type="getUserInfo" bind:close="onClose" bind:getuserinfo="getUserInfo">
+		</van-dialog>
+
+		<van-action-sheet show="{{ show }}" actions="{{ actions }}" bind:close="onClose" bind:select="onSelect" />
+
 		<view class="panel">
 			<view class="main">
-				<view class="fac">
-					<view class="avatar">
-						<image src="{{content.user.avatar}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image>
+				<view class="info">
+					<view class="fac">
+						<view class="avatar">
+							<image src="{{content.user.avatar.smallPicUrl}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image>
+						</view>
+						<view class="userinfo">
+							<view class="username">{{content.user.nickname}}</view>
+							<view class="intro">{{content.user.brief_intro}}</view>
+						</view>
 					</view>
-					<view class="info">
-						<view class="username">{{content.user.username}}</view>
-						<view class="intro">{{content.user.intro}}</view>
+					<van-row custom-class="content">
+						<van-col span="23">
+							<rich-text nodes="{{content.content}}"></rich-text>
+						</van-col>
+					</van-row>
+					<van-row>
+						<van-col span="22">
+							<view class="grids">
+								<block wx:if="{{ content.pictures.length == 1}}">
+									<view class="grid" wx:for="{{content.pictures}}" wx:key="key" wx:for-item="picture">
+										<block wx:if="{{ picture.h > picture.w }}">
+											<van-image width="230rpx" height="auto" lazy-load src="{{picture.smallPicUrl}}" fit="widthFix" catchtap='previewImage' data-src="{{picture.middlePicUrl}}" data-cid="{{content.id}}" use-loading-slot>
+												<van-loading slot="loading" type="spinner" size="20" vertical />
+											</van-image>
+										</block>
+										<block wx:elif="{{ picture.h < picture.w }}">
+											<van-image width="310rpx" height="180rpx" lazy-load src="{{picture.smallPicUrl}}" fit="cover" catchtap='previewImage' data-src="{{picture.middlePicUrl}}" data-cid="{{item.id}}" use-loading-slot>
+												<van-loading slot="loading" type="spinner" size="20" vertical />
+											</van-image>
+										</block>
+										<block wx:else>
+											<van-image width="270rpx" height="270rpx" lazy-load src="{{picture.smallPicUrl}}" fit="cover" catchtap='previewImage' data-src="{{picture.middlePicUrl}}" data-cid="{{item.id}}" />
+										</block>
+									</view>
+								</block>
+								<block wx:else>
+									<view class="grid" wx:for="{{content.pictures}}" wx:key="key" wx:for-item="picture">
+										<van-image width="180rpx" height="180rpx" src="{{picture.smallPicUrl}}" fit="cover" catchtap='previewImage' data-src="{{picture.middlePicUrl}}" data-cid="{{item.id}}" use-loading-slot>
+											<van-loading slot="loading" type="spinner" size="20" vertical />
+										</van-image>
+									</view>
+								</block>
+
+							</view>
+						</van-col>
+					</van-row>
+				</view>
+				<!-- <view>
+					<view class="poi" catchtap="poi">
+						<van-icon name="location-o" size="30rpx" color="#b4b4b4" />
+						<view class="address">梅州市</view>
+					</view>
+				</view> -->
+
+				<view wx:if="{{content.group.name}}">
+					<view class="group-area" catchtap="toGroup" data-gid="">
+						<van-icon name="../../../../images/home-group.png" size="32rpx" color="#b4b4b4" />
+						<view class="group-name">{{content.group.name}}</view>
 					</view>
 				</view>
-				<van-row>
-					<van-col span="23">
-						<view class="content">{{content.content}}</view>
-					</van-col>
-				</van-row>
-				<van-row>
-					<van-col span="20">
-						<view class="grids">
-							<view class="grid" wx:for="{{content.pictures}}" wx:key="url" wx:for-item="url">
-								<image src="{{url}}" data-src="{{url}}" data-id="{{idx}}" mode="aspectFill" catchtap='previewImage'></image>
+
+				<view class="operate fac">
+					<block wx:if="{{content.liked}}">
+						<view catchtap="unlike" data-cid="{{content.id}}" class="fac like-area">
+							<view class="like-icon">
+								<van-icon name="good-job" size="46rpx" />
 							</view>
-						</view>
-					</van-col>
-				</van-row>
-				<van-row>
-					<view class="address">{{content.poi.address}}</view>
-				</van-row>
-				<van-row custom-class="operate">
-					<van-col span="6">
-						<view class="like fac">
-							<image src="../../images/like.png"></image>
 							<view class="num">
-								{{content.like}}
+								{{content.like_count}}
 							</view>
 						</view>
-					</van-col>
-					<van-col span="6">
-						<view class="comment fac">
-							<image src="../../images/comment.png"></image>
+					</block>
+					<block wx:else>
+						<view catchtap="like" data-cid="{{content.id}}" class="fac like-area">
+							<view class="like-icon">
+								<van-icon name="good-job-o" size="46rpx" color="#999999" />
+							</view>
 							<view class="num">
-								{{content.comment}}
+								{{content.like_count}}
 							</view>
 						</view>
-					</van-col>
-					<!-- <van-col span="4">
-						<view class="collect fac">
-							<image src="../../images/collect.png" style="width:40rpx;height:40rpx"></image>
-							<view class="num">
-								{{content.collect}}
-							</view>
+					</block>
+					<view class="comment-area fac">
+						<van-icon name="comment-o" size="46rpx" color="#999999" />
+						<view class="num">
+							{{content.comment_count}}
 						</view>
-					</van-col> -->
-					<van-col span="6">
-						<view class="share fac">
-							<button open-type="share" plain="true" data-cid="{{content.id}}" data-user="{{content.user.username}}">
-								<image src="../../images/share.png"></image>
-							</button>
-							<view class="num">
-								{{content.share}}
-							</view>
+					</view>
+					<view class="share-area fac">
+						<button open-type="share" plain="true" data-cid="{{content.id}}" data-user="{{content.user.username}}">
+							<van-icon name="share" size="46rpx" color="#999999" />
+						</button>
+						<view class="num">
+							{{content.share_count}}
 						</view>
-					</van-col>
-					<view>
+					</view>
+					<!-- <view>
 						<view class="more fac">
-							<image src="../../images/more.png" style="width:40rpx;height:40rpx"></image>
+							<image src="../../images/more.png"></image>
 						</view>
-					</view>
-				</van-row>
-			</view>
-		</view>
-
-		<view class="panel" id="comment">
-			<van-cell title="热门评论" />
-			<view class="comments" wx:for="{{hotComments}}" wx:key="*this" wx:for-item="item">
-				<view class="hot-comment">
-					<view class="fac">
-						<view class="avatar">
-							<image src="{{content.user.avatar}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image>
-						</view>
-						<view class="info">
-							<view class="username">{{item.user.username}}</view>
-							<view class="comment-time">1小时前</view>
-						</view>
-						<view class="prase fac">
-							<view class="comment-num">
-								{{item.like}}
-							</view>
-							<image src="../../images/like.png" style="width:30rpx;height:30rpx"></image>
-						</view>
-					</view>
-					<van-row custom-class="comment-content">
-						<van-col span="24">
-							<view class="content">{{item.content}}</view>
-						</van-col>
-						<van-col span="24">
-							<!-- 图片宽高动态计算 -->
-							<image src="{{item.pictures}}" data-src="{{item.pictures}}" mode="widthFix" catchtap='previewCommentImage'></image>
-						</van-col>
-					</van-row>
+					</view> -->
 				</view>
 			</view>
 		</view>
 
+		<view class="ad">
+			<ad unit-id="adunit-94fa3e077682a3a4"></ad>
+		</view>
 
-		<view class="panel">
+		<block wx:if="{{hotComments.length > 0}}">
+			<view class="panel" id="hotcomment">
+				<van-cell title="热门评论" />
+				<view class="comments" wx:for="{{hotComments}}" wx:key="*this" wx:for-item="item">
+					<view class="hot-comment">
+						<view class="fac">
+							<view class="avatar">
+								<image src="{{content.user.avatar}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image>
+							</view>
+							<view class="info">
+								<view class="username">{{item.user.username}}</view>
+								<view class="comment-time">{{item.create_time_text}}</view>
+							</view>
+							<view class="prase fac">
+								<view class="comment-num">
+									{{item.like}}
+								</view>
+								<image src="../../images/like.png" style="width:30rpx;height:30rpx"></image>
+							</view>
+						</view>
+						<van-row custom-class="comment-content">
+							<van-col span="24">
+								<view class="content">{{item.content}}</view>
+							</van-col>
+							<van-col span="24">
+								<image src="{{item.pictures}}" data-src="{{item.pictures}}" mode="widthFix" catchtap='previewCommentImage'></image>
+							</van-col>
+						</van-row>
+					</view>
+				</view>
+			</view>
+		</block>
+		<view class="panel" id="newcomment">
 			<van-cell title="最新评论" />
-			<view class="comments" wx:for="{{hotComments}}" wx:key="*this" wx:for-item="item">
-				<view class="hot-comment">
+			<view class="comments" wx:for="{{comments}}" wx:key="id" wx:for-item="item" bindtap="replayComment" data-id="{{item.id}}" data-nickname="{{item.user.nickname}}" data-content="{{item.content}}">
+				<view class="comment-list-area">
 					<view class="fac">
 						<view class="avatar">
-							<image src="{{content.user.avatar}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image>
+							<image src="{{item.user.avatar.smallPicUrl}}" mode="aspectFill" style="width: 80rpx; height: 80rpx;border-radius: 50%;" bindlongpress="saveImage"></image>
 						</view>
 						<view class="info">
-							<view class="username">{{item.user.username}}</view>
-							<view class="comment-time">1小时前</view>
+							<view class="username">{{item.user.nickname}}</view>
+							<view class="comment-time">{{item.create_time_text}}</view>
 						</view>
-						<view class="prase fac">
+						<!-- <view class="prase fac">
 							<view class="comment-num">
 								{{item.like}}
 							</view>
 							<image src="../../images/like.png" style="width:30rpx;height:30rpx"></image>
-						</view>
+						</view> -->
 					</view>
 					<van-row custom-class="comment-content">
 						<van-col span="24">
 							<view class="content">{{item.content}}</view>
 						</van-col>
 						<van-col span="24">
-							<!-- 图片宽高动态计算 -->
-							<image src="{{item.pictures}}" data-src="{{item.pictures}}" mode="widthFix" catchtap='previewCommentImage'></image>
+							<view class="grid" wx:for="{{item.pictures}}" wx:key="id" wx:for-item="picture">
+								<image src="{{picture.smallPicUrl}}" data-src="{{picture.middlePicUrl}}" data-cid="{{content.id}}" mode="aspectFill" catchtap='previewCommentImage'></image>
+							</view>
 						</van-col>
 					</van-row>
 				</view>
 			</view>
+		</view>
+
+		<view class="placeholder"></view>
+
+	</view>
+	<view class="replay" style="bottom:{{bottom}}px;">
+		<view class="replay-input-img-btn-area">
+			<van-image src="../../../../images/picture.png" width="56rpx" height="56rpx" bindtap="chooseImage"></van-image>
+		</view>
+		<view class="replay-input">
+			<block wx:if="{{fileList.length > 0 }}">
+				<view class="replay-image">
+					<van-uploader file-list="{{ fileList }}" bind:after-read="afterRead" preview-size="60" max-count="1" preview-full-image="{{false}}" bind:delete="delete" image-fit="aspectFill" />
+				</view>
+			</block>
+			<van-cell-group border="{{false}}">
+				<van-field value="{{ message }}" type="textarea" placeholder="{{placeholder}}" autosize="{{autosize}}" border="{{ false }}" disable-default-padding custom-style="background-color:#fff;" auto-focus="{{autoFocus}}" focus="{{autoFocus}}" bind:blur="blur" max-length="256" show-confirm-bar="{{false}}" bind:change="replayOnChange" />
+			</van-cell-group>
+		</view>
+		<view class="replay-input-btn-area">
+			<van-button color="#fff" size="large" bind:click="addComments" disabled="{{disabled}}" custom-style="color:{{replay_btn_color}};">发送</van-button>
 		</view>
 	</view>
 </view>

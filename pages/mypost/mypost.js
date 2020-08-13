@@ -1,191 +1,212 @@
 // pages/home/home.js
+// pages/home/home.js
+const api = require("../../utils/api");
+const config = require('../../config');
+const app = getApp()
+
 Page({
 
   /**
    * 页面的初始数据
    */
   data: {
-    
-    list: [{
-        "id": 12,
-        "content": "内哦你如果内哦你如果内哦你如果内哦你如果内哦你如果",
-        urls: [
-          'https://zaaap-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/03/03/5ffe3a5d97845893e4521e23f8dad58d.png?imageMogr2/format/gif/quality/30/w/500/h/400',
-          'http://dn-odum9helk.qbox.me/resource/gogopher.jpg?imageView2/1/w/500/h/400/format/gif',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-          'https://zaaap-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/26/4474598990790799-1593152079679.png?imageView2/format/gif/1/w/500/h/400',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png'
-        ],
-        "like": 88,
-        "comment": 99,
-        "collect": 13,
-        "share": 45,
-        "poi": {
-          "address": "梅州市",
-          "loc": "021",
-          "lng": "23"
-        },
-        "user": {
-          "id": "1",
-          "avatar": 'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-          "username": "不知道取什么名字",
-          "intro": "赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱"
-        }
-      },
-      {
-        "id": 13,
-        "content": "内哦你如果内哦你如果内哦你如果内哦你如果内哦你如果",
-        urls: [
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/avatar/user-avatar-20200515150841.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-          'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png'
-        ],
-        "like": 88,
-        "comment": 99,
-        "collect": 13,
-        "share": 45,
-        "poi": {
-          "address": "梅州市",
-          "loc": "021",
-          "lng": "23"
-        },
-        "user": {
-          "id": "1",
-          "avatar": 'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-          "username": "不知道取什么名字",
-          "intro": "赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱"
-        }
-      },
-    ]
+    likedList: [],
+    contentImages: [],
+    list: [],
+    show: false,
+    p: 1,
+    ps: 10,
+    finish: false,
+    show: false,
+    moreId: 0,
+    actions: [{
+      name: '删除',
+      color: 'red'
+    }],
   },
 
   onChange(event) {
-    this.setData({ active: event.detail });
+    this.setData({
+      active: event.detail
+    });
   },
 
   previewImage(e) {
     const current = e.target.dataset.src //获取当前点击的 图片 url
-    const contentId = e.target.dataset.id
+    const cid = e.target.dataset.cid
+    console.log(this.data.contentImages[cid], cid)
     wx.previewImage({
       current,
-      urls: this.data.list[contentId].urls
+      urls: this.data.contentImages[cid]
     })
   },
 
   toDetail(e) {
-    console.log(e)
     const cid = e.currentTarget.dataset.cid
     wx.navigateTo({
       url: '../detail/detail?cid=' + cid,
     })
   },
-  saveImage(e){
-    console.log(e)
-  },
-  getList() {
-    var that = this
-    wx.showNavigationBarLoading(); //在标题栏中显示加载图标
-    wx.request({
-      url: 'http://test.app.zaaap.cn/main/index',
-      method: 'POST',
-      data: {},
-      success: function (res) {
-        console.log(res) //完成调用后执行的函数
-        let data = [{
-            "id": 12,
-            "content": "内哦你如果内哦你如果内哦你如果内哦你如果内哦你如果",
-            urls: [
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/avatar/user-avatar-20200515150841.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png'
-            ],
-            "like": 88,
-            "comment": 99,
-            "collect": 13,
-            "share": 45,
-            "poi": {
-              "address": "梅州市",
-              "loc": "021",
-              "lng": "23"
-            },
-            "user": {
-              "id": "1",
-              "avatar": 'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              "username": "不知道取什么名字",
-              "intro": "赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱"
-            }
-          },
-          {
-            "id": 13,
-            "content": "内哦你如果内哦你如果内哦你如果内哦你如果内哦你如果",
-            urls: [
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/avatar/user-avatar-20200515150841.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/15/06ffdca82d21b8bd8f89ab3b745c92fb.png',
-              'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png'
-            ],
-            "like": 88,
-            "comment": 99,
-            "collect": 13,
-            "share": 45,
-            "poi": {
-              "address": "梅州市",
-              "loc": "021",
-              "lng": "23"
-            },
-            "user": {
-              "id": "1",
-              "avatar": 'https://zaaap-test-1254235226.cos.ap-guangzhou.myqcloud.com/video_cover/2020/06/16/8615f7ccede30fc62b6102d9a185c3a0.png',
-              "username": "不知道取什么名字",
-              "intro": "赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱赚钱"
-            }
-          },
-        ]
 
-        that.setData({
-          list: that.data.list.concat(data)
+  getList() {
+    wx.showNavigationBarLoading(); //在标题栏中显示加载图标
+    let data = {
+      p: this.data.p,
+      ps: this.data.ps
+    }
+    let contentImages = this.data.contentImages;
+    let likedList = this.data.likedList;
+    let list = this.data.list;
+    api.post(config.api.mypost, data).then(res => {
+      console.log(res)
+      let data = res.data
+      data.forEach(item => {
+        likedList[item.id] = {
+          "liked": item.liked,
+          "like_count": item.like_count
+        };
+        contentImages[item.id] = []
+        item.pictures.forEach(pic => {
+          contentImages[item.id].push(pic.middlePicUrl)
         })
-      },
-      fail: function (res) {
-        console.log(res) //调用失败后执行的函数
-      },
-      complete: function (res) { //调用失败或结束都会执行的函数
-        wx.hideNavigationBarLoading(); //完成停止加载图标
-        wx.stopPullDownRefresh();
+      })
+      list = list.concat(data)
+      this.setData({
+        list,
+        likedList,
+        contentImages
+      })
+      if (data.length < this.data.ps) {
+        this.setData({
+          finish: true
+        })
       }
+      wx.hideNavigationBarLoading(); //完成停止加载图标
+      wx.stopPullDownRefresh();
     })
   },
 
-  f(){
+  more(e) {
+    const cid = e.currentTarget.dataset.cid
+    this.setData({
+      show: !this.data.show,
+      moreId: cid
+    })
 
   },
+  onCancel() {
+    this.setData({
+      show: false
+    });
+  },
 
+  onSelect(event) {
+    console.log(event.detail);
+
+    if ('删除' == event.detail.name) {
+      let data = {
+        cid: this.data.moreId
+      }
+      api.post(config.api.destroy, data).then(res => {
+        console.log(res)
+        if (0 == res.status) {
+          this.setData({
+            list: [],
+            contentImages: [],
+            likedList: [],
+            show:false,
+          })
+          this.getList()
+        }
+      })
+    }
+  },
+
+  share(e) {
+    const cid = e.currentTarget.dataset.cid
+    console.log(cid, 8)
+  },
+  collect(e) {
+    const cid = e.currentTarget.dataset.cid
+    if (app.globalData.isAuthUserInfo) {
+      wx.showToast({
+        title: 'collect',
+      })
+    } else {
+      this.setData({
+        show: true
+      })
+    }
+  },
+  like(e) {
+    const cid = e.currentTarget.dataset.cid
+    let data = {
+      cid
+    }
+    let likedList = this.data.likedList;
+    likedList[cid].liked = true;
+    likedList[cid].like_count += 1;
+    api.post(config.api.contentLike, data).then(res => {
+      console.log(res)
+      if (0 == res.status) {
+        this.setData({
+          likedList
+        })
+        wx.vibrateShort()
+      }
+
+    })
+  },
+  unlike(e) {
+    const cid = e.currentTarget.dataset.cid
+    let data = {
+      cid
+    }
+    let likedList = this.data.likedList;
+    likedList[cid].liked = false;
+    likedList[cid].like_count -= 1;
+    api.post(config.api.contentUnLike, data).then(res => {
+      console.log(res)
+      if (0 == res.status) {
+        this.setData({
+          likedList
+        })
+      }
+    })
+  },
+  comment(e) {
+    console.log(e)
+    const cid = e.currentTarget.dataset.cid
+    wx.navigateTo({
+      url: '../detail/detail?comment=1&cid=' + cid,
+    })
+  },
+
+  getUserInfo(event) {
+    console.log(event.detail)
+    app.getUserInfo()
+  },
+
+  onClose() {
+    this.setData({
+      close: false
+    });
+  },
+  toGroup(e) {
+    console.log(e)
+    wx.navigateTo({
+      url: '../groupContent/groupContent?gid=' + e.currentTarget.dataset.gid + '&name=' + e.currentTarget.dataset.name,
+    })
+  },
   /**
    * 生命周期函数--监听页面加载
    */
   onLoad: function (options) {
-    wx.startPullDownRefresh()
+    // wx.startPullDownRefresh()
+    app.userInfoReadyCallback = res => {
+      // console.log(res.userInfo)
+    }
+    this.getList();
   },
 
   /**
@@ -199,6 +220,7 @@ Page({
    * 生命周期函数--监听页面显示
    */
   onShow: function () {
+
   },
 
   /**
@@ -232,7 +254,13 @@ Page({
   /**
    * 用户点击右上角分享
    */
-  onShareAppMessage: function () {
-
+  onShareAppMessage: function (res) {
+    console.log(res)
+    if (res.from === 'button') {
+      return {
+        title: '自定义转发标题',
+        path: '/pages/detail/detail?id=123'
+      }
+    }
   }
 })

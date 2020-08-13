@@ -3,22 +3,27 @@
 <view class="container">
 	<van-toast id="custom-toast" />
 	<view class="">
-		<van-cell title="{{selectGroupInfo.title}}" icon="location-o" is-link border="{{true}}" bindtap="group">
+		<van-cell title="{{selectGroupInfo.title}}" is-link border="{{true}}" bindtap="group">
+			<van-icon slot="icon" name="../../../../images/group.png" size="42rpx" />
 			<span class="tips">{{selectGroupInfo.tips}}</span>
 		</van-cell>
 	</view>
 	<view class="word">
 		<van-cell-group border="{{ false }}">
-			<van-field size="large" value="{{content}}" type="textarea" placeholder="分享你的想法" autosize="{{autosize}}" clickable show-word-limit disable-default-padding border="{{ false }}" maxlength="1024" show-confirm-bar="{{false}}" focus="{{true}}" auto-focus="{{true}}" bind:focus="focus" bind:blur="blur" bind:change="contentOnChange" />
+			<van-field size="large" value="{{content}}" type="textarea" placeholder="分享你的想法" autosize="{{autosize}}" clickable show-word-limit disable-default-padding border="{{ false }}" maxlength="1024" show-confirm-bar="{{false}}" focus="{{true}}" bind:focus="focus" bind:blur="blur" bind:change="contentOnChange" />
 		</van-cell-group>
 	</view>
 	<view class="upload" wx:if="{{ fileList.length > 0}}">
-		<van-uploader file-list="{{ fileList }}" multiple preview-size="110px" bind:after-read="afterRead" max-count="9" bind:delete="delete" image-fit="aspectFill" sizeType="{{sizeType}}" />
+		<van-uploader file-list="{{ fileList }}" multiple preview-size="100px" bind:after-read="afterRead" max-count="9" bind:delete="delete" image-fit="aspectFill" sizeType="{{sizeType}}" />
 	</view>
 	<view class="placeholder"></view>
-	<view class="btn-area van-hairline--top" style="bottom:{{bottom}}px;">
-		<van-button round color="#25b195" size="small" bindtap="chooseImage">选图</van-button>
-		<van-button round color="#25b195" size="small" bindtap="post">发送</van-button>
+	<view class="operation-area van-hairline--top" style="bottom:{{bottom}}px;">
+		<view class="picture-btn">
+			<van-image src="../../../../images/picture.png" width="56rpx" height="56rpx" bindtap="chooseImage"></van-image>
+		</view>
+		<view class="submit-btn">
+			<van-button round color="#fae54f" size="small" bind:click="post" disabled="{{disabled}}" custom-style="color:black;">发送</van-button>
+		</view>
 	</view>
 
 </view>

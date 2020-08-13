@@ -39,12 +39,29 @@
   margin-top: 130rpx;
 }
 
-.btn-area {
+
+
+.operation-area {
   width: 100%;
   position: fixed;
   display: flex;
-  justify-content: flex-end;
-  padding: 20rpx 0rpx;
+  justify-content: space-around;
+  align-items: center;
+  height: 100rpx;
   background-color: #fff;
+  color: black;
   z-index: 50;
+}
+
+.picture-btn{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+.submit-btn{
+  width: 100%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }

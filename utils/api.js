@@ -1,10 +1,11 @@
+const session = require("session");
 /**
  * 简单封装
  */
 const request = (url, data, method, load) => {
 
   if (load) {
-    // wx.showNavigationBarLoading();
+    wx.showNavigationBarLoading();
     // wx.showLoading({
     //   title: 'Loading...',
     //   icon: 'none'
@@ -15,6 +16,9 @@ const request = (url, data, method, load) => {
       url: url,
       data: data,
       method: method,
+      header: {
+        "Token": session.get('token') || ''
+      },
       success(res) {
         if (res.statusCode === 200) {
           resolve(res.data)
@@ -26,13 +30,13 @@ const request = (url, data, method, load) => {
         reject(err)
         // wx.showModal({
         //   title: '温馨提示',
-        //   content: '网络请求失败',
+        //   content: '网络请求失败,稍后再试',
         //   showCancel: false
         // })
       },
       complete(res) {
         if (load) {
-          // wx.hideNavigationBarLoading()
+          wx.hideNavigationBarLoading()
           // wx.hideLoading();
         }
       }
@@ -45,7 +49,7 @@ const request = (url, data, method, load) => {
  * @param {*} data 
  * @param {*} load 是否显示loading
  */
-const get = (url, data, load = true) => {
+const get = (url, data, load = false) => {
   return request(url, data, 'GET', load)
 }
 const post = (url, data, load = true) => {

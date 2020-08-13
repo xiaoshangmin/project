@@ -7,6 +7,8 @@ Page({
    * 页面的初始数据
    */
   data: {
+    bg: 'http://cdn.wowyou.cc/user_bg_01.png',
+    active: 0,
     message: '../../../../images/message.png',
     collect: '../../../../images/collect.png',
     userInfo: {},
@@ -22,16 +24,23 @@ Page({
       url: '../logs/logs'
     })
   },
-  onLoad: function () { 
-    
+  onLoad: function () {
+    if (app.globalData.userInfo) {
+      console.log(app.globalData.userInfo);
+      this.setData({
+        bg: app.globalData.userInfo.avatarUrl
+      })
+    }
   },
   getUserInfo: function (e) {
     console.log(e)
-    app.globalData.userInfo = e.detail.userInfo
-    this.setData({
-      userInfo: e.detail.userInfo,
-      hasUserInfo: true
-    })
+    if (e.detail.userInfo) {
+      app.globalData.userInfo = e.detail.userInfo
+      this.setData({
+        userInfo: e.detail.userInfo,
+        hasUserInfo: true
+      })
+    }
   },
 
   /**

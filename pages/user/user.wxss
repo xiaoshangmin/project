@@ -1,19 +1,68 @@
-/* pages/profile/profile.wxss */
+/* .bg {
+  position: absolute;
+  height: 500rpx;
+  width: 100%;
+  top: 0;
+  left: 0;
+  background: url("http://cdn.wowyou.cc/FscXuWIJBb-6BtQRyep5p4iUYovB?imageMogr2/auto-orient/format/jpeg/thumbnail/500x2000%3E/interlace/1");
+  background-repeat: no-repeat;
+  background-size: cover;
+  background-position: center;
+  filter: blur(5px);
+  z-index: -1;
+} */
 
-
-.facdc{
-  display: flex;
-  align-items: center;
-  flex-direction: column;
+.hd {
+  height: 500rpx;
+  margin-left: 20rpx;
+  margin-top: 150rpx;
+  z-index: 1;
+  color: #fff;
 }
 
-.avatar{
-  width: 228rpx;
-  height: 228rpx;
+.bd {
+  margin-top: 20rpx;
+}
+
+.fac {
+  display: flex;
+  align-items: center;
+}
+
+.user-avatar {
+  /* display: flex;
+  align-items: center; */
+  margin: 20rpx 0;
+}
+
+.avatar {
+  box-shadow: 0 0 2px;
+}
+
+.edit {
+  margin-left: 20rpx;
+  margin-right: 30rpx;
+}
+
+button[plain] {
+  border: 0;
+  /* width: auto; */
+  margin-left: 0;
+  margin-right: 0;
+  padding-left: 0;
+  padding-right: 0;
+  font-size: 25rpx;
+  color: #fff;
+  /* line-height: 35rpx; */
+}
+
+.avatar {
+  width: 158rpx;
+  height: 158rpx;
   border-radius: 50%;
 }
 
-.nickname{
+.nickname {
   margin-top: 20rpx;
   margin-bottom: 20rpx;
   font-size: 38rpx;

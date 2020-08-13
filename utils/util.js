@@ -13,7 +13,15 @@ const formatNumber = n => {
   n = n.toString()
   return n[1] ? n : '0' + n
 }
+const sleep = delay => {
+  var start = (new Date()).getTime();
+  while ((new Date()).getTime() - start < delay) {
+    continue;
+  }
+}
+
 
 module.exports = {
-  formatTime: formatTime
+  formatTime: formatTime,
+  sleep
 }

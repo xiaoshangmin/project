@@ -6,7 +6,8 @@
     "pages/user/user",
     "pages/publish/publish",
     "pages/mypost/mypost",
-    "pages/groups/groups"
+    "pages/groups/groups",
+    "pages/groupContent/groupContent"
   ],
   "window": {
     "backgroundTextStyle": "dark",
