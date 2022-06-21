@@ -16,6 +16,8 @@ use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use League\Flysystem\FilesystemException;
+use League\Flysystem\StorageAttributes;
+use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToWriteFile;
 
 #[Controller()]
@@ -45,25 +47,32 @@ class IndexController extends AbstractController
         $resource = fopen($file->getRealPath(),'r+');
         $local = $factory->get('local');
         try {
-            $local->writeStream("test.pptx",$resource);
+            $local->writeStream($file->getClientFilename() ,$resource);
             fclose($resource);
         }catch (FilesystemException|UnableToWriteFile $exception){
             echo $exception;
         }
     }
 
-    public function pdf2pic(){
+    #[GetMapping(path: "pdf2pic")]
+    public function pdf2pic(FilesystemFactory $factory){
+        $fileList = [];
+        $local = $factory->get('local');
+        $fileList = $local->listContents('.',true)->filter(fn(StorageAttributes $attributes) => $attributes->isFile())->toArray();
+
         foreach($fileList as $checkNo=> $file){
-            $pdf2img = new \Spatie\PdfToImage\Pdf($file);
-            $rs = $pdf2img->saveAllPagesAsImages($pdfPath,$checkNo);
-            $savePath = "{$pdfPath}{$checkNo}-merge.jpg";
-            if(count($rs) > 1){
-                if(true === CompositeImage($rs, $savePath)){
-                    $mergeList[] = $savePath;
-                }
-            }else{
-                $mergeList[] = $rs[0];
-            }
+
+                print_r($file->getRealPath());
+//            $pdf2img = new \Spatie\PdfToImage\Pdf($file);
+//            $rs = $pdf2img->saveAllPagesAsImages($pdfPath,$checkNo);
+//            $savePath = "{$pdfPath}{$checkNo}-merge.jpg";
+//            if(count($rs) > 1){
+//                if(true === CompositeImage($rs, $savePath)){
+//                    $mergeList[] = $savePath;
+//                }
+//            }else{
+//                $mergeList[] = $rs[0];
+//            }
         }
     }
 }
