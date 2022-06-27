@@ -48,10 +48,15 @@ class IndexController extends AbstractController
     public function upload(FilesystemFactory $factory)
     {
         $file = $this->request->file('file');
+        if ('pdf' != $file->getExtension() || 'application/pdf' != $file->getMimeType()) {
+            echo '请上传pdf文件';
+            return;
+        }
         $resource = fopen($file->getRealPath(), 'r+');
         $local = $factory->get('local');
+        $path = "pdf/" . $file->getClientFilename();
         try {
-            $local->writeStream($file->getClientFilename(), $resource);
+            $local->writeStream($path, $resource);
             fclose($resource);
         } catch (FilesystemException|UnableToWriteFile $exception) {
             echo $exception;
