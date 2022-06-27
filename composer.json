@@ -54,7 +54,10 @@
     "autoload-dev": {
         "psr-4": {
             "HyperfTest\\": "./test/"
-        }
+        },
+        "files": [
+            "app/Utils/Common.php"
+        ]
     },
     "minimum-stability": "dev",
     "prefer-stable": true,
