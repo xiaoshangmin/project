@@ -1,6 +1,7 @@
 <?php
 
 declare(strict_types=1);
+
 /**
  * This file is part of Hyperf.
  *
@@ -9,22 +10,38 @@ declare(strict_types=1);
  * @contact  group@hyperf.io
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
+
+use Monolog\Formatter\LogstashFormatter;
+use Monolog\Handler\RotatingFileHandler;
+use Monolog\Logger;
+
+$formatter = [
+    'class' => LogstashFormatter::class,
+    'constructor' => [
+        'applicationName' => 'project',
+    ],
+];
+
 return [
     'default' => [
         'handler' => [
-            'class' => Monolog\Handler\StreamHandler::class,
-            'constructor' => [
-                'stream' => BASE_PATH . '/runtime/logs/hyperf.log',
-                'level' => Monolog\Logger::DEBUG,
+            [
+                'class' => RotatingFileHandler::class,
+                'constructor' => [
+                    'filename' => BASE_PATH . '/runtime/logs/info.log',
+                    'level' => Logger::INFO,
+                ],
+                'formatter' => $formatter,
+            ],
+            [
+                'class' => RotatingFileHandler::class,
+                'constructor' => [
+                    'filename' => BASE_PATH . '/runtime/logs/error.log',
+                    'level' => Logger::ERROR,
+                ],
+                'formatter' => $formatter,
             ],
         ],
-        'formatter' => [
-            'class' => Monolog\Formatter\LineFormatter::class,
-            'constructor' => [
-                'format' => null,
-                'dateFormat' => 'Y-m-d H:i:s',
-                'allowInlineLineBreaks' => true,
-            ],
-        ],
+
     ],
 ];

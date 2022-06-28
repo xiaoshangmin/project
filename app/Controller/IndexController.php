@@ -26,12 +26,16 @@ use ZipArchive;
 #[Controller()]
 class IndexController extends AbstractController
 {
+
+
     #[GetMapping(path: "index")]
     public function index()
     {
         $user = $this->request->input('user', 'Hyperf');
         $method = $this->request->getMethod();
-
+        print_r($this->logger);
+        $this->logger->info("Your log message");
+        $this->logger->error("erorororororoorooroor");
         return $this->success([
             'method' => $method,
             'message' => "Hello {$user}.",

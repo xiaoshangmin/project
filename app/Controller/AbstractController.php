@@ -13,6 +13,7 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Constants\ErrorCode;
+use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\HttpServer\Contract\ResponseInterface;
@@ -29,6 +30,9 @@ abstract class AbstractController
 
     #[Inject]
     protected ResponseInterface $response;
+
+    #[Inject]
+    protected StdoutLoggerInterface $logger;
 
     public function success(array $data = [], int $code = ErrorCode::SUCCESS): PsrResponseInterface
     {
