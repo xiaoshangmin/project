@@ -1,11 +1,20 @@
 <?php
 declare(strict_types=1);
+
 namespace App\Util;
 
 class Common
 {
 
-    static public function CompositeImage(array $imagePath, string $savePath, string $axis = 'y', string $saveType = 'jpeg'):bool
+    /**
+     * 合并多图
+     * @param array $imagePath 图片数组
+     * @param string $savePath 合并图片的保存路径
+     * @param string $axis 合成方向
+     * @param string $saveType 合成图片类型
+     * @return bool
+     */
+    static public function CompositeImage(array $imagePath, string $savePath, string $axis = 'y', string $saveType = 'jpeg'): bool
     {
         if (count($imagePath) < 2) {
             return false;
@@ -15,7 +24,7 @@ class Common
         //获取图片信息
         $width = 0;
         $height = 0;
-        foreach ($imagePath as $k => $v) {
+        foreach ($imagePath as $v) {
             $picInfo = getimagesize($v);
             list($mime, $type) = explode('/', $picInfo['mime']);
             //获取宽高度
@@ -29,32 +38,33 @@ class Common
                 $imageObj[] = imagecreatefromgif($v);
             }
         }
+        $firstWidth = imagesx($imageObj[0]);
+        $firstHeight = imagesy($imageObj[0]);
         //按轴生成画布方向
         if ($axis == 'x') {
             //TODO X轴无缝合成时请保证所有图片高度相同
-            $img = imageCreatetruecolor($width, imagesy($imageObj[0]));
+            $img = imagecreatetruecolor($width, $firstHeight);
         } else {
             //TODO Y轴无缝合成时请保证所有图片宽度相同
-            $img = imageCreatetruecolor(imagesx($imageObj[0]), $height);
+            $img = imagecreatetruecolor($firstWidth, $height);
         }
-        //创建画布颜色
-        $color = imagecolorallocate($img, 255, 255, 255);
-        imagefill($imageObj[0], 0, 0, $color);
-        //创建画布
-        imageColorTransparent($img, $color);
-        imagecopyresampled($img, $imageObj[0], 0, 0, 0, 0, imagesx($imageObj[0]), imagesy($imageObj[0]), imagesx($imageObj[0]), imagesy($imageObj[0]));
-        $yx = imagesx($imageObj[0]);
-        $x = 0;
-        $yy = imagesy($imageObj[0]);
-        $y = 0;
-        //循环生成图片
-        for ($i = 1; $i <= count($imageObj) - 1; $i++) {
+        //为一幅图像分配颜色 这里是白色
+//        $color = imagecolorallocate($img, 255, 0, 0);
+//        imagefill($imageObj[0], 0, 0, $color);
+//        //将 image 图像中的透明色设定为 color
+//        imagecolortransparent($img, $color);
+//        //重采样拷贝部分图像并调整大小
+//        imagecopyresampled($img, $imageObj[0], 0, 0, 0, 0, imagesx($imageObj[0]), imagesy($imageObj[0]), imagesx($imageObj[0]), imagesy($imageObj[0]));
+        $mergeX = 0;
+        $mergeY = 0;
+//        //循环生成图片
+        for ($i = 0; $i <= count($imageObj) - 1; $i++) {
             if ($axis == 'x') {
-                $x = $x + $yx;
-                imagecopy($img, $imageObj[$i], $x, 0, 0, 0, imagesx($imageObj[$i]), imagesy($imageObj[$i]));
+                imagecopy($img, $imageObj[$i], $mergeX, 0, 0, 0, imagesx($imageObj[$i]), imagesy($imageObj[$i]));
+                $mergeX += $firstWidth;
             } else {
-                $y = $y + $yy;
-                imagecopy($img, $imageObj[$i], 0, $y, 0, 0, imagesx($imageObj[$i]), imagesy($imageObj[$i]));
+                imagecopy($img, $imageObj[$i], 0, $mergeY, 0, 0, imagesx($imageObj[$i]), imagesy($imageObj[$i]));
+                $mergeY += $firstHeight;
             }
         }
         //设置合成后图片保存类型
@@ -65,6 +75,7 @@ class Common
         } else {
             imagegif($img, $savePath);
         }
+        imagedestroy($img);
         return true;
 
     }

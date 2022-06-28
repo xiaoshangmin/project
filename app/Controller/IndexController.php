@@ -12,89 +12,126 @@ declare(strict_types=1);
 
 namespace App\Controller;
 
+use App\Constants\ErrorCode;
+use App\Util\Common;
 use Hyperf\Filesystem\FilesystemFactory;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\StorageAttributes;
-use League\Flysystem\UnableToReadFile;
 use League\Flysystem\UnableToWriteFile;
-use App\Util\Common;
+use ZipArchive;
 
 #[Controller()]
 class IndexController extends AbstractController
 {
+    #[GetMapping(path: "index")]
     public function index()
     {
         $user = $this->request->input('user', 'Hyperf');
         $method = $this->request->getMethod();
 
-        return [
+        return $this->success([
             'method' => $method,
             'message' => "Hello {$user}.",
-        ];
+        ]);
     }
 
-    #[GetMapping(path: "analysis")]
-    public function analysis(FilesystemFactory $factory)
-    {
-        $local = $factory->get('local');
-        $local->read();
-
-    }
 
     #[PostMapping(path: "upload")]
     public function upload(FilesystemFactory $factory)
     {
         $file = $this->request->file('file');
         if ('pdf' != $file->getExtension() || 'application/pdf' != $file->getMimeType()) {
-            echo '请上传pdf文件';
-            return;
+            return $this->fail(ErrorCode::PLEASE_UPDATE_PDF);
         }
-        $resource = fopen($file->getRealPath(), 'r+');
+        if ($file->getSize() > 2097152) {
+            return $this->fail(ErrorCode::OVER_MAX_SIZE);
+        }
+        $tmpFile = $file->getRealPath();
+        $sha1 = sha1_file($tmpFile);
+        $resource = fopen($tmpFile, 'r+');
         $local = $factory->get('local');
-        $path = "pdf/" . $file->getClientFilename();
+        $path = "pdf/{$sha1}/" . $file->getClientFilename();
         try {
             $local->writeStream($path, $resource);
             fclose($resource);
         } catch (FilesystemException|UnableToWriteFile $exception) {
-            echo $exception;
+            //TODO add log
+//            echo $exception;
+            return $this->fail(ErrorCode::UPLOAD_PDF_FAIL);
         }
+        return $this->success();
     }
 
     #[GetMapping(path: "pdf2pic")]
     public function pdf2pic(FilesystemFactory $factory)
     {
-        $prefix = BASE_PATH . '/storage/';
-        $pdfPath = $prefix . "pdf";
+        ini_set("memory_limit", "1024M");
+        //true合并图片  false不合并
+        $merge = $this->request->query('merge', false);
+        $storage = BASE_PATH . '/storage/';
         $local = $factory->get('local');
         $fileList = $local->listContents('/pdf', true)
             ->filter(fn(StorageAttributes $attributes) => $attributes->isFile())->toArray();
         $outFormat = 'png';
         try {
-            foreach ($fileList as $checkNo => $item) {
-                $filename = basename($item->path(), '.pdf') ?: date('YmdHis');
-                $file = $prefix . $item->path();
-                $pdf2img = new \Spatie\PdfToImage\Pdf($file);
+            $directory = $storage;
+            $filename = $savePath = '';
+            $compressList = [];
+            foreach ($fileList as $item) {
+                $file = $item->path();
+                $ext = pathinfo($file, PATHINFO_EXTENSION);
+                if ('pdf' != $ext) {
+                    continue;
+                }
+                $filename = basename($file, '.pdf') ?: date('YmdHis');
+                $absolutePath = $storage . $file;
+                $directory = dirname($absolutePath);
+                $subDirectory = dirname($file);
+                $pdf2img = new \Spatie\PdfToImage\Pdf($absolutePath);
                 $pdf2img->setOutputFormat($outFormat);
                 $preName = "merge-";
-                $rs = $pdf2img->saveAllPagesAsImages($pdfPath, $preName);
-                $savePath = "{$pdfPath}/{$filename}.{$outFormat}";
+                $rs = $pdf2img->saveAllPagesAsImages($directory, $preName);
+                $savePath = "{$directory}/{$filename}.{$outFormat}";
                 if (count($rs) > 1) {
-                    Common::CompositeImage($rs, $savePath);
+                    if ($merge) {
+                        Common::CompositeImage($rs, $savePath);
+                    } else {
+                        $compressList = $rs;
+                    }
                 } else {
                     $source = basename($rs[0]);
                     $dest = basename($savePath);
-                    $local->move("pdf/{$source}", "pdf/{$dest}");
+                    $local->move("{$subDirectory}/{$source}", "{$subDirectory}/{$dest}");
                 }
             }
-
-//            array_map('unlink', glob("{$prefix}*.pdf"));
-            array_map('unlink', glob("{$pdfPath}/merge*.png"));
+            if (!empty($compressList)) {
+                $zip = new ZipArchive();
+                $file = $directory . "/{$filename}.zip";
+                $zip->open($file, ZipArchive::CREATE);
+                foreach ($compressList as $img) {
+                    $zip->addFile($img, basename($img));
+                }
+                $zip->close();
+                array_map('unlink', glob("{$directory}/merge*.png"));
+                return $this->response->download($file, "{$filename}.zip");
+            }
+            array_map('unlink', glob("{$directory}/merge*.png"));
+            $dest = basename($savePath);
+            return $this->response->download($savePath, $dest);
         } catch (\Exception $e) {
-            echo $e->getMessage() . PHP_EOL;
+//            echo $e->getMessage() . PHP_EOL;
+            return $this->fail();
         }
 
+    }
+
+    #[GetMapping(path: "dl")]
+    public function dl()
+    {
+        $path = BASE_PATH . '/storage/pdf/041baf26182bd5079200c3c3afa4145e34eaf624/百果园新零售全渠道运营解决方案-2021041402.zip';
+        return $this->response->download($path, '百果园新零售全渠道运营解决方案-2021041402.zip');
     }
 }
