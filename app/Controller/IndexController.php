@@ -32,10 +32,7 @@ class IndexController extends AbstractController
     public function index()
     {
         $user = $this->request->input('user', 'Hyperf');
-        $method = $this->request->getMethod();
-        print_r($this->logger);
-        $this->logger->info("Your log message");
-        $this->logger->error("erorororororoorooroor");
+        $method = $this->request->getMethod(); 
         return $this->success([
             'method' => $method,
             'message' => "Hello {$user}.",
@@ -52,7 +49,7 @@ class IndexController extends AbstractController
         }
         if ($file->getSize() > 2097152) {
             return $this->fail(ErrorCode::OVER_MAX_SIZE);
-        }
+        } 
         $tmpFile = $file->getRealPath();
         $sha1 = sha1_file($tmpFile);
         $resource = fopen($tmpFile, 'r+');

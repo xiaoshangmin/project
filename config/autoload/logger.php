@@ -24,7 +24,7 @@ $formatter = [
 
 return [
     'default' => [
-        'handler' => [
+        'handlers' => [
             [
                 'class' => RotatingFileHandler::class,
                 'constructor' => [
