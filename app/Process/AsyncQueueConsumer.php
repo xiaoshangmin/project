@@ -14,7 +14,7 @@ namespace App\Process;
 use Hyperf\AsyncQueue\Process\ConsumerProcess;
 use Hyperf\Process\Annotation\Process;
 
-#[Process]
+#[Process(name:"async-queue-test")]
 class AsyncQueueConsumer extends ConsumerProcess
 {
 }

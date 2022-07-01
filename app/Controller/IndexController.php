@@ -13,7 +13,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Constants\ErrorCode;
+use App\Service\QueueService;
 use App\Util\Common;
+use Hyperf\Di\Annotation\Inject;
 use Hyperf\Filesystem\FilesystemFactory;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
@@ -27,12 +29,14 @@ use ZipArchive;
 class IndexController extends AbstractController
 {
 
+    #[Inject]
+    protected QueueService $service;
 
     #[GetMapping(path: "index")]
     public function index()
     {
         $user = $this->request->input('user', 'Hyperf');
-        $method = $this->request->getMethod(); 
+        $method = $this->request->getMethod();
         return $this->success([
             'method' => $method,
             'message' => "Hello {$user}.",
@@ -49,7 +53,7 @@ class IndexController extends AbstractController
         }
         if ($file->getSize() > 2097152) {
             return $this->fail(ErrorCode::OVER_MAX_SIZE);
-        } 
+        }
         $tmpFile = $file->getRealPath();
         $sha1 = sha1_file($tmpFile);
         $resource = fopen($tmpFile, 'r+');
@@ -59,13 +63,25 @@ class IndexController extends AbstractController
             $local->writeStream($path, $resource);
             fclose($resource);
         } catch (FilesystemException|UnableToWriteFile $exception) {
-            //TODO add log
-//            echo $exception;
+            $this->logger->error($exception->getMessage());
             return $this->fail(ErrorCode::UPLOAD_PDF_FAIL);
         }
-        return $this->success();
+        //异步处理
+        $this->service->push([
+            'merge' => false,
+            'format' => 'png',
+        ]);
+        return $this->success([
+            'key' => $sha1
+        ]);
     }
 
+    /**
+     * pdf转图片
+     * @param FilesystemFactory $factory
+     * @return \Psr\Http\Message\ResponseInterface
+     * @throws FilesystemException
+     */
     #[GetMapping(path: "pdf2pic")]
     public function pdf2pic(FilesystemFactory $factory)
     {
@@ -123,7 +139,7 @@ class IndexController extends AbstractController
             $dest = basename($savePath);
             return $this->response->download($savePath, $dest);
         } catch (\Exception $e) {
-//            echo $e->getMessage() . PHP_EOL;
+            $this->logger->error($e->getMessage());
             return $this->fail();
         }
 
