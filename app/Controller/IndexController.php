@@ -25,7 +25,7 @@ use League\Flysystem\StorageAttributes;
 use League\Flysystem\UnableToWriteFile;
 use ZipArchive;
 
-#[Controller(prefix: "/api")]
+#[Controller(prefix: "api")]
 class IndexController extends AbstractController
 {
 

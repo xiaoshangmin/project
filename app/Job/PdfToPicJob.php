@@ -7,6 +7,9 @@ use App\Util\Common;
 use Hyperf\AsyncQueue\Job;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Filesystem\FilesystemFactory;
+use Hyperf\Redis\Redis;
+use Hyperf\Server\ServerFactory;
+use Hyperf\Utils\ApplicationContext;
 use League\Flysystem\StorageAttributes;
 use ZipArchive;
 
@@ -24,6 +27,9 @@ class PdfToPicJob extends Job
     public function handle()
     {
 //        ini_set("memory_limit", "1024M");
+
+        $server = (ApplicationContext::getContainer())->get(ServerFactory::class)->getServer()->getServer();
+        $cache = (ApplicationContext::getContainer())->get(Redis::class);
         $logger = make(StdoutLoggerInterface::class);
         $logger->info("start pdfTopic job" . json_encode($this->params, JSON_UNESCAPED_UNICODE));
         //true合并图片  false不合并
@@ -60,9 +66,8 @@ class PdfToPicJob extends Job
                         $compressList = $rs;
                     }
                 } else {
-                    $source = basename($rs[0]);
-                    $dest = basename($savePath);
-                    $local->move("{$subDirectory}/{$source}", "{$subDirectory}/{$dest}");
+                    $filename = basename($rs[0]);
+                    $local->move("{$subDirectory}/{$filename}", "{$subDirectory}/{$filename}");
                 }
             }
             if (!empty($compressList)) {
@@ -77,9 +82,12 @@ class PdfToPicJob extends Job
                 $logger->info("turn finish {$filename}.zip");
             } else {
                 array_map('unlink', glob("{$directory}/merge*.png"));
-                $dest = basename($savePath);
-                $logger->info("turn finish {$dest}");
+                $filename = basename($savePath);
+                $logger->info("turn finish {$filename}");
             }
+            $fd = $cache->get('websocket_1');
+            $json = json_encode(['file' => $filename], JSON_UNESCAPED_UNICODE);
+            $server->push(intval($fd), $json);
         } catch (\Exception $e) {
             $logger->error($e->getMessage());
         }
