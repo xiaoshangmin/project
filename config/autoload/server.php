@@ -40,6 +40,8 @@ return [
         ],
     ],
     'settings' => [
+        Constant::OPTION_DOCUMENT_ROOT => BASE_PATH . '/storage',
+        Constant::OPTION_ENABLE_STATIC_HANDLER => true,
         Constant::OPTION_ENABLE_COROUTINE => true,
         Constant::OPTION_WORKER_NUM => swoole_cpu_num(),
         Constant::OPTION_PID_FILE => BASE_PATH . '/runtime/hyperf.pid',

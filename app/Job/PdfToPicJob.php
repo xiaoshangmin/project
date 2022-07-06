@@ -27,7 +27,6 @@ class PdfToPicJob extends Job
     public function handle()
     {
 //        ini_set("memory_limit", "1024M");
-
         $server = (ApplicationContext::getContainer())->get(ServerFactory::class)->getServer()->getServer();
         $cache = (ApplicationContext::getContainer())->get(Redis::class);
         $logger = make(StdoutLoggerInterface::class);
@@ -72,8 +71,8 @@ class PdfToPicJob extends Job
             }
             if (!empty($compressList)) {
                 $zip = new ZipArchive();
-                $file = $directory . "/{$filename}.zip";
-                $zip->open($file, ZipArchive::CREATE);
+                $savePath = $directory . "/{$filename}.zip";
+                $zip->open($savePath, ZipArchive::CREATE);
                 foreach ($compressList as $img) {
                     $zip->addFile($img, basename($img));
                 }
@@ -86,7 +85,11 @@ class PdfToPicJob extends Job
                 $logger->info("turn finish {$filename}");
             }
             $fd = $cache->get('websocket_1');
-            $json = json_encode(['file' => $filename], JSON_UNESCAPED_UNICODE);
+            $result = [
+                'size' => filesize($savePath),
+                'download' => basename($savePath),
+            ];
+            $json = json_encode($result, JSON_UNESCAPED_UNICODE);
             $server->push(intval($fd), $json);
         } catch (\Exception $e) {
             $logger->error($e->getMessage());

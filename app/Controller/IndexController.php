@@ -72,7 +72,7 @@ class IndexController extends AbstractController
             'format' => 'png',
         ]);
         return $this->success([
-            'key' => $sha1
+            'key' => $sha1,
         ]);
     }
 
