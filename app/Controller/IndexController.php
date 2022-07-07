@@ -48,6 +48,7 @@ class IndexController extends AbstractController
     public function upload(FilesystemFactory $factory)
     {
         $file = $this->request->file('file');
+        $merge = $this->request->post('merge',false);
         if ('pdf' != $file->getExtension() || 'application/pdf' != $file->getMimeType()) {
             return $this->fail(ErrorCode::PLEASE_UPDATE_PDF);
         }
@@ -68,8 +69,9 @@ class IndexController extends AbstractController
         }
         //异步处理
         $this->service->push([
-            'merge' => false,
+            'merge' => (bool)$merge,
             'format' => 'png',
+            'uid' => $this->request->header('auth'),
         ]);
         return $this->success([
             'key' => $sha1,

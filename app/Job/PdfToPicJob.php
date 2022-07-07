@@ -41,7 +41,7 @@ class PdfToPicJob extends Job
             ->filter(fn(StorageAttributes $attributes) => $attributes->isFile())->toArray();
         try {
             $directory = $storage;
-            $filename = $savePath = '';
+            $filename = $savePath = $subDirectory = '';
             $compressList = [];
             foreach ($fileList as $item) {
                 $file = $item->path();
@@ -84,10 +84,10 @@ class PdfToPicJob extends Job
                 $filename = basename($savePath);
                 $logger->info("turn finish {$filename}");
             }
-            $fd = $cache->get('websocket_1');
+            $fd = $cache->get($this->params['uid']);
             $result = [
                 'size' => filesize($savePath),
-                'download' => basename($savePath),
+                'download' => $subDirectory . DIRECTORY_SEPARATOR . basename($savePath),
             ];
             $json = json_encode($result, JSON_UNESCAPED_UNICODE);
             $server->push(intval($fd), $json);
