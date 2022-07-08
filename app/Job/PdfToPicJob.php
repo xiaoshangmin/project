@@ -34,14 +34,16 @@ class PdfToPicJob extends Job
         //true合并图片  false不合并
         $merge = $this->params['merge'] || false;
         $outFormat = $this->params['format'] ?: 'png';
+        $key = $this->params['key'] ?: '';
         $factory = make(FilesystemFactory::class);
         $storage = BASE_PATH . '/storage/';
+        $subDirectory = "/pdf/{$key}";
         $local = $factory->get('local');
-        $fileList = $local->listContents('/pdf', true)
+        $fileList = $local->listContents($subDirectory, true)
             ->filter(fn(StorageAttributes $attributes) => $attributes->isFile())->toArray();
         try {
             $directory = $storage;
-            $filename = $savePath = $subDirectory = '';
+            $filename = $savePath = '';
             $compressList = [];
             foreach ($fileList as $item) {
                 $file = $item->path();
@@ -52,7 +54,6 @@ class PdfToPicJob extends Job
                 $filename = basename($file, '.pdf') ?: date('YmdHis');
                 $absolutePath = $storage . $file;
                 $directory = dirname($absolutePath);
-                $subDirectory = dirname($file);
                 $pdf2img = new \Spatie\PdfToImage\Pdf($absolutePath);
                 $pdf2img->setOutputFormat($outFormat);
                 $preName = "merge-";
@@ -86,8 +87,11 @@ class PdfToPicJob extends Job
             }
             $fd = $cache->get($this->params['uid']);
             $result = [
-                'size' => filesize($savePath),
+                'result' => 1,
+                'category' => 'zip',
+                'filesize' => filesize($savePath),
                 'download' => $subDirectory . DIRECTORY_SEPARATOR . basename($savePath),
+                'filename' => basename($savePath),
             ];
             $json = json_encode($result, JSON_UNESCAPED_UNICODE);
             $server->push(intval($fd), $json);

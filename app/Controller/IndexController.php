@@ -71,6 +71,7 @@ class IndexController extends AbstractController
         $this->service->push([
             'merge' => (bool)$merge,
             'format' => 'png',
+            'key' => $sha1,
             'uid' => $this->request->header('auth'),
         ]);
         return $this->success([

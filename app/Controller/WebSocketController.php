@@ -13,6 +13,14 @@ use Swoole\WebSocket\Frame;
 class WebSocketController extends AbstractController implements OnMessageInterface, OnOpenInterface, OnCloseInterface
 {
 
+    protected $cache;
+
+
+    public function __construct()
+    {
+        $this->cache = $this->container->get(Redis::class);
+    }
+
     public function onClose($server, int $fd, int $reactorId): void
     {
 //        var_dump('closed' . $reactorId);
@@ -20,16 +28,15 @@ class WebSocketController extends AbstractController implements OnMessageInterfa
 
     public function onMessage($server, Frame $frame): void
     {
-        $data = $frame->data;
-        $data = json_decode($data,true);
-        $cache = $this->container->get(Redis::class);
-        $cache->set($data['key'], $frame->fd);
-        $cache->expire($data['key'], 7200);
-        $server->push($frame->fd, "Recv:{$frame->data}");
+        $data = json_encode(["Recv:{$frame->data}"]);
+        $server->push($frame->fd, $data);
     }
 
     public function onOpen($server, Request $request): void
     {
-        $server->push($request->fd, 'Opened' . $request->fd);
+        $this->cache->set($request->get['key'], $request->fd);
+        $this->cache->expire($request->get['key'], 7200);
+        $data = json_encode(["opened"]);
+        $server->push($request->fd, $data);
     }
 }
