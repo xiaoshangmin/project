@@ -42,4 +42,9 @@ class ErrorCode extends AbstractConstants
      * @Message("上传的文件太大了")
      */
     const OVER_MAX_SIZE = 40003;
+
+    /**
+     * @Message("请上传word文件")
+     */
+    const PLEASE_UPDATE_WORD = 40004;
 }

@@ -1,15 +1,5 @@
 <?php
 
-declare(strict_types=1);
-/**
- * This file is part of Hyperf.
- *
- * @link     https://www.hyperf.io
- * @document https://hyperf.wiki
- * @contact  group@hyperf.io
- * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
- */
-
 namespace App\Controller;
 
 use App\Constants\ErrorCode;
@@ -21,32 +11,36 @@ use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToWriteFile;
+use Mnvx\Lowrapper\Converter;
+use Mnvx\Lowrapper\Format;
+use Mnvx\Lowrapper\LowrapperParameters;
 
-#[Controller(prefix: "api/pdfToPic")]
-class PdfToPicController extends AbstractController
+#[Controller(prefix: "api/office")]
+class OfficeController extends AbstractController
 {
-
     #[Inject]
     protected QueueService $service;
 
-    #[GetMapping(path: "index")]
-    public function index()
+    #[GetMapping(path: "trans")]
+    public function trans()
     {
-        $user = $this->request->input('user', 'Hyperf');
-        $method = $this->request->getMethod();
-        return $this->success([
-            'method' => $method,
-            'message' => "Hello {$user}.",
-        ]);
+        $converter = new Converter();
+        $path = BASE_PATH . '/storage/pdf/2f477c579c248760b86fde7c11c73b9df00d046a/Excel.ppt';
+
+        $parameters = (new LowrapperParameters())
+            ->setInputFile($path)
+            ->setOutputFormat(Format::GRAPHICS_PDF)
+            ->setOutputFile('pdf.pdf');
+
+        $converter->convert($parameters);
     }
 
     #[PostMapping(path: "upload")]
     public function upload(FilesystemFactory $factory)
     {
         $file = $this->request->file('file');
-        $merge = $this->request->post('merge', false);
-        if ('pdf' != $file->getExtension() || 'application/pdf' != $file->getMimeType()) {
-            return $this->fail(ErrorCode::PLEASE_UPDATE_PDF);
+        if (!in_array($file->getExtension(), ['docx', 'doc']) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' != $file->getMimeType()) {
+            return $this->fail(ErrorCode::PLEASE_UPDATE_WORD);
         }
         if ($file->getSize() > 2097152) {
             return $this->fail(ErrorCode::OVER_MAX_SIZE);
@@ -64,15 +58,13 @@ class PdfToPicController extends AbstractController
             return $this->fail(ErrorCode::UPLOAD_PDF_FAIL);
         }
         //异步处理
-        $this->service->push([
-            'merge' => (bool)$merge,
-            'format' => 'png',
-            'key' => $sha1,
-            'uid' => $this->request->header('auth'),
-        ]);
+//        $this->service->officePush([
+//            'format' => 'png',
+//            'key' => $sha1,
+//            'uid' => $this->request->header('auth'),
+//        ]);
         return $this->success([
             'key' => $sha1,
         ]);
     }
-
 }

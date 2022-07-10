@@ -3,6 +3,7 @@ declare(strict_types=1);
 
 namespace App\Service;
 
+use App\Job\OfficeJob;
 use App\Job\PdfToPicJob;
 use Hyperf\AsyncQueue\Driver\DriverFactory;
 use Hyperf\AsyncQueue\Driver\DriverInterface;
@@ -26,6 +27,16 @@ class QueueService
     public function push($params, int $delay = 0): bool
     {
         return $this->driver->push(new PdfToPicJob($params), $delay);
+    }
+
+    /**
+     * @param $params
+     * @param int $delay
+     * @return bool
+     */
+    public function officePush($params, int $delay = 0): bool
+    {
+        return $this->driver->push(new OfficeJob($params), $delay);
     }
 
 }
