@@ -29,9 +29,9 @@ class ErrorCode extends AbstractConstants
     const FAIL = -1;
 
     /**
-     * @Message("上传pdf文件失败")
+     * @Message("上传文件失败")
      */
-    const UPLOAD_PDF_FAIL = 40001;
+    const UPLOAD_FAIL = 40001;
 
     /**
      * @Message("请上传pdf文件")

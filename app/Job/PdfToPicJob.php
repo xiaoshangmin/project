@@ -28,7 +28,7 @@ class PdfToPicJob extends Job
     {
 //        ini_set("memory_limit", "1024M");
         $server = (ApplicationContext::getContainer())->get(ServerFactory::class)->getServer()->getServer();
-        $cache = (ApplicationContext::getContainer())->get(Redis::class);
+        $cache = make(Redis::class);
         $logger = make(StdoutLoggerInterface::class);
         $logger->info("start pdfTopic job" . json_encode($this->params, JSON_UNESCAPED_UNICODE));
         //true合并图片  false不合并
@@ -96,7 +96,7 @@ class PdfToPicJob extends Job
             $json = json_encode($result, JSON_UNESCAPED_UNICODE);
             $server->push(intval($fd), $json);
         } catch (\Exception $e) {
-            $logger->error($e->getMessage());
+            $logger->error("Exception message:" . $e->getMessage());
         }
         $logger->info("pdfTopic end");
     }

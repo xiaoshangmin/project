@@ -3,7 +3,6 @@ declare(strict_types=1);
 
 namespace App\Job;
 
-use App\Util\Common;
 use Hyperf\AsyncQueue\Job;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Filesystem\FilesystemFactory;
@@ -11,7 +10,7 @@ use Hyperf\Redis\Redis;
 use Hyperf\Server\ServerFactory;
 use Hyperf\Utils\ApplicationContext;
 use League\Flysystem\StorageAttributes;
-use ZipArchive;
+use Symfony\Component\Process\Process;
 
 class OfficeJob extends Job
 {
@@ -20,10 +19,9 @@ class OfficeJob extends Job
     protected $maxAttempts = 2;
 
     /**
-     * Defailt options for libreoffice
-     * @var array
+     * @var array|string[]
      */
-    protected $defaultOptions = [
+    protected array $defaultOptions = [
         '--headless',
         '--invisible',
         '--nocrashreport',
@@ -41,48 +39,77 @@ class OfficeJob extends Job
     public function handle()
     {
         $server = (ApplicationContext::getContainer())->get(ServerFactory::class)->getServer()->getServer();
-        $cache = (ApplicationContext::getContainer())->get(Redis::class);
+        $cache = make(Redis::class);
         $logger = make(StdoutLoggerInterface::class);
-        $inputFile = $this->params['file'];
-        $documentType = 'pdf';
+        $factory = make(FilesystemFactory::class);
+        $storage = BASE_PATH . '/storage/';
+        $relativePath = dirname($this->params['relativePath']);// "/office/{$this->params['key']}";
+        $convertToType = $this->params['convertToType'] ?: 'pdf';
 
+        $local = $factory->get('local');
+        $fileList = $local->listContents($relativePath, true)
+            ->filter(fn(StorageAttributes $attributes) => $attributes->isFile())->toArray();
 
-        $options = array_merge($this->defaultOptions, [
-            $documentType ? '--' . $documentType : '',
-            '--convert-to pdf',
-            '"' . $inputFile . '"',
-        ]);
-        $command = 'libreoffice ' . implode(' ', $options);
+        try {
+            $outputFile = '';
+            foreach ($fileList as $item) {
+                $file = $item->path();
+                $ext = pathinfo($file, PATHINFO_EXTENSION);
+                if ('doc' != $ext && 'docx' != $ext) {
+                    continue;
+                }
+                //上传的文件绝对路径
+                $inputFile = $storage . $file;
+                //filters https://wiki.openoffice.org/wiki/Framework/Article/Filter/FilterList_OOo_3_0
+                $options = array_merge($this->defaultOptions, ["--convert-to {$convertToType}", $inputFile, "--outdir " . dirname($inputFile)]);
+                //libreoffice --headless --invisible --nocrashreport --nodefault --nofirststartwizard --nologo --norestore --convert-to pdf path-to-file
+                $command = 'libreoffice ' . implode(' ', $options);
 
-        $process = $this->createProcess($command);
+                $process = $this->createProcess($command);
 
-        if ($this->timeout) {
-            $process->setTimeout($this->timeout);
-        }
+                $logger->info(sprintf('Start: %s', $command));
 
-        $this->logger->info(sprintf('Start: %s', $command));
+                $resultCode = $process->run(function ($type, $buffer) use ($logger) {
+                    if (Process::ERR === $type) {
+                        $logger->warning($buffer);
+                    } else {
+                        $logger->info($buffer);
+                    }
+                });
 
-        $self = $this;
-        $resultCode = $process->run(function ($type, $buffer) use ($self) {
-            if (Process::ERR === $type) {
-                $self->logger->warning($buffer);
-            } else {
-                $self->logger->info($buffer);
+                if ($resultCode != 0) {
+                    $logger->error(sprintf('Failed with result code %d: %s', $resultCode, $command));
+                } else {
+                    $outputFileName = basename($inputFile, $ext);
+                    $outputFile = dirname($inputFile) . DIRECTORY_SEPARATOR . "{$outputFileName}pdf";
+                    $logger->info(sprintf('Finished: %s', $command));
+                }
             }
-        });
-
-        $result = $this->createOutput($inputFile . '.' . $parameters->getOutputFormat(), $parameters->getOutputFile());
-        $this->deleteInput($parameters, $inputFile);
-
-        if ($resultCode != 0) {
-            $this->logger->error(sprintf('Failed with result code %d: %s', $resultCode, $command));
-            throw new LowrapperException('Error on converting data with LibreOffice: ' . $resultCode, $resultCode);
-        } else {
-            $this->logger->info(sprintf('Finished: %s', $command));
+            $fd = $cache->get($this->params['uid']);
+            $result = [
+                'result' => 1,
+                'category' => 'pdf',
+                'download' => $relativePath . DIRECTORY_SEPARATOR . basename($outputFile),
+                'filesize' => filesize($outputFile),
+                'filename' => basename($outputFile),
+            ];
+            $json = json_encode($result, JSON_UNESCAPED_UNICODE);
+            $server->push(intval($fd), $json);
+            return $result;
+        } catch (\Exception $e) {
+            $logger->error("Exception message:" . $e->getMessage());
         }
-
-        return $result;
-
     }
+
+
+    /**
+     * @param string $command
+     * @return Process
+     */
+    protected function createProcess(string $command): Process
+    {
+        return Process::fromShellCommandline($command, sys_get_temp_dir());
+    }
+
 
 }

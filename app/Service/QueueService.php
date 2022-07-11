@@ -24,8 +24,9 @@ class QueueService
      * @param int $delay
      * @return bool
      */
-    public function push($params, int $delay = 0): bool
+    public function pdfToPngPush($params, int $delay = 0): bool
     {
+        $params['format'] = 'png';
         return $this->driver->push(new PdfToPicJob($params), $delay);
     }
 
@@ -34,8 +35,9 @@ class QueueService
      * @param int $delay
      * @return bool
      */
-    public function officePush($params, int $delay = 0): bool
+    public function turnToPdfPush($params, int $delay = 0): bool
     {
+        $params['convertToType'] = 'pdf';
         return $this->driver->push(new OfficeJob($params), $delay);
     }
 

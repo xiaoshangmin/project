@@ -26,6 +26,10 @@ use League\Flysystem\UnableToWriteFile;
 class PdfToPicController extends AbstractController
 {
 
+    private string $subDir = 'pdf';
+
+    private int $maxSize = 5243000;
+
     #[Inject]
     protected QueueService $service;
 
@@ -48,30 +52,30 @@ class PdfToPicController extends AbstractController
         if ('pdf' != $file->getExtension() || 'application/pdf' != $file->getMimeType()) {
             return $this->fail(ErrorCode::PLEASE_UPDATE_PDF);
         }
-        if ($file->getSize() > 2097152) {
+        if ($file->getSize() > $this->maxSize) {
             return $this->fail(ErrorCode::OVER_MAX_SIZE);
         }
         $tmpFile = $file->getRealPath();
-        $sha1 = sha1_file($tmpFile);
+        $md5 = md5_file($tmpFile);
         $resource = fopen($tmpFile, 'r+');
         $local = $factory->get('local');
-        $path = "pdf/{$sha1}/" . $file->getClientFilename();
+        $relativePath = $this->subDir . DIRECTORY_SEPARATOR . $md5 . DIRECTORY_SEPARATOR . $file->getClientFilename();
         try {
-            $local->writeStream($path, $resource);
+            $local->writeStream($relativePath, $resource);
             fclose($resource);
         } catch (FilesystemException|UnableToWriteFile $exception) {
             $this->logger->error($exception->getMessage());
-            return $this->fail(ErrorCode::UPLOAD_PDF_FAIL);
+            return $this->fail(ErrorCode::UPLOAD_FAIL);
         }
         //异步处理
-        $this->service->push([
+        $this->service->pdfToPngPush([
             'merge' => (bool)$merge,
-            'format' => 'png',
-            'key' => $sha1,
+            'key' => $md5,
+            'relativePath' => $relativePath,
             'uid' => $this->request->header('auth'),
         ]);
         return $this->success([
-            'key' => $sha1,
+            'key' => $md5,
         ]);
     }
 

@@ -31,7 +31,6 @@
         "hyperf/process": "~2.2.0",
         "hyperf/redis": "~2.2.0",
         "hyperf/websocket-server": "^2.2",
-        "mnvx/lowrapper": "^1.0",
         "spatie/pdf-to-image": "^2.2"
     },
     "require-dev": {
