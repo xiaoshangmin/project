@@ -30,16 +30,15 @@ class PdfToPicJob extends Job
         $server = (ApplicationContext::getContainer())->get(ServerFactory::class)->getServer()->getServer();
         $cache = make(Redis::class);
         $logger = make(StdoutLoggerInterface::class);
+        $factory = make(FilesystemFactory::class);
+        $local = $factory->get('local');
         $logger->info("start pdfTopic job" . json_encode($this->params, JSON_UNESCAPED_UNICODE));
         //true合并图片  false不合并
         $merge = $this->params['merge'] || false;
         $outFormat = $this->params['format'] ?: 'png';
-        $key = $this->params['key'] ?: '';
-        $factory = make(FilesystemFactory::class);
         $storage = BASE_PATH . '/storage/';
-        $subDirectory = "/pdf/{$key}";
-        $local = $factory->get('local');
-        $fileList = $local->listContents($subDirectory, true)
+        $relativePath = dirname($this->params['relativePath']);
+        $fileList = $local->listContents($relativePath, true)
             ->filter(fn(StorageAttributes $attributes) => $attributes->isFile())->toArray();
         try {
             $directory = $storage;
@@ -67,7 +66,7 @@ class PdfToPicJob extends Job
                     }
                 } else {
                     $filename = basename($rs[0]);
-                    $local->move("{$subDirectory}/{$filename}", "{$subDirectory}/{$filename}");
+                    $local->move("{$relativePath}/{$filename}", "{$relativePath}/{$filename}");
                 }
             }
             if (!empty($compressList)) {
@@ -90,11 +89,12 @@ class PdfToPicJob extends Job
                 'result' => 1,
                 'category' => 'zip',
                 'filesize' => filesize($savePath),
-                'download' => $subDirectory . DIRECTORY_SEPARATOR . basename($savePath),
+                'download' => $relativePath . DIRECTORY_SEPARATOR . basename($savePath),
                 'filename' => basename($savePath),
             ];
             $json = json_encode($result, JSON_UNESCAPED_UNICODE);
             $server->push(intval($fd), $json);
+            $logger->info("pdfTopic finish:" . $json);
         } catch (\Exception $e) {
             $logger->error("Exception message:" . $e->getMessage());
         }

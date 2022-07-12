@@ -13,9 +13,9 @@ declare(strict_types=1);
 namespace App\Controller;
 
 use App\Constants\ErrorCode;
+use App\Service\OfficeService;
 use App\Service\QueueService;
 use Hyperf\Di\Annotation\Inject;
-use Hyperf\Filesystem\FilesystemFactory;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\PostMapping;
@@ -26,12 +26,13 @@ use League\Flysystem\UnableToWriteFile;
 class PdfToPicController extends AbstractController
 {
 
-    private string $subDir = 'pdf';
-
     private int $maxSize = 5243000;
 
     #[Inject]
     protected QueueService $service;
+
+    #[Inject]
+    protected OfficeService $officeService;
 
     #[GetMapping(path: "index")]
     public function index()
@@ -45,7 +46,7 @@ class PdfToPicController extends AbstractController
     }
 
     #[PostMapping(path: "upload")]
-    public function upload(FilesystemFactory $factory)
+    public function upload()
     {
         $file = $this->request->file('file');
         $merge = $this->request->post('merge', false);
@@ -55,28 +56,17 @@ class PdfToPicController extends AbstractController
         if ($file->getSize() > $this->maxSize) {
             return $this->fail(ErrorCode::OVER_MAX_SIZE);
         }
-        $tmpFile = $file->getRealPath();
-        $md5 = md5_file($tmpFile);
-        $resource = fopen($tmpFile, 'r+');
-        $local = $factory->get('local');
-        $relativePath = $this->subDir . DIRECTORY_SEPARATOR . $md5 . DIRECTORY_SEPARATOR . $file->getClientFilename();
+
         try {
-            $local->writeStream($relativePath, $resource);
-            fclose($resource);
+            $uploadRes = $this->officeService->uploadFile($file);
         } catch (FilesystemException|UnableToWriteFile $exception) {
             $this->logger->error($exception->getMessage());
             return $this->fail(ErrorCode::UPLOAD_FAIL);
         }
         //异步处理
-        $this->service->pdfToPngPush([
-            'merge' => (bool)$merge,
-            'key' => $md5,
-            'relativePath' => $relativePath,
-            'uid' => $this->request->header('auth'),
-        ]);
-        return $this->success([
-            'key' => $md5,
-        ]);
+        $data = array_merge($uploadRes, ['uid' => $this->request->header('auth'), 'merge' => (bool)$merge,]);
+        $this->service->pdfToPngPush($data);
+        return $this->success($uploadRes);
     }
 
 }
