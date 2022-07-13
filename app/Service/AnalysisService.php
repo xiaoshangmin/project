@@ -4,9 +4,15 @@ namespace App\Service;
 
 use GuzzleHttp\Client;
 use GuzzleHttp\Exception\RequestException;
+use Hyperf\Di\Annotation\Inject;
+use Hyperf\Guzzle\ClientFactory;
 
 class AnalysisService
 {
+
+    #[Inject]
+    private ClientFactory $clientFactory;
+
     public function pipixia($url)
     {
         $loc = get_headers($url, true)['Location'];
@@ -294,64 +300,39 @@ class AnalysisService
 
     public function kuaishou($url)
     {
-        $type = 'video';
-        $header = get_headers($url, true); //["Location"][0];
-        if (isset($header["Location"][2])) { //长视频要带cookie
-            $loc = $header["Location"][2];
+        $locs = get_headers($url, true) ['Location'][1];
+        preg_match('/photoId=(.*?)\&/', $locs, $matches);
+        $headers = array('Cookie: did=web_9bceee20fa5d4a968535a27e538bf51b; didv=1655992503000;',
+            'Referer: ' . $locs, 'Content-Type: application/json');
+        $post_data = '{"photoId": "' . str_replace(['video/', '?'], '', $matches[1]) . '","isLongVideo": false}';
+        $curl = curl_init();
+        curl_setopt($curl, CURLOPT_URL, 'https://v.m.chenzhongtech.com/rest/wd/photo/info');
+        curl_setopt($curl, CURLOPT_HTTPHEADER, $headers);
+        curl_setopt($curl, CURLOPT_NOBODY, 0);
+        curl_setopt($curl, CURLOPT_RETURNTRANSFER, 1);
+        curl_setopt($curl, CURLINFO_HEADER_OUT, TRUE);
+        curl_setopt($curl, CURLOPT_SSL_VERIFYPEER, false);
+        curl_setopt($curl, CURLOPT_POST, 1);
+        curl_setopt($curl, CURLOPT_POSTFIELDS, $post_data);
+        $data = curl_exec($curl);
+        curl_close($curl);
+        $json = json_decode($data, true);
+        if (isset($json['atlas'])) {
+            $cdn = $json['atlas']['cdn'][0];
+            $list = $json['atlas']['list'];
+            $pics = array_map(fn($item) => "https://{$cdn}{$item}", $list);
+            return $this->images($pics, '');
         } else {
-            //获取302地址
-            $body = $this->ks_body_curl($header["Location"][0]);
-            if (false !== strpos($body, 'live.kuaishou.com')) {
-                $loc = $header["Location"][0];
-                if (false !== strpos($loc, 'chenzhongtech.com')) {
-                    //图集
-                    $type = 'images';
-                    preg_match('/userId=(\w+)/', $loc, $userId);
-                    preg_match('/photoId=(\w+)/', $loc, $photoId);
-                    $locArr = parse_url($loc);
-                    $loc = "https://live.kuaishou.com/u/{$userId[1]}/{$photoId[1]}?{$locArr['query']}";
-                    $photoId = $photoId[1];
-                }
-            } else {
-                $u = "https:{$header["Location"][1]}";
-                $header = get_headers($u, true);
-                $loc = $header['Location'];
-            }
-        }
-        $cookie = '';
-        foreach ($header['Set-Cookie'] as $c) {
-            $cookie .= explode(';', $c)[0] . ';';
-        }
-        $ret = ['type' => $type, 'list' => []];
-        $text = $this->ks_curl($loc, ['cookie' => $cookie]);
-        preg_match('/__APOLLO_STATE__([^;]+)/', $text, $data);
-        $jsonStr = ltrim($data[1], '=');
-        preg_match('/(VisionVideoDetailPhoto:[\w]+)"/', $jsonStr, $index);
-        $index = $index[1] ?? '';
-        $json = json_decode($jsonStr, true);
-        //长视频
-        if (isset($json['defaultClient']['VisionVideoSetRepresentation:1']) && $index) {
-            // $video_url = $this->decodeUnicode($video_url[0]);
-            $video = $json['defaultClient']['VisionVideoSetRepresentation:1'];
-            $detail = $json['defaultClient'][$index];
-            $ret['list'] = [
-                "title" => $detail['caption'],
-                "cover" => $detail['coverUrl'],
-                "url" => $detail['photoUrl'],
+            $res = [
+                'avatar' => $json['photo']['headUrl'],
+                'author' => $json['photo']['userName'],
+                'time' => $json['photo']['timestamp'],
+                'title' => $json['photo']['caption'],
+                'cover' => $json['photo']['coverUrls'][key($json['photo']['coverUrls'])]['url'],
+                'url' => $json['photo']['mainMvUrls'][key($json['photo']['mainMvUrls'])]['url'],
             ];
-        } elseif (isset($json['clients']['graphqlServerClient']["VideoFeed:{$photoId}"])) {
-            $detail = $json['clients']['graphqlServerClient']["VideoFeed:{$photoId}"];
-            $images = $detail['imgUrls']['json'];
-            foreach ($images as $item) {
-                $item = $this->decodeUnicode($item);
-                $ret['list'][] = [
-                    'avatar' => $detail['poster'],
-                    'title' => $detail['caption'],
-                    'url' => $item
-                ];
-            }
+            return $this->video($res['title'], $res['cover'], $res['url']);
         }
-        return $ret;
     }
 
     public function quanmin($id)
@@ -843,11 +824,12 @@ class AnalysisService
         $header = [
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
         ];
-        // $cookies = [
-        //     'BAIDUID'   => '221563C227ADC44DD942FD9E6D577EF2CD',
-        // ];
         try {
-            $client = new Client([
+//            $client = new Client([
+//                'timeout' => 5,
+//                'verify' => false
+//            ]);
+            $client = $this->clientFactory->create([
                 'timeout' => 5,
                 'verify' => false
             ]);
@@ -862,23 +844,6 @@ class AnalysisService
             echo $e->getMessage();
         }
 
-
-        // $header = [
-        //     'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
-        // ];
-        // $con = curl_init((string)$url);
-        // curl_setopt($con, CURLOPT_HEADER, false);
-        // curl_setopt($con, CURLOPT_SSL_VERIFYPEER, false);
-        // curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
-        // curl_setopt($con, CURLOPT_ENCODING, 'gzip');
-        // if (!empty($headers)) {
-        //     curl_setopt($con, CURLOPT_HTTPHEADER, $headers);
-        // } else {
-        //     curl_setopt($con, CURLOPT_HTTPHEADER, $header);
-        // }
-        // curl_setopt($con, CURLOPT_TIMEOUT, 5000);
-        // $result = curl_exec($con);
-        // return $result;
     }
 
 
@@ -890,9 +855,6 @@ class AnalysisService
             'Cookie:' . $cookie
         ];
 
-        // if(isset($headers['cookie'])){
-        //     $header[] = ["Cookie:{$headers['cookie']}"];
-        // }
         $con = curl_init((string)$url);
         curl_setopt($con, CURLOPT_COOKIE, $cookie);
         curl_setopt($con, CURLOPT_HEADER, false);

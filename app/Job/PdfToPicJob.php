@@ -89,7 +89,7 @@ class PdfToPicJob extends Job
                 'result' => 1,
                 'category' => 'zip',
                 'filesize' => filesize($savePath),
-                'download' => $relativePath . DIRECTORY_SEPARATOR . basename($savePath),
+                'download' => env('APP_HOST') . $relativePath . DIRECTORY_SEPARATOR . basename($savePath),
                 'filename' => basename($savePath),
             ];
             $json = json_encode($result, JSON_UNESCAPED_UNICODE);

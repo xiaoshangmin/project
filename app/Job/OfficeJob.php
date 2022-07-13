@@ -89,7 +89,7 @@ class OfficeJob extends Job
             $result = [
                 'result' => 1,
                 'category' => 'pdf',
-                'download' => $relativePath . DIRECTORY_SEPARATOR . basename($outputFile),
+                'download' => env('APP_HOST') . $relativePath . DIRECTORY_SEPARATOR . basename($outputFile),
                 'filesize' => filesize($outputFile),
                 'filename' => basename($outputFile),
             ];
