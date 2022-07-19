@@ -14,8 +14,35 @@ class TestController extends AbstractController
     public function es(){
         $builder = $this->container->get(ClientBuilderFactory::class)->create();
         $client = $builder->setHosts(['http://elasticsearch:9200'])->build();
-        $info = $client->info();
-        var_dump($info);
+        $params = [
+            'index' => 'info',
+            'body'  => [
+                'query' => [
+                    'match' => [
+                        'testField' => 'abc'
+                    ]
+                ]
+            ]
+        ];
+        $response = $client->search($params);
+        $params = [
+            'index' => 'my_index',
+            'id'    => 'my_id',
+            'body'  => ['testField' => 'abc']
+        ];
+        $response = $client->index($params);
+//        $params = [
+//            'index' => 'my_index',
+//            'body'  => [
+//                'settings' => [
+//                    'number_of_shards' => 2,
+//                    'number_of_replicas' => 0
+//                ]
+//            ]
+//        ];
+//
+//        $response = $client->indices()->create($params);
+        return $response;
     }
 
 }
