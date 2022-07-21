@@ -6,6 +6,7 @@ namespace App\Service;
 use App\Contract\OfficeInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Filesystem\FilesystemFactory;
+use League\Flysystem\Config;
 use League\Flysystem\Visibility;
 
 class OfficeService implements OfficeInterface
@@ -23,10 +24,8 @@ class OfficeService implements OfficeInterface
         $md5 = md5_file($tmpFile);
         $resource = fopen($tmpFile, 'r+');
         $relativePath = $this->subDir . DIRECTORY_SEPARATOR . $md5 . DIRECTORY_SEPARATOR . $file->getClientFilename();
-        $local->writeStream($relativePath, $resource);
+        $local->writeStream($relativePath, $resource,[Config::OPTION_DIRECTORY_VISIBILITY => Visibility::PUBLIC]);
         fclose($resource);
-        $local->setVisibility($relativePath,Visibility::PUBLIC);
-        chmod($relativePath,0755);
         return ['key' => $md5, 'relativePath' => $relativePath,];
     }
 
