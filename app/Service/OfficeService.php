@@ -23,9 +23,9 @@ class OfficeService implements OfficeInterface
         $md5 = md5_file($tmpFile);
         $resource = fopen($tmpFile, 'r+');
         $relativePath = $this->subDir . DIRECTORY_SEPARATOR . $md5 . DIRECTORY_SEPARATOR . $file->getClientFilename();
-        $local->setVisibility($relativePath,Visibility::PUBLIC);
         $local->writeStream($relativePath, $resource);
         fclose($resource);
+        $local->setVisibility($relativePath,Visibility::PUBLIC);
         chmod($relativePath,0755);
         return ['key' => $md5, 'relativePath' => $relativePath,];
     }
