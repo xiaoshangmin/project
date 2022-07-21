@@ -24,6 +24,7 @@ class OfficeService implements OfficeInterface
         $relativePath = $this->subDir . DIRECTORY_SEPARATOR . $md5 . DIRECTORY_SEPARATOR . $file->getClientFilename();
         $local->writeStream($relativePath, $resource);
         fclose($resource);
+        chmod($relativePath,0755);
         return ['key' => $md5, 'relativePath' => $relativePath,];
     }
 

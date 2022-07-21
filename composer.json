@@ -29,6 +29,7 @@
         "hyperf/http-server": "~2.2.0",
         "hyperf/logger": "~2.2.0",
         "hyperf/memory": "~2.2.0",
+        "hyperf/phar": "^2.2",
         "hyperf/process": "~2.2.0",
         "hyperf/redis": "~2.2.0",
         "hyperf/websocket-server": "^2.2",
