@@ -34,7 +34,7 @@ abstract class AbstractController
     #[Inject]
     protected StdoutLoggerInterface $logger;
 
-    public function success(array $data = [], int $code = ErrorCode::SUCCESS): PsrResponseInterface
+    public function success($data = [], int $code = ErrorCode::SUCCESS): PsrResponseInterface
     {
         $response = [
             'code' => $code,
@@ -44,7 +44,7 @@ abstract class AbstractController
         return $this->response->json($response);
     }
 
-    public function fail(int $code = ErrorCode::FAIL,array $data = []): PsrResponseInterface
+    public function fail(int $code = ErrorCode::FAIL,$data = []): PsrResponseInterface
     {
         $response = [
             'code' => $code,

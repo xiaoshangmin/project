@@ -6,7 +6,6 @@ use Hyperf\Elasticsearch\ClientBuilderFactory;
 use Hyperf\Filesystem\FilesystemFactory;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
-use League\Flysystem\FilesystemException;
 use League\Flysystem\StorageAttributes;
 
 #[Controller(prefix: "api/test")]
