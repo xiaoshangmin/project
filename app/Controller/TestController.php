@@ -45,24 +45,29 @@ class TestController extends AbstractController
                 ]
             ]
         ];
-        $response = $client->search($params);
+//        $response = $client->search($params);
         $params = [
-            'index' => 'my_index',
-            'id' => 'my_id',
-            'body' => ['testField' => 'abc']
+            'index' => 'info-2022.08.06',
+            'id' => 'oms',
+            'body'  => [
+                'host' => 'oms-api',
+                'http_user_agent' => 'MacOs',
+            ]
         ];
-        $response = $client->index($params);
-//        $params = [
-//            'index' => 'my_index',
-//            'body'  => [
-//                'settings' => [
-//                    'number_of_shards' => 2,
-//                    'number_of_replicas' => 0
-//                ]
-//            ]
-//        ];
-//
-//        $response = $client->indices()->create($params);
+//        $response = $client->index($params);
+        $params = [
+            'index' => 'info-*',
+            "size" => 50,
+            'body' => [
+                'query' => [
+                    'match' => [
+                        'domain' => 'xsm'
+                    ]
+                ]
+            ]
+        ];
+
+        $response = $client->search($params);
         return $response;
     }
 
