@@ -12,6 +12,11 @@ use League\Flysystem\StorageAttributes;
 class TestController extends AbstractController
 {
 
+    #[GetMapping(path: "tt")]
+    public function tt(){
+        return __METHOD__;
+    }
+
     #[GetMapping(path: "test")]
     public function test(FilesystemFactory $factory)
     {
@@ -34,41 +39,17 @@ class TestController extends AbstractController
     public function es()
     {
         $builder = $this->container->get(ClientBuilderFactory::class)->create();
-        $client = $builder->setHosts(['http://elasticsearch:9200'])->build();
+        $cert = BASE_PATH . '/cacert.pem';
+        $client = $builder->setHosts(['https://xlog.mailigf.com'])->setBasicAuthentication('xlog', 'xlogMLGF2020')
+            ->setSSLVerification($cert)->build();
         $params = [
             'index' => 'info',
-            'body' => [
-                'query' => [
-                    'match' => [
-                        'testField' => 'abc'
-                    ]
-                ]
-            ]
+            'from' => 0,
+            'size' => 30,
         ];
 //        $response = $client->search($params);
-        $params = [
-            'index' => 'info-2022.08.06',
-            'id' => 'oms',
-            'body'  => [
-                'host' => 'oms-api',
-                'http_user_agent' => 'MacOs',
-            ]
-        ];
-//        $response = $client->index($params);
-        $params = [
-            'index' => 'info-*',
-            "size" => 50,
-            'body' => [
-                'query' => [
-                    'match' => [
-                        'domain' => 'xsm'
-                    ]
-                ]
-            ]
-        ];
 
-        $response = $client->search($params);
-        return $response;
+        return $client->info();
     }
 
 }
