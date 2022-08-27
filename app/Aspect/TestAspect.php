@@ -1,4 +1,5 @@
 <?php
+
 namespace App\Aspect;
 
 use Hyperf\Contract\StdoutLoggerInterface;
@@ -25,10 +26,8 @@ class TestAspect extends AbstractAspect
 
     public function process(ProceedingJoinPoint $proceedingJoinPoint)
     {
-        echo "xisaojfdjsafhdsahfdsfhadoafd";
-        $this->logger->info("aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
+        $this->logger->info(__METHOD__ . __FUNCTION__ . "-aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa");
         $result = $proceedingJoinPoint->process();
-        echo "test";
         return $result;
     }
 }

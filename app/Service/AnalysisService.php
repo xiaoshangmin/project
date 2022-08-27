@@ -44,9 +44,9 @@ class AnalysisService
             if (is_string($header['Location'])) {
                 $loc = $header['Location'];
             } else {
-                if (false !== strpos($header['Location'][1],'video')){
+                if (false !== strpos($header['Location'][1], 'video')) {
                     $loc = $header['Location'][1];
-                }else {
+                } else {
                     $loc = $header['Location'][0];
                 }
             }
@@ -300,7 +300,12 @@ class AnalysisService
 
     public function kuaishou($url)
     {
-        $locs = get_headers($url, true) ['Location'][1];
+        $locs = get_headers($url, true)['Location'];//[1];
+        if (is_array($locs)) {
+            $locs = $locs[1];
+        } elseif (is_string($locs)) {
+
+        }
         preg_match('/photoId=(.*?)\&/', $locs, $matches);
         $headers = array('Cookie: did=web_9bceee20fa5d4a968535a27e538bf51b; didv=1655992503000;',
             'Referer: ' . $locs, 'Content-Type: application/json');
@@ -993,7 +998,7 @@ class AnalysisService
 
     public function video(string $title, string $cover, string $url): array
     {
-        return  ['type' => 'video', 'title' => $title, 'cover' => $cover, 'videoUrl' => $url];
+        return ['type' => 'video', 'title' => $title, 'cover' => $cover, 'videoUrl' => $url];
     }
 
     public function images(array $pics, string $title): array
