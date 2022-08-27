@@ -268,10 +268,6 @@ class AnalysisService
 
     public function bilibili($url)
     {
-        // if (strpos($url, 'b23.tv')) {
-        //     $loc = get_headers($url, true);
-        //     $url = $loc['Location'];
-        // }
         $text = $this->curl($url);
         preg_match('/<script>window.__INITIAL_STATE__=([^;]+)/', $text, $response);
         $response = json_decode($response[1], true);
@@ -280,14 +276,8 @@ class AnalysisService
         $cover = $response['videoData']['pic'];
         $title = $response['videoData']['title'];
         $jsonStr = $this->curl("https://api.bilibili.com/x/player/playurl?avid={$aid}&cid={$cid}&qn=1&type=&otype=json&platform=html5&high_quality=1");
-        $ret = ['type' => 'video', 'list' => []];
         $json = json_decode($jsonStr, true);
-        $ret['list'] = [
-            "title" => $title,
-            "cover" => $cover,
-            "url" => $json['data']['durl'][0]['url'],
-        ];
-        return $ret;
+        return $this->video($title, $cover,  $json['data']['durl'][0]['url']);
     }
 
     //快手

@@ -29,10 +29,9 @@ class AnalysisController extends AbstractController
             $wb = new Wb();
             $arr = $wb->analyse($url);
         } elseif (strpos($url, 'kuaishou')) {
-           $arr = $this->analysisService->kuaishou($url);
+            $arr = $this->analysisService->kuaishou($url);
         } elseif (strpos($url, 'bilibili.com') || strpos($url, 'b23.tv')) {
-            $wb = new Bilibili();
-            $arr = $wb->analyse($url);
+            $arr = $this->analysisService->bilibili($url);
         } elseif (strpos($url, 'xhslink') !== false || strpos($url, 'xiaohongshu.com') !== false) {
             $wb = new Xhs();
             $arr = $wb->analyse($url);
