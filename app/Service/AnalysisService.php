@@ -2,8 +2,9 @@
 
 namespace App\Service;
 
-use GuzzleHttp\Client;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\RequestException;
+use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\ClientFactory;
 
@@ -12,6 +13,68 @@ class AnalysisService
 
     #[Inject]
     private ClientFactory $clientFactory;
+
+    #[Inject()]
+    private StdoutLoggerInterface $logger;
+
+    const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36';
+
+    public function xhs(string $url)
+    {
+        $ua = self::UA;
+        $id = md5("{$ua}hasaki");
+        $data = [
+            'id' => $id,
+            'sign' => $ua,
+        ];
+
+        $client = $this->clientFactory->create([
+            'timeout' => 5,
+            'verify' => false
+        ]);
+        $response = $client->post('https://www.xiaohongshu.com/fe_api/burdock/v2/shield/registerCanvas?p=cc', [
+            'headers' => ['Content-Type' => 'application/json'],
+            'body' => json_encode($data, JSON_UNESCAPED_UNICODE)
+        ]);
+        $canvas = $response->getBody()->getContents();
+//        print_r($canvas);
+        $canvas = json_decode($canvas, true);
+        if (strpos($url, 'xiaohongshu.com') === false) {
+            $url = get_headers($url, 1)["Location"];
+        }
+//        print_r($url);
+        $cookie = [
+            "xhsTrackerId" => "54158ddf-d919-4ad4-ca6d-851988db95be",
+            "timestamp2" => $canvas['data']['canvas'],
+            'timestamp2.sig' => 'TRnLxBFN9GTAm9HOZaz1Oj1e_9W3zK67Oa_A1dGHy-c',
+            'extra_exp_ids' => 'puarranchiv2_clt1,commentshow_exp1,gif_exp1,ques_clt1',
+        ];
+        $text = $this->xhsCurl($url, $cookie, 'xiaohongshu.com');
+
+        $text = $text->getContents();
+//        $this->logger->info($text);
+
+        preg_match('/__INITIAL_SSR_STATE__([^<]+)</', $text, $jsonStr);
+        $jsonStr = str_replace('undefined', 'null', trim($jsonStr[1], '='));
+//         print_r($jsonStr);exit;
+        $json = json_decode($jsonStr, true);
+        $noteInfo = $json['NoteView']['noteInfo'];
+        $noteType = $json['NoteView']['noteType'];
+        if ('video' == $noteType) {
+//            print_r($noteInfo);exit;
+            $cover = 'https://ci.xiaohongshu.com/' . $noteInfo['cover']['fileId'];//['traceId'];
+            return $this->video($noteInfo['title'], $cover, $noteInfo['video']['url']);
+        } else {
+            $pics = [];
+            foreach ($noteInfo['imageList'] as $image) {
+                $traceId = $image['traceId'];
+                $pics[] = 'https://ci.xiaohongshu.com/' . $traceId;
+            }
+            return $this->images($pics, $noteInfo['title']);
+        }
+        return [];
+    }
+
 
     public function pipixia($url)
     {
@@ -101,8 +164,6 @@ class AnalysisService
                 true
             );
         }
-        print_r($arr);
-        exit;
         $video_url = $arr['data']['feeds'][0]['video_url'];
         if ($video_url) {
             $arr = [
@@ -123,8 +184,7 @@ class AnalysisService
 
     public function weibo(string $url)
     {
-
-        $ret = ['type' => 'video', 'list' => []];
+        //手机端
         if (strpos($url, 'm.weibo.cn') != false) {
             preg_match('/(\d+)$/', $url, $id);
             $url = "https://m.weibo.cn/status/" . $id[1];
@@ -133,65 +193,45 @@ class AnalysisService
             if (!empty($jsonStr[1][0])) {
                 $json = json_decode($jsonStr[1][0], true)[0];
                 $status = $json['status'];
-                if (isset($status['page_info'])) {
-                    $ret['list'] = [
-                        'author' => $status['user']['screen_name'],
-                        'avatar' => $status['user']['avatar_hd'],
-                        'title' => $status['status_title'],
-                        'cover' => $status['page_info']['page_pic']['url'],
-                        'url' => $status['page_info']['media_info']['stream_url_hd'],
-                    ];
+                if (isset($status['page_info']['media_info'])) {
+                    return $this->video($status['status_title'], $status['page_info']['page_pic']['url'], $status['page_info']['media_info']['stream_url_hd']);
                 } else if (isset($status['pic_ids'])) {
-                    $ret['type'] = 'images';
                     $picIds = $status['pic_ids'];
                     if (empty($status['pic_ids']) && isset($status['retweeted_status']['pic_ids']) && !empty($status['retweeted_status']['pic_ids'])) {
                         $picIds = $status['retweeted_status']['pic_ids'];
                     }
+                    $pics = [];
                     foreach ($picIds as $ids) {
-                        $ret['list'][] = [
-                            'author' => $status['user']['screen_name'],
-                            'avatar' => $status['user']['avatar_hd'],
-                            'title' => $status['status_title'],
-                            // 'url'    => $pic['large']['url'],
-                            'url' => 'https://lz.sinaimg.cn/oslarge/' . $ids . '.jpg',
-                        ];
+                        $pics[] = 'https://lz.sinaimg.cn/oslarge/' . $ids . '.jpg';
                     }
+                    return $this->images($pics, $status['status_title']);
                 }
             }
         } else {
+            //pc端
             preg_match('/\/([\w]+)$/', $url, $id);
             $url = "https://weibo.com/ajax/statuses/show?id=" . $id[1];
             $json = $this->curl($url);
             $json = json_decode($json, true);
-            if (isset($json['page_info'])) {
-                $ret['list'] = [
-                    'author' => $json['user']['screen_name'],
-                    'avatar' => $json['user']['avatar_hd'],
-                    'title' => $json['page_info']['media_info']['next_title'],
-                    'cover' => $json['page_info']['page_pic'],
-                    'url' => $json['page_info']['media_info']['stream_url_hd'],
-                ];
+
+            if (isset($json['page_info']['media_info'])) {
+                return $this->video($json['page_info']['media_info']['next_title'], $json['page_info']['page_pic'], $json['page_info']['media_info']['stream_url_hd']);
             } else if (isset($json['pic_ids'])) {
-                $ret['type'] = 'images';
                 $picIds = $json['pic_ids'];
                 if (empty($json['pic_ids']) && isset($json['retweeted_status']['pic_ids']) && !empty($json['retweeted_status']['pic_ids'])) {
                     $picIds = $json['retweeted_status']['pic_ids'];
                 }
+                $pics = [];
                 foreach ($picIds as $ids) {
                     if ($json['isLongText']) {
                         //长文本
                     }
-                    $ret['list'][] = [
-                        'author' => $json['user']['screen_name'],
-                        'avatar' => $json['user']['avatar_hd'],
-                        'title' => $json['text_raw'],
-                        // 'url'    => $pic['original']['url'],
-                        'url' => 'https://lz.sinaimg.cn/oslarge/' . $ids . '.jpg',
-                    ];
+                    $pics[] = 'https://lz.sinaimg.cn/oslarge/' . $ids . '.jpg';
                 }
+                return $this->images($pics, $json['text_raw']);
             }
         }
-        return $ret;
+        return [];
     }
 
     public function lvzhou($url)
@@ -277,7 +317,7 @@ class AnalysisService
         $title = $response['videoData']['title'];
         $jsonStr = $this->curl("https://api.bilibili.com/x/player/playurl?avid={$aid}&cid={$cid}&qn=1&type=&otype=json&platform=html5&high_quality=1");
         $json = json_decode($jsonStr, true);
-        return $this->video($title, $cover,  $json['data']['durl'][0]['url']);
+        return $this->video($title, $cover, $json['data']['durl'][0]['url']);
     }
 
     //快手
@@ -817,8 +857,11 @@ class AnalysisService
     {
 
         $header = [
-            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
+            'User-Agent' => self::UA
         ];
+        if (!empty( $header)){
+            $header = array_merge($headers);
+        }
         try {
 //            $client = new Client([
 //                'timeout' => 5,
@@ -842,42 +885,34 @@ class AnalysisService
     }
 
 
-    private function ks_curl($url, $headers = [])
+    private function xhsCurl(string $url, array $cookies = [], string $domain = '')
     {
-        $cookie = 'didv=1635502569721; account_id=13226038; ' . $headers['cookie'] . ' userId=2071613878; client_key=65890b29; kuaishou.server.web_st=ChZrdWFpc2hvdS5zZXJ2ZXIud2ViLnN0EqABy7WTvKZ7RihmhboZ29NwYQm8_90pnLL4fW7_Jz-APOEt31AZi2t8vwIkiHAiTDGXbzeAolZZiNZXyqWJOoOsj34VIJtwoO9JiLEe1AIHx4NONey64iOfwE3NNi3GpbkO-BOnvvpeHN_OJm98eU9FDCt952LrShR_LfeRnSG_xE38rAirosdJt6Z-nP5FT_PzRkNcmfPsSxbKND_CAwpRPRoSzFZBnBL4suA5hQVn0dPKLsMxIiA5ajw1M7j9pJwWpFmiMldzd6ab_OCGOLYSBiWgjRot_CgFMAE; kuaishou.server.web_ph=c11f13aaf2c120715113e3baefa9b049e498';
+
         $header = [
-            'User-Agent:Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36',
-            'Cookie:' . $cookie
+            'User-Agent' => self::UA
         ];
-
-        $con = curl_init((string)$url);
-        curl_setopt($con, CURLOPT_COOKIE, $cookie);
-        curl_setopt($con, CURLOPT_HEADER, false);
-        curl_setopt($con, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
-        if (!empty($headers)) {
-            curl_setopt($con, CURLOPT_HTTPHEADER, $headers);
-        } else {
-            curl_setopt($con, CURLOPT_HTTPHEADER, $header);
+        try {
+            $client = $this->clientFactory->create([
+                'timeout' => 5,
+                'verify' => false
+            ]);
+            $options = [
+                'headers' => $header,
+                'decode_content' => 'gzip,deflate',
+                'allow_redirects' => true,
+            ];
+            if (!empty($cookies)) {
+                $cookies = CookieJar::fromArray($cookies, $domain);
+                $options['cookies'] = $cookies;
+            }
+            $response = $client->get($url, $options);
+            return $response->getBody();
+        } catch (RequestException $e) {
+            echo $e->getMessage();
         }
-        curl_setopt($con, CURLOPT_TIMEOUT, 5000);
-        $result = curl_exec($con);
-        return $result;
+
     }
 
-    private function ks_body_curl($url, $headers = [])
-    {
-
-        $con = curl_init((string)$url);
-        curl_setopt($con, CURLOPT_HEADER, true);
-        curl_setopt($con, CURLOPT_SSL_VERIFYPEER, false);
-        curl_setopt($con, CURLOPT_RETURNTRANSFER, true);
-        curl_setopt($con, CURLOPT_TIMEOUT, 5000);
-        $result = curl_exec($con);
-        $header_size = curl_getinfo($con, CURLINFO_HEADER_SIZE);
-        $body = substr($result, $header_size);
-        return $body;
-    }
 
     private function post_curl($url, $post_data)
     {

@@ -26,15 +26,13 @@ class AnalysisController extends AbstractController
         } elseif (strpos($url, 'douyin')) {
             $arr = $this->analysisService->douyin($url);
         } elseif (strpos($url, 'weibo.com') || strpos($url, 'm.weibo.cn')) {
-            $wb = new Wb();
-            $arr = $wb->analyse($url);
+            $arr = $this->analysisService->weibo($url);
         } elseif (strpos($url, 'kuaishou')) {
             $arr = $this->analysisService->kuaishou($url);
         } elseif (strpos($url, 'bilibili.com') || strpos($url, 'b23.tv')) {
             $arr = $this->analysisService->bilibili($url);
         } elseif (strpos($url, 'xhslink') !== false || strpos($url, 'xiaohongshu.com') !== false) {
-            $wb = new Xhs();
-            $arr = $wb->analyse($url);
+            $arr = $this->analysisService->xhs($url);
         } elseif (strpos($url, 'huoshan')) {
             $arr = $api->huoshan($url);
         } elseif (strpos($url, 'h5.weishi') || strpos($url, 'isee.weishi')) {
