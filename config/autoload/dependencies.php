@@ -10,5 +10,6 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 return [
-    \Hyperf\Contract\StdoutLoggerInterface::class => \App\Log\StdoutLoggerFactory::class
+    \Hyperf\Contract\StdoutLoggerInterface::class => \App\Log\StdoutLoggerFactory::class,
+    \App\Contract\AnalysisInterface::class => \App\Service\AnalysisService::class
 ];

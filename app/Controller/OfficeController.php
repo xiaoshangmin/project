@@ -30,6 +30,7 @@ class OfficeController extends AbstractController
     public function upload()
     {
         $file = $this->request->file('file');
+        $type = $this->request->post('type');
         if (!in_array($file->getExtension(), ['docx', 'doc']) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' != $file->getMimeType()) {
             return $this->fail(ErrorCode::PLEASE_UPDATE_WORD);
         }

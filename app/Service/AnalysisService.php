@@ -2,13 +2,14 @@
 
 namespace App\Service;
 
+use App\Contract\AnalysisInterface;
 use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\RequestException;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\ClientFactory;
 
-class AnalysisService
+class AnalysisService implements AnalysisInterface
 {
 
     #[Inject]
@@ -19,7 +20,7 @@ class AnalysisService
 
     const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36';
 
-    public function xhs(string $url)
+    public function xhs(string $url):array
     {
         $ua = self::UA;
         $id = md5("{$ua}hasaki");
@@ -67,7 +68,7 @@ class AnalysisService
         } else {
             $pics = [];
             foreach ($noteInfo['imageList'] as $image) {
-                $traceId = $image['traceId'];
+                $traceId = $image['fileId'];
                 $pics[] = 'https://ci.xiaohongshu.com/' . $traceId;
             }
             return $this->images($pics, $noteInfo['title']);
@@ -98,7 +99,7 @@ class AnalysisService
         }
     }
 
-    public function douyin($url)
+    public function douyin($url):array
     {
         if (strpos($url, 'iesdouyin')) {
             preg_match('/\/(\d+)\//', $url, $id);
@@ -182,7 +183,7 @@ class AnalysisService
         }
     }
 
-    public function weibo(string $url)
+    public function weibo(string $url):array
     {
         //手机端
         if (strpos($url, 'm.weibo.cn') != false) {
@@ -306,7 +307,7 @@ class AnalysisService
         }
     }
 
-    public function bilibili($url)
+    public function bilibili($url):array
     {
         $text = $this->curl($url);
         preg_match('/<script>window.__INITIAL_STATE__=([^;]+)/', $text, $response);
@@ -328,7 +329,7 @@ class AnalysisService
         }, $str);
     }
 
-    public function kuaishou($url)
+    public function kuaishou($url):array
     {
         $locs = get_headers($url, true)['Location'];//[1];
         if (is_array($locs)) {
@@ -863,10 +864,6 @@ class AnalysisService
             $header = array_merge($headers);
         }
         try {
-//            $client = new Client([
-//                'timeout' => 5,
-//                'verify' => false
-//            ]);
             $client = $this->clientFactory->create([
                 'timeout' => 5,
                 'verify' => false

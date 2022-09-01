@@ -2,7 +2,7 @@
 
 namespace App\Controller;
 
-use App\Service\AnalysisService;
+use App\Contract\AnalysisInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\PostMapping;
@@ -12,7 +12,7 @@ class AnalysisController extends AbstractController
 {
 
     #[Inject()]
-    protected AnalysisService $analysisService;
+    protected AnalysisInterface $analysisService;
 
     #[PostMapping(path: 'media')]
     public function getMedia()
