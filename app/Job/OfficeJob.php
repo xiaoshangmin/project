@@ -55,14 +55,18 @@ class OfficeJob extends Job
             foreach ($fileList as $item) {
                 $file = $item->path();
                 $ext = pathinfo($file, PATHINFO_EXTENSION);
-                if ('doc' != $ext && 'docx' != $ext) {
-                    continue;
-                }
+//                if ('doc' != $ext && 'docx' != $ext) {
+//                    continue;
+//                }
                 //上传的文件绝对路径
                 $inputFile = $storage . $file;
                 //filters https://wiki.openoffice.org/wiki/Framework/Article/Filter/FilterList_OOo_3_0
+                //https://help.libreoffice.org/7.4/zh-CN/text/shared/guide/convertfilters.html?&DbPAR=SHARED&System=WIN
                 $options = array_merge($this->defaultOptions, ["--convert-to {$convertToType}", $inputFile, "--outdir " . dirname($inputFile)]);
-                //libreoffice --headless --invisible --nocrashreport --nodefault --nofirststartwizard --nologo --norestore --convert-to pdf path-to-file
+                if ($convertToType == 'docx') {
+                    $options = array_merge($options, ['--infilter="writer_pdf_import"']);
+                }
+                //libreoffice --headless --invisible --nocrashreport --nodefault --nofirststartwizard --nologo --norestore --convert-to pdf path-to-file --infilter="writer_pdf_import"
                 $command = 'libreoffice ' . implode(' ', $options);
 
                 $process = $this->createProcess($command);

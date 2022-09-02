@@ -31,8 +31,13 @@ class OfficeController extends AbstractController
     {
         $file = $this->request->file('file');
         $type = $this->request->post('type');
-        if (!in_array($file->getExtension(), ['docx', 'doc']) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' != $file->getMimeType()) {
+        //wordToPdf
+        if ($type == 'word' && (!in_array($file->getExtension(), ['docx', 'doc']) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' != $file->getMimeType())) {
             return $this->fail(ErrorCode::PLEASE_UPDATE_WORD);
+        }
+        //pdfToWord
+        if ($type == 'pdf' && (!in_array($file->getExtension(), ['pdf']) || 'application/pdf' != $file->getMimeType())) {
+            return $this->fail(ErrorCode::PLEASE_UPDATE_PDF);
         }
         if ($file->getSize() > $this->maxSize) {
             return $this->fail(ErrorCode::OVER_MAX_SIZE);
@@ -45,7 +50,13 @@ class OfficeController extends AbstractController
         }
         //异步处理
         $data = array_merge($uploadRes, ['uid' => $this->request->header('auth')]);
-        $this->queueService->turnToPdfPush($data);
+        if ($type == 'word') {
+            $this->queueService->turnToPdfPush($data);
+        } else {
+            $this->queueService->pdfToWordPush($data);
+        }
+
+
         return $this->success($uploadRes);
     }
 }

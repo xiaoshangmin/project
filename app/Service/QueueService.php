@@ -31,11 +31,23 @@ class QueueService
     }
 
     /**
+     * 生产消息
      * @param $params
      * @param int $delay
      * @return bool
      */
-    public function turnToPdfPush($params, int $delay = 0): bool
+    public function pdfToWordPush($params, int $delay = 0): bool
+    {
+        $params['convertToType'] = 'docx';
+        return $this->driver->push(new OfficeJob($params), $delay);
+    }
+
+    /**
+     * @param $params
+     * @param int $delay
+     * @return bool
+     */
+    public function wordToPdfPush($params, int $delay = 0): bool
     {
         $params['convertToType'] = 'pdf';
         return $this->driver->push(new OfficeJob($params), $delay);
