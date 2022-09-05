@@ -85,7 +85,7 @@ class OfficeJob extends Job
                     $logger->error(sprintf('Failed with result code %d: %s', $resultCode, $command));
                 } else {
                     $outputFileName = basename($inputFile, $ext);
-                    $outputFile = dirname($inputFile) . DIRECTORY_SEPARATOR . "{$outputFileName}pdf";
+                    $outputFile = dirname($inputFile) . DIRECTORY_SEPARATOR . "{$outputFileName}{$convertToType}";
                     $logger->info(sprintf('Finished: %s', $command));
                 }
             }
