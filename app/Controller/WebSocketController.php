@@ -7,8 +7,6 @@ use Hyperf\Contract\OnCloseInterface;
 use Hyperf\Contract\OnMessageInterface;
 use Hyperf\Contract\OnOpenInterface;
 use Hyperf\Redis\Redis;
-use Swoole\Http\Request;
-use Swoole\WebSocket\Frame;
 
 class WebSocketController extends AbstractController implements OnMessageInterface, OnOpenInterface, OnCloseInterface
 {
@@ -26,13 +24,13 @@ class WebSocketController extends AbstractController implements OnMessageInterfa
 //        var_dump('closed' . $reactorId);
     }
 
-    public function onMessage($server, Frame $frame): void
+    public function onMessage($server, $frame): void
     {
         $data = json_encode(["Recv:{$frame->data}"]);
         $server->push($frame->fd, $data);
     }
 
-    public function onOpen($server, Request $request): void
+    public function onOpen($server, $request): void
     {
         $this->cache->set($request->get['key'], $request->fd);
         $this->cache->expire($request->get['key'], 7200);

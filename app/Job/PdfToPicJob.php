@@ -17,7 +17,7 @@ class PdfToPicJob extends Job
 {
     public $params;
 
-    protected $maxAttempts = 2;
+    protected int $maxAttempts = 2;
 
     public function __construct($params)
     {

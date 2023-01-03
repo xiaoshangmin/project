@@ -15,12 +15,12 @@ class TestAspect extends AbstractAspect
     private StdoutLoggerInterface $logger;
 
     //要切入的类或者trait,可多个  也可具体到类方法
-    public $classes = [
+    public array $classes = [
         "App\Controller\TestController::tt"
     ];
 
     //要切入的注解
-    public $annotations = [
+    public array $annotations = [
 
     ];
 
