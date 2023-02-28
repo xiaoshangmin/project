@@ -3,8 +3,19 @@ declare(strict_types=1);
 
 namespace App\Util;
 
+use GuzzleHttp\Cookie\CookieJar;
+use Hyperf\Di\Annotation\Inject;
+use Hyperf\Guzzle\ClientFactory;
+use GuzzleHttp\Client;
+
 class Common
 {
+//    private ClientFactory $clientFactory;
+//
+//    public function __construct(ClientFactory $clientFactory)
+//    {
+//        $this->clientFactory = $clientFactory;
+//    }
 
     /**
      * 合并多图
@@ -77,6 +88,37 @@ class Common
         }
         imagedestroy($img);
         return true;
+
+    }
+
+
+    public function get_content($url, $headers = [], $decoded = True)
+    {
+        /**Gets the content of a URL via sending a HTTP GET request.
+         *
+         * Args:
+         * url: A URL.
+         * headers: Request headers used by the client.
+         * decoded: Whether decode the response body using UTF-8 or the charset specified in Content-Type.
+         *
+         * Returns:
+         * The content as a string.
+         **/
+        $client = new Client([
+            'timeout' => 5,
+            'verify' => false
+        ]);
+        $options = [
+            'headers' => $headers,
+            'decode_content' => 'gzip,deflate',
+            'allow_redirects' => true,
+        ];
+        if (!empty($cookies)) {
+            $cookies = CookieJar::fromArray($cookies, $url);
+            $options['cookies'] = $cookies;
+        }
+        $response = $client->get($url, $options);
+        return $response->getBody()->getContents();
 
     }
 }

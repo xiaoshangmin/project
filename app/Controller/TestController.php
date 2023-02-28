@@ -2,6 +2,7 @@
 
 namespace App\Controller;
 
+use App\Util\Common;
 use Hyperf\Elasticsearch\ClientBuilderFactory;
 use Hyperf\Filesystem\FilesystemFactory;
 use Hyperf\HttpServer\Annotation\Controller;
@@ -13,7 +14,8 @@ class TestController extends AbstractController
 {
 
     #[GetMapping(path: "tt")]
-    public function tt(){
+    public function tt()
+    {
         return __METHOD__;
     }
 
@@ -35,21 +37,52 @@ class TestController extends AbstractController
 
     }
 
-    #[GetMapping(path: "es")]
+    #[GetMapping(path: "bi")]
     public function es()
     {
-        $builder = $this->container->get(ClientBuilderFactory::class)->create();
-        $cert = BASE_PATH . '/cacert.pem';
-        $client = $builder->setHosts(['https://xlog.mailigf.com'])->setBasicAuthentication('xlog', 'xlogMLGF2020')
-            ->setSSLVerification($cert)->build();
-        $params = [
-            'index' => 'info',
-            'from' => 0,
-            'size' => 30,
-        ];
-//        $response = $client->search($params);
+        $url = 'https://www.bilibili.com/video/BV1hE411t7RN/?spm_id_from=333.999.0.0&vd_source=9e0e69f9f510b3640c0fdc6be111d54c';//https://www.bilibili.com/video/BV1Sv4y1C7Fp/?spm_id_from=333.1007.tianma.2-2-5.click';
+        $text = (new Common())->get_content($url, $this->bilibiliHeaders($url));
+        preg_match('/<script>window.__INITIAL_STATE__=([^;]+)/', $text, $response);
+        $response = json_decode($response[1], true);
+        preg_match('/__playinfo__=(.*?)<\/script><script>/', $text, $playinfo);
+        $current_quality = $playinfo['data']['quality'];
+        $cid = $response['videoData']['pages'][0]['cid'];
+        return $this->bilibili_interface_api($cid,112);
+//        return $playinfo[1];
+//        $text = (new Common())->get_content($url, $this->bilibiliHeaders(null,'CURRENT_FNVAL=16'));
+//        preg_match('/__playinfo__=(.*?)<\/script><script>/', $text, $playinfo);
 
-        return $client->info();
     }
 
+    function bilibiliHeaders($referer = null, $cookie = null)
+    {
+        # a reasonable UA
+        $ua = 'Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/110.0.0.0 Safari/537.36';
+        $headers = ['Accept' => '*/*', 'Accept-Language' => 'en-US,en;q=0.5', 'User-Agent' => $ua];
+
+        if (!empty($referer)) {
+            $headers['Referer'] = $referer;
+        }
+
+        if (!empty($cookie)) {
+            $headers['Cookie'] = $cookie;
+
+        }
+        return $headers;
+    }
+
+    function bilibili_interface_api($cid, $qn = 0)
+    {
+        $entropy = 'rbMCKn@KuamXWlPMoJGsKcbiJKUfkPF_8dABscJntvqhRSETg';
+        $entropyRev = strrev($entropy);
+        $entropyRevArr = [];
+        for ($i = 0; $i < strlen($entropyRev); $i++) {
+            $entropyRevArr[] = chr(ord($entropyRev[$i]) + 2);
+        }
+        $entropyStr = join('', $entropyRevArr);
+        list($appkey, $sec) = explode(":", $entropyStr);
+        $params = sprintf('appkey=%s&cid=%s&otype=json&qn=%s&quality=%s&type=', $appkey, $cid, $qn, $qn);
+        $chksum = md5($params . $sec);
+        return sprintf('https://interface.bilibili.com/v2/playurl?%s&sign=%s', $params, $chksum);
+    }
 }
