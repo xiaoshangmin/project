@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Contract\AnalysisInterface;
+use App\Service\QueueService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\PostMapping;
@@ -13,6 +14,9 @@ class AnalysisController extends AbstractController
 
     #[Inject()]
     protected AnalysisInterface $analysisService;
+
+    #[Inject]
+    protected QueueService $service;
 
     #[PostMapping(path: 'media')]
     public function getMedia()
@@ -31,6 +35,8 @@ class AnalysisController extends AbstractController
             $arr = $this->analysisService->kuaishou($url);
         } elseif (strpos($url, 'bilibili.com') || strpos($url, 'b23.tv')) {
             $arr = $this->analysisService->bilibili($url);
+            //异步处理
+//            $this->service->youGetPush(['uid' => $this->request->header('auth')]);
         } elseif (strpos($url, 'xhslink') !== false || strpos($url, 'xiaohongshu.com') !== false) {
             $arr = $this->analysisService->xhs($url);
         } elseif (strpos($url, 'huoshan')) {

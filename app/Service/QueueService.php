@@ -5,6 +5,7 @@ namespace App\Service;
 
 use App\Job\OfficeJob;
 use App\Job\PdfToPicJob;
+use App\Job\YouGetJob;
 use Hyperf\AsyncQueue\Driver\DriverFactory;
 use Hyperf\AsyncQueue\Driver\DriverInterface;
 
@@ -51,6 +52,11 @@ class QueueService
     {
         $params['convertToType'] = 'pdf';
         return $this->driver->push(new OfficeJob($params), $delay);
+    }
+
+    public function youGetPush($params, int $delay = 0): bool
+    {
+        return $this->driver->push(new YouGetJob($params),$delay);
     }
 
 }
