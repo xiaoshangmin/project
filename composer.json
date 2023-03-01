@@ -64,7 +64,8 @@
             "HyperfTest\\": "./test/"
         },
         "files": [
-            "app/Utils/Common.php"
+            "app/Utils/Common.php",
+            "app/Utils/Functions.php"
         ]
     },
     "minimum-stability": "dev",

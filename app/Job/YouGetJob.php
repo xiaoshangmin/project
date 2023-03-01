@@ -23,10 +23,12 @@ class YouGetJob extends Job
 
     public function handle()
     {
+        getContent();
         $server = (ApplicationContext::getContainer())->get(ServerFactory::class)->getServer()->getServer();
         $cache = make(Redis::class);
         $logger = make(StdoutLoggerInterface::class);
-        $output = trim(shell_exec("you-get --json 'https://www.bilibili.com/video/BV1YA411k7BQ/?spm_id_from=333.1007.tianma.1-1-1.click'"));
+        $cmd = sprintf("you-get --json '%s'", $this->params['url']);
+        $output = trim(shell_exec($cmd));
         $logger->info("start you-get job " . $output);
         $fd = $cache->get($this->params['uid']);
         $server->push(intval($fd), $output);
