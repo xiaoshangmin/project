@@ -2,9 +2,9 @@
 
 namespace App\Controller;
 
-use App\Util\Common;
-use Hyperf\Elasticsearch\ClientBuilderFactory;
+use Hyperf\Di\Annotation\Inject;
 use Hyperf\Filesystem\FilesystemFactory;
+use Hyperf\Guzzle\ClientFactory;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use League\Flysystem\StorageAttributes;
@@ -12,6 +12,8 @@ use League\Flysystem\StorageAttributes;
 #[Controller(prefix: "api/test")]
 class TestController extends AbstractController
 {
+    #[Inject]
+    private ClientFactory $clientFactory;
 
     #[GetMapping(path: "tt")]
     public function tt()
@@ -40,17 +42,17 @@ class TestController extends AbstractController
     #[GetMapping(path: "bi")]
     public function es()
     {
-        $url = 'https://www.bilibili.com/video/BV1hE411t7RN/?spm_id_from=333.999.0.0&vd_source=9e0e69f9f510b3640c0fdc6be111d54c';//https://www.bilibili.com/video/BV1Sv4y1C7Fp/?spm_id_from=333.1007.tianma.2-2-5.click';
-        $text = (new Common())->get_content($url, $this->bilibiliHeaders($url));
-        preg_match('/<script>window.__INITIAL_STATE__=([^;]+)/', $text, $response);
-        $response = json_decode($response[1], true);
-        preg_match('/__playinfo__=(.*?)<\/script><script>/', $text, $playinfo);
-        $current_quality = $playinfo['data']['quality'];
-        $cid = $response['videoData']['pages'][0]['cid'];
-        return $this->bilibili_interface_api($cid,112);
-//        return $playinfo[1];
-//        $text = (new Common())->get_content($url, $this->bilibiliHeaders(null,'CURRENT_FNVAL=16'));
+
+//        $url = 'https://www.bilibili.com/video/BV1hE411t7RN/?spm_id_from=333.999.0.0&vd_source=9e0e69f9f510b3640c0fdc6be111d54c';//https://www.bilibili.com/video/BV1Sv4y1C7Fp/?spm_id_from=333.1007.tianma.2-2-5.click';
+//        $text = (new Common())->get_content($url, $this->bilibiliHeaders($url));
+//        preg_match('/<script>window.__INITIAL_STATE__=([^;]+)/', $text, $response);
+//        $response = json_decode($response[1], true);
 //        preg_match('/__playinfo__=(.*?)<\/script><script>/', $text, $playinfo);
+//        $current_quality = $playinfo['data']['quality'];
+//        $cid = $response['videoData']['pages'][0]['cid'];
+//        return $this->bilibili_interface_api($cid,112);
+//        $client = $this->clientFactory->create();
+//        return $client->get("https://baidu.com")->getBody()->getContents();
 
     }
 

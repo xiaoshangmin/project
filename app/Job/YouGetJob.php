@@ -23,7 +23,6 @@ class YouGetJob extends Job
 
     public function handle()
     {
-        getContent();
         $server = (ApplicationContext::getContainer())->get(ServerFactory::class)->getServer()->getServer();
         $cache = make(Redis::class);
         $logger = make(StdoutLoggerInterface::class);
