@@ -11,16 +11,8 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 
-use Monolog\Formatter\LogstashFormatter;
 use Monolog\Handler\RotatingFileHandler;
 use Monolog\Logger;
-
-$formatter = [
-    'class' => LogstashFormatter::class,
-    'constructor' => [
-        'applicationName' => 'project',
-    ],
-];
 
 return [
     'default' => [
@@ -31,7 +23,13 @@ return [
                     'filename' => BASE_PATH . '/runtime/logs/info.log',
                     'level' => Logger::INFO,
                 ],
-                'formatter' => $formatter,
+                'formatter' => [
+                    'class' => \Monolog\Formatter\LineFormatter::class,
+                    'constructor' => [
+                        'applicationName' => 'project',
+                        'allowInlineLineBreaks' => true,
+                    ],
+                ],
             ],
             [
                 'class' => RotatingFileHandler::class,
@@ -39,7 +37,13 @@ return [
                     'filename' => BASE_PATH . '/runtime/logs/error.log',
                     'level' => Logger::ERROR,
                 ],
-                'formatter' => $formatter,
+                'formatter' =>[
+                    'class' => \Monolog\Formatter\JsonFormatter::class,
+                    'constructor' => [
+                        'batchMode' => \Monolog\Formatter\JsonFormatter::BATCH_MODE_JSON,
+                        'appendNewline' => true,
+                    ],
+                ],
             ],
         ],
 

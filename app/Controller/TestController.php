@@ -51,8 +51,8 @@ class TestController extends AbstractController
 //        $current_quality = $playinfo['data']['quality'];
 //        $cid = $response['videoData']['pages'][0]['cid'];
 //        return $this->bilibili_interface_api($cid,112);
-//        $client = $this->clientFactory->create();
-//        return $client->get("https://baidu.com")->getBody()->getContents();
+        $client = $this->clientFactory->create();
+        return $client->get("https://baidu.com")->getBody()->getContents();
 
     }
 
