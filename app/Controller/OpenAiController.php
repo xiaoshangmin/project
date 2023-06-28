@@ -13,7 +13,7 @@ class OpenAiController extends AbstractController
 
     #[GetMapping(path: "chat")]
     public function chat(){
-        $open_ai_key = "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";//getenv('OPENAI_API_KEY');
+        $open_ai_key = "";//getenv('OPENAI_API_KEY');
         $open_ai = new OpenAi($open_ai_key);
 
         $complete = $open_ai->chat([
