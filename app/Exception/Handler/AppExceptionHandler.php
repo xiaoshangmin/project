@@ -36,7 +36,6 @@ class AppExceptionHandler extends ExceptionHandler
     {
 //        $this->logger->error(sprintf('%s[%s] in %s', $throwable->getMessage(), $throwable->getLine(), $throwable->getFile()));
 //        $this->logger->error($throwable->getTraceAsString());
-        $this->logger($throwable, make(RequestInterface::class));
         // 记录错误日志
         if (!$this->shouldntReport($throwable)) {
             $this->logger($throwable, make(RequestInterface::class));

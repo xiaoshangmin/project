@@ -16,6 +16,7 @@ use App\Http\Traits\ApiResponse;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Contract\RequestInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
 use Psr\Container\ContainerInterface;
 
 abstract class BaseController
@@ -27,6 +28,9 @@ abstract class BaseController
 
     #[Inject]
     protected RequestInterface $request;
+
+    #[Inject]
+    protected ResponseInterface $response;
 
     #[Inject]
     protected StdoutLoggerInterface $logger;

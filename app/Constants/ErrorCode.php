@@ -45,4 +45,8 @@ class ErrorCode extends AbstractConstants
      * @Message("请上传word文件")
      */
     const PLEASE_UPDATE_WORD = 40004;
+    /**
+     * @Message("无法生成有效文件")
+     */
+    const NO_FILE_GOTENBERG = 40005;
 }

@@ -3,8 +3,8 @@
 namespace App\Http\Traits;
 
 use App\Constants\ErrorCode;
-use Hyperf\Context\Context;
-use Psr\Http\Message\ResponseInterface;
+use Hyperf\HttpServer\Contract\ResponseInterface;
+use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 trait ApiResponse
 {
@@ -14,9 +14,9 @@ trait ApiResponse
      * @param int $code
      * @return ResponseInterface
      */
-    public function success(array $data = [], int $code = ErrorCode::SUCCESS): ResponseInterface
+    public function success(array $data = [], int $code = ErrorCode::SUCCESS): PsrResponseInterface
     {
-        $response = Context::get(ResponseInterface::class);
+        $response = \Hyperf\Support\make(ResponseInterface::class);
         $body = [
             'code' => $code,
             'message' => ErrorCode::getMessage($code),
@@ -30,9 +30,9 @@ trait ApiResponse
      * @param array $data
      * @return ResponseInterface
      */
-    public function fail(int $code = ErrorCode::FAIL, array $data = []): ResponseInterface
+    public function fail(int $code = ErrorCode::FAIL, array $data = []): PsrResponseInterface
     {
-        $response = Context::get(ResponseInterface::class);
+        $response = \Hyperf\Support\make(ResponseInterface::class);
         $body = [
             'code' => $code,
             'message' => ErrorCode::getMessage($code),

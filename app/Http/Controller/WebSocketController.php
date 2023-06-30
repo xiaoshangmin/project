@@ -15,6 +15,10 @@ class WebSocketController extends BaseController implements OnMessageInterface, 
     protected $cache;
 
 
+    /**
+     * @throws \Psr\Container\ContainerExceptionInterface
+     * @throws \Psr\Container\NotFoundExceptionInterface
+     */
     public function __construct()
     {
         $this->cache = $this->container->get(Redis::class);
