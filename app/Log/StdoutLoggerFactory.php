@@ -8,7 +8,7 @@ use Psr\Container\ContainerInterface;
 
 class StdoutLoggerFactory
 {
-    public function __invoke(ContainerInterface $container)
+    public function __invoke(ContainerInterface $container): \Psr\Log\LoggerInterface
     {
         return Log::get('sys');
     }

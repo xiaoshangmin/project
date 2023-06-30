@@ -1,13 +1,15 @@
 <?php
 
-namespace App\Controller;
+declare(strict_types=1);
+
+namespace App\Http\Controller;
 
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Symfony\Component\Yaml\Yaml;
 
 #[Controller(prefix: "api/json")]
-class JsonViewController extends AbstractController
+class JsonViewController extends BaseController
 {
     #[PostMapping(path: "toyaml")]
     public function json2yaml()

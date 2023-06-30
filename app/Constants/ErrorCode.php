@@ -14,6 +14,10 @@ class ErrorCode extends AbstractConstants
      */
     const SERVER_ERROR = 500;
     /**
+     * @Message("未知错误")
+     */
+    const UNKNOWN = 99999;
+    /**
      * @Message("ok")
      */
     const SUCCESS = 1;
@@ -21,6 +25,10 @@ class ErrorCode extends AbstractConstants
      * @Message("fail")
      */
     const FAIL = -1;
+    /**
+     * @Message("无效参数")
+     */
+    const INVALID_PARAM = 40000;
     /**
      * @Message("上传文件失败")
      */

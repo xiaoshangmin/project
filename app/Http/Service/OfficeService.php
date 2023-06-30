@@ -1,7 +1,7 @@
 <?php
 declare(strict_types=1);
 
-namespace App\Service;
+namespace App\Http\Service;
 
 use App\Contract\OfficeInterface;
 use Hyperf\Di\Annotation\Inject;

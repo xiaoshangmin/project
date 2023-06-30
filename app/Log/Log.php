@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Log;
 
 use Hyperf\Logger\LoggerFactory;
-use Hyperf\Utils\ApplicationContext;
+use Hyperf\Context\ApplicationContext;
 
 class Log
 {

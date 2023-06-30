@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Controller;
+declare(strict_types=1);
+
+namespace App\Http\Controller;
 
 use App\Constants\ErrorCode;
 use App\Service\OfficeService;
@@ -12,7 +14,7 @@ use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToWriteFile;
 
 #[Controller(prefix: "api/office")]
-class OfficeController extends AbstractController
+class OfficeController extends BaseController
 {
     private int $maxSize = 10486000;
 

@@ -1,14 +1,15 @@
 <?php
+
 declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Http\Controller;
 
 use Hyperf\Contract\OnCloseInterface;
 use Hyperf\Contract\OnMessageInterface;
 use Hyperf\Contract\OnOpenInterface;
 use Hyperf\Redis\Redis;
 
-class WebSocketController extends AbstractController implements OnMessageInterface, OnOpenInterface, OnCloseInterface
+class WebSocketController extends BaseController implements OnMessageInterface, OnOpenInterface, OnCloseInterface
 {
 
     protected $cache;

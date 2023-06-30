@@ -1,14 +1,15 @@
 <?php
 
-namespace App\Controller;
+declare(strict_types=1);
 
-use Hyperf\HttpServer\Annotation\GetMapping;
-use Hyperf\HttpServer\Annotation\PostMapping;
-use Orhanerday\OpenAi\OpenAi;
+namespace App\Http\Controller;
+
 use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\GetMapping;
+use Orhanerday\OpenAi\OpenAi;
 
 #[Controller(prefix: "api/openai")]
-class OpenAiController extends AbstractController
+class OpenAiController extends BaseController
 {
 
     #[GetMapping(path: "chat")]

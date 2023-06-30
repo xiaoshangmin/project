@@ -1,6 +1,8 @@
 <?php
 
-namespace App\Controller;
+declare(strict_types=1);
+
+namespace App\Http\Controller;
 
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Filesystem\FilesystemFactory;
@@ -10,7 +12,7 @@ use Hyperf\HttpServer\Annotation\GetMapping;
 use League\Flysystem\StorageAttributes;
 
 #[Controller(prefix: "api/test")]
-class TestController extends AbstractController
+class TestController extends BaseController
 {
     #[Inject]
     private ClientFactory $clientFactory;

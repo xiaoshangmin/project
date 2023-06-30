@@ -34,6 +34,7 @@
         "hyperf/phar": "3.0.*",
         "hyperf/process": "3.0.*",
         "hyperf/redis": "3.0.*",
+        "hyperf/validation": "^3.0",
         "hyperf/websocket-server": "3.0.*",
         "orhanerday/open-ai": "^4.7",
         "spatie/pdf-to-image": "^2.2",

@@ -1,6 +1,7 @@
 <?php
+declare(strict_types=1);
 
-namespace App\Controller;
+namespace App\Http\Controller;
 
 use App\Contract\AnalysisInterface;
 use App\Service\QueueService;
@@ -9,7 +10,7 @@ use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\PostMapping;
 
 #[Controller(prefix: 'api/analysis')]
-class AnalysisController extends AbstractController
+class AnalysisController extends BaseController
 {
 
     #[Inject()]

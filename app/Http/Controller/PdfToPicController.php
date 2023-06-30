@@ -10,7 +10,7 @@ declare(strict_types=1);
  * @license  https://github.com/hyperf/hyperf/blob/master/LICENSE
  */
 
-namespace App\Controller;
+namespace App\Http\Controller;
 
 use App\Constants\ErrorCode;
 use App\Service\OfficeService;
@@ -23,7 +23,7 @@ use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToWriteFile;
 
 #[Controller(prefix: "api/pdfToPic")]
-class PdfToPicController extends AbstractController
+class PdfToPicController extends BaseController
 {
 
     private int $maxSize = 5243000;
