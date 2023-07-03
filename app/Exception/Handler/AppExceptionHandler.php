@@ -25,6 +25,10 @@ class AppExceptionHandler extends ExceptionHandler
 {
     use ExceptionHandlerTrait;
 
+    /**
+     * 不需要记录日志的异常
+     * @var array
+     */
     protected array $expectExceptions = [
     ];
 

@@ -6,7 +6,7 @@ namespace App\Http\Request\Pdf;
 
 use App\Http\Request\BaseFormRequest;
 
-class HtmlToPdfRequest extends BaseFormRequest
+class UrlToPdfRequest extends BaseFormRequest
 {
 
     /**
@@ -16,8 +16,7 @@ class HtmlToPdfRequest extends BaseFormRequest
     {
         return [
             "url" => ["required", "string"],
-            "paperWidth" => ['nullable', "integer", "max:20"],
-            "paperHeight" => ['nullable', "integer", "max:20"],
+            "paper" => ['nullable', "integer"],
             "marginTop" => ['nullable', "integer", "max:20"],
             "marginBottom" => ['nullable', "integer", "max:20"],
             "marginLeft" => ['nullable', "integer", "max:20"],

@@ -13,8 +13,8 @@ declare(strict_types=1);
 namespace App\Http\Controller;
 
 use App\Constants\ErrorCode;
-use App\Service\OfficeService;
-use App\Service\QueueService;
+use App\Http\Service\OfficeService;
+use App\Http\Service\QueueService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;

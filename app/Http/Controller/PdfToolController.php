@@ -5,18 +5,22 @@ declare(strict_types=1);
 namespace App\Http\Controller;
 
 use App\Constants\ErrorCode;
-use App\Http\Request\Pdf\HtmlToPdfRequest;
+use App\Http\Request\Pdf\UrlToPdfRequest;
+use App\Http\Service\PdfToolService;
+use App\Http\Service\QueueService;
 use Gotenberg\Exceptions\GotenbergApiErroed;
 use Gotenberg\Exceptions\NoOutputFileInResponse;
 use Gotenberg\Gotenberg;
 use Gotenberg\Stream;
-use Hyperf\Contract\StdoutLoggerInterface;
+use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
-use Hyperf\Validation\ValidationException;
+use Hyperf\HttpServer\Annotation\PostMapping;
+use League\Flysystem\FilesystemException;
+use League\Flysystem\UnableToWriteFile;
 use Psr\Http\Message\ResponseInterface;
 
-#[Controller(prefix: "pdfTool")]
+#[Controller(prefix: "api/pdfTool")]
 class PdfToolController extends BaseController
 {
 
@@ -24,9 +28,17 @@ class PdfToolController extends BaseController
 
     private string $path = BASE_PATH . '/storage/';
 
+    private int $maxSize = 10486000;
 
-    #[GetMapping(path: "htmlToPdf")]
-    public function htmlToPdf(HtmlToPdfRequest $request): ResponseInterface
+    #[Inject]
+    private QueueService $queueService;
+
+    #[Inject]
+    private PdfToolService $pdfToolService;
+
+
+    #[PostMapping(path: "urlToPdf")]
+    public function urlToPdf(UrlToPdfRequest $request): ResponseInterface
     {
         $validated = $request->validated();
         $useAgent = $this->request->getHeaderLine("User-Agent");
@@ -35,8 +47,8 @@ class PdfToolController extends BaseController
 //            ->omitBackground()
             ->printBackground()
             ->preferCssPageSize()
-            ->paperSize(23.4, 33.1)
-            ->margins(1, 1, 1, 1)
+            ->paperSize(8.27, 11.7)
+//            ->margins(1, 1, 1, 1)
             ->waitDelay('200ms')
             ->userAgent($useAgent)
             ->url($validated["url"]);
@@ -70,13 +82,53 @@ class PdfToolController extends BaseController
     public function fileToPdf(): ResponseInterface
     {
         $request = Gotenberg::libreOffice($this->apiUrl)
-            ->merge()
             ->convert(
-                Stream::path($this->path . "Xlog.pptx"),
-                Stream::path($this->path . "jp.xls")
+                Stream::path($this->path . "design.doc"),
             );
-        Gotenberg::save($request, $this->path);
+        try {
+            Gotenberg::save($request, $this->path);
+        }catch (GotenbergApiErroed $e){
+            return $this->fail(ErrorCode::UNKNOWN, [$e->getMessage()]);
+        }
         return $this->success();
+    }
+
+
+    /**
+     * word转pdf
+     * @return \Psr\Http\Message\ResponseInterface
+     */
+    #[PostMapping(path: "upload")]
+    public function upload()
+    {
+        $file = $this->request->file('file');
+        $type = $this->request->post('type');
+        //wordToPdf
+        if ($type == 'pdf' && (!in_array($file->getExtension(), ['docx', 'doc']) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' != $file->getMimeType())) {
+            return $this->fail(ErrorCode::PLEASE_UPDATE_WORD);
+        }
+        //pdfToWord
+        if ($type == 'word' && (!in_array($file->getExtension(), ['pdf']) || 'application/pdf' != $file->getMimeType())) {
+            return $this->fail(ErrorCode::PLEASE_UPDATE_PDF);
+        }
+        if ($file->getSize() > $this->maxSize) {
+            return $this->fail(ErrorCode::OVER_MAX_SIZE);
+        }
+        try {
+            $uploadRes = $this->pdfToolService->uploadFile($file);
+        } catch (FilesystemException|UnableToWriteFile $exception) {
+            $this->logger->error($exception->getMessage());
+            return $this->fail(ErrorCode::UPLOAD_FAIL);
+        }
+        //异步处理
+        $data = array_merge($uploadRes, ['uid' => $this->request->header('auth')]);
+        if ($type == 'pdf') {
+            $this->queueService->wordToPdfPush($data);
+        } else {
+            $this->queueService->pdfToWordPush($data);
+        }
+
+        return $this->success($uploadRes);
     }
 
 }

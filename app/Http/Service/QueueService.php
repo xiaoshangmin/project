@@ -56,7 +56,13 @@ class QueueService
 
     public function youGetPush($params, int $delay = 0): bool
     {
-        return $this->driver->push(new YouGetJob($params),$delay);
+        return $this->driver->push(new YouGetJob($params), $delay);
+    }
+
+
+    public function gotenbergUrlToPdf(array $params, int $delay = 0): bool
+    {
+        return $this->driver->push($params, $delay);
     }
 
 }
