@@ -11,5 +11,5 @@ declare(strict_types=1);
  */
 return [
     \Hyperf\Contract\StdoutLoggerInterface::class => \App\Log\StdoutLoggerFactory::class,
-    \App\Contract\AnalysisInterface::class => \App\Service\AnalysisService::class
+    \App\Contract\AnalysisInterface::class => \App\Http\Service\AnalysisService::class
 ];

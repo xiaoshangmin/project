@@ -15,12 +15,12 @@ class AnalysisService implements AnalysisInterface
     #[Inject]
     private ClientFactory $clientFactory;
 
-    #[Inject()]
+    #[Inject]
     private StdoutLoggerInterface $logger;
 
     const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36';
 
-    public function xhs(string $url):array
+    public function xhs(string $url): array
     {
         $ua = self::UA;
         $id = md5("{$ua}hasaki");
@@ -99,7 +99,7 @@ class AnalysisService implements AnalysisInterface
         }
     }
 
-    public function douyin($url):array
+    public function douyin($url): array
     {
         if (strpos($url, 'iesdouyin')) {
             preg_match('/\/(\d+)\//', $url, $id);
@@ -183,7 +183,7 @@ class AnalysisService implements AnalysisInterface
         }
     }
 
-    public function weibo(string $url):array
+    public function weibo(string $url): array
     {
         //手机端
         if (strpos($url, 'm.weibo.cn') != false) {
@@ -307,7 +307,7 @@ class AnalysisService implements AnalysisInterface
         }
     }
 
-    public function bilibili($url):array
+    public function bilibili($url): array
     {
         $text = $this->curl($url);
         preg_match('/<script>window.__INITIAL_STATE__=([^;]+)/', $text, $response);
@@ -329,7 +329,7 @@ class AnalysisService implements AnalysisInterface
         }, $str);
     }
 
-    public function kuaishou($url):array
+    public function kuaishou($url): array
     {
         $locs = get_headers($url, true)['Location'];//[1];
         if (is_array($locs)) {
@@ -338,7 +338,7 @@ class AnalysisService implements AnalysisInterface
 
         }
         preg_match('/photoId=(.*?)\&/', $locs, $matches);
-        $headers = array('Cookie: did=web_9bceee20fa5d4a968535a27e538bf51b; didv=1655992503000;',
+        $headers = array('Cookie: did=web_c816580c352e5333790f5e2e7da9b151; didv=1655992503000;',
             'Referer: ' . $locs, 'Content-Type: application/json');
         $post_data = '{"photoId": "' . str_replace(['video/', '?'], '', $matches[1]) . '","isLongVideo": false}';
         $curl = curl_init();
@@ -856,11 +856,10 @@ class AnalysisService implements AnalysisInterface
     //自动302重定向
     private function curl($url, $headers = [])
     {
-
         $header = [
             'User-Agent' => self::UA
         ];
-        if (!empty( $header)){
+        if (!empty($header)) {
             $header = array_merge($headers);
         }
         try {

@@ -4,7 +4,7 @@ declare(strict_types=1);
 namespace App\Http\Controller;
 
 use App\Contract\AnalysisInterface;
-use App\Service\QueueService;
+use App\Http\Service\QueueService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\PostMapping;
@@ -13,11 +13,11 @@ use Hyperf\HttpServer\Annotation\PostMapping;
 class AnalysisController extends BaseController
 {
 
-    #[Inject()]
-    protected AnalysisInterface $analysisService;
+    #[Inject]
+    private AnalysisInterface $analysisService;
 
     #[Inject]
-    protected QueueService $service;
+    private QueueService $service;
 
     #[PostMapping(path: 'media')]
     public function getMedia()
