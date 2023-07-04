@@ -4,6 +4,8 @@ declare(strict_types=1);
 namespace App\Http\Controller;
 
 use App\Contract\AnalysisInterface;
+use App\Http\Service\DouyinService;
+use App\Http\Service\KuaishouService;
 use App\Http\Service\QueueService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
@@ -19,6 +21,12 @@ class AnalysisController extends BaseController
     #[Inject]
     private QueueService $service;
 
+    #[Inject]
+    private DouyinService $douyinService;
+
+    #[Inject]
+    private KuaishouService $kuaishouService;
+
     #[PostMapping(path: 'media')]
     public function getMedia()
     {
@@ -29,15 +37,15 @@ class AnalysisController extends BaseController
         if (strpos($url, 'pipix')) {
             $arr = $api->pipixia($url);
         } elseif (strpos($url, 'douyin')) {
-            $arr = $this->analysisService->douyin($url);
+            $arr = $this->douyinService->analysis($url);
         } elseif (strpos($url, 'weibo.com') || strpos($url, 'm.weibo.cn')) {
             $arr = $this->analysisService->weibo($url);
         } elseif (strpos($url, 'kuaishou')) {
-            $arr = $this->analysisService->kuaishou($url);
+            $arr = $this->kuaishouService->analysis($url);
         } elseif (strpos($url, 'bilibili.com') || strpos($url, 'b23.tv')) {
 //            $arr = $this->analysisService->bilibili($url);
             //异步处理
-            $this->service->youGetPush(['uid' => $this->request->header('auth'),'url'=>$url]);
+            $this->service->youGetPush(['uid' => $this->request->header('auth'), 'url' => $url]);
         } elseif (strpos($url, 'xhslink') !== false || strpos($url, 'xiaohongshu.com') !== false) {
             $arr = $this->analysisService->xhs($url);
         } elseif (strpos($url, 'huoshan')) {

@@ -7,7 +7,7 @@ use Hyperf\AsyncQueue\Job;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Redis\Redis;
 use Hyperf\Server\ServerFactory;
-use Hyperf\Utils\ApplicationContext;
+use Hyperf\Context\ApplicationContext;
 
 class YouGetJob extends Job
 {
