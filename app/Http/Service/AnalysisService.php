@@ -18,7 +18,7 @@ class AnalysisService implements AnalysisInterface
     #[Inject]
     private StdoutLoggerInterface $logger;
 
-    const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.110 Safari/537.36';
+    const UA = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/114.0.0.0 Safari/537.36';
 
     public function xhs(string $url): array
     {
@@ -45,16 +45,16 @@ class AnalysisService implements AnalysisInterface
         }
 //        print_r($url);
         $cookie = [
-            "xhsTrackerId" => "54158ddf-d919-4ad4-ca6d-851988db95be",
-            "timestamp2" => $canvas['data']['canvas'],
-            'timestamp2.sig' => 'TRnLxBFN9GTAm9HOZaz1Oj1e_9W3zK67Oa_A1dGHy-c',
-            'extra_exp_ids' => 'puarranchiv2_clt1,commentshow_exp1,gif_exp1,ques_clt1',
+            "xhsTrackerId" => "e9ef0bd0-7748-4c64-abf9-f119ac64c937",
+            "timestamp2" => '20210607d2293bcc8dcad65834920376',//$canvas['data']['canvas'],
+            'timestamp2.sig' => 'QFn2Zv9pjUr07KDlnh886Yq43bZxOaT6t3WCzZdzcgM',
+            'extra_exp_ids' => 'gif_exp1,ques_exp2',
+            'xhsuid' => 'y2PCwPFU9GCQnJH8',
         ];
         $text = $this->xhsCurl($url, $cookie, 'xiaohongshu.com');
 
         $text = $text->getContents();
 //        $this->logger->info($text);
-
         preg_match('/__INITIAL_SSR_STATE__([^<]+)</', $text, $jsonStr);
         $jsonStr = str_replace('undefined', 'null', trim($jsonStr[1], '='));
 //         print_r($jsonStr);exit;

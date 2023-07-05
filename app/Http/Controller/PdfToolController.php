@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controller;
 
 use App\Constants\ErrorCode;
+use App\Http\Request\Pdf\FileToPdfRequest;
 use App\Http\Request\Pdf\UrlToPdfRequest;
 use App\Http\Service\PdfToolService;
 use App\Http\Service\QueueService;
@@ -78,57 +79,33 @@ class PdfToolController extends BaseController
         return $this->success();
     }
 
-    #[GetMapping(path: "fileToPdf")]
-    public function fileToPdf(): ResponseInterface
-    {
-        $request = Gotenberg::libreOffice($this->apiUrl)
-            ->convert(
-                Stream::path($this->path . "design.doc"),
-            );
-        try {
-            Gotenberg::save($request, $this->path);
-        }catch (GotenbergApiErroed $e){
-            return $this->fail(ErrorCode::UNKNOWN, [$e->getMessage()]);
-        }
-        return $this->success();
-    }
-
-
     /**
-     * word转pdf
+     *
      * @return \Psr\Http\Message\ResponseInterface
      */
-    #[PostMapping(path: "upload")]
-    public function upload()
+    #[PostMapping(path: "fileToPdf")]
+    public function upload(FileToPdfRequest $request)
     {
-        $file = $this->request->file('file');
-        $type = $this->request->post('type');
-        //wordToPdf
-        if ($type == 'pdf' && (!in_array($file->getExtension(), ['docx', 'doc']) || 'application/vnd.openxmlformats-officedocument.wordprocessingml.document' != $file->getMimeType())) {
-            return $this->fail(ErrorCode::PLEASE_UPDATE_WORD);
-        }
-        //pdfToWord
-        if ($type == 'word' && (!in_array($file->getExtension(), ['pdf']) || 'application/pdf' != $file->getMimeType())) {
-            return $this->fail(ErrorCode::PLEASE_UPDATE_PDF);
-        }
+        $file = $request->file('file');
+
         if ($file->getSize() > $this->maxSize) {
             return $this->fail(ErrorCode::OVER_MAX_SIZE);
         }
         try {
             $uploadRes = $this->pdfToolService->uploadFile($file);
+            $pdf = Gotenberg::libreOffice($this->apiUrl)
+                ->convert(
+                    Stream::path($this->path . $uploadRes['relativePath']),
+                );
+            $filename = Gotenberg::save($pdf, $this->path);
         } catch (FilesystemException|UnableToWriteFile $exception) {
             $this->logger->error($exception->getMessage());
             return $this->fail(ErrorCode::UPLOAD_FAIL);
-        }
-        //异步处理
-        $data = array_merge($uploadRes, ['uid' => $this->request->header('auth')]);
-        if ($type == 'pdf') {
-            $this->queueService->wordToPdfPush($data);
-        } else {
-            $this->queueService->pdfToWordPush($data);
+        } catch (GotenbergApiErroed $e) {
+            return $this->fail(ErrorCode::UNKNOWN, [$e->getMessage()]);
         }
 
-        return $this->success($uploadRes);
+        return $this->response->download($this->path . $filename, $filename);
     }
 
 }

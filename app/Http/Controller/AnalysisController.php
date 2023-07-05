@@ -7,6 +7,7 @@ use App\Contract\AnalysisInterface;
 use App\Http\Service\DouyinService;
 use App\Http\Service\KuaishouService;
 use App\Http\Service\QueueService;
+use App\Http\Service\WeiboService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\PostMapping;
@@ -27,6 +28,9 @@ class AnalysisController extends BaseController
     #[Inject]
     private KuaishouService $kuaishouService;
 
+    #[Inject]
+    private WeiboService $weiboService;
+
     #[PostMapping(path: 'media')]
     public function getMedia()
     {
@@ -39,7 +43,7 @@ class AnalysisController extends BaseController
         } elseif (strpos($url, 'douyin')) {
             $arr = $this->douyinService->analysis($url);
         } elseif (strpos($url, 'weibo.com') || strpos($url, 'm.weibo.cn')) {
-            $arr = $this->analysisService->weibo($url);
+            $arr = $this->weiboService->analysis($url);
         } elseif (strpos($url, 'kuaishou')) {
             $arr = $this->kuaishouService->analysis($url);
         } elseif (strpos($url, 'bilibili.com') || strpos($url, 'b23.tv')) {
