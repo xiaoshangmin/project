@@ -8,7 +8,6 @@ use App\Constants\ErrorCode;
 use App\Http\Request\Pdf\FileToPdfRequest;
 use App\Http\Request\Pdf\UrlToPdfRequest;
 use App\Http\Service\PdfToolService;
-use App\Http\Service\QueueService;
 use Gotenberg\Exceptions\GotenbergApiErroed;
 use Gotenberg\Exceptions\NoOutputFileInResponse;
 use Gotenberg\Gotenberg;
@@ -17,7 +16,6 @@ use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\PostMapping;
-use League\Flysystem\FilesystemException;
 use League\Flysystem\UnableToWriteFile;
 use Psr\Http\Message\ResponseInterface;
 
@@ -32,23 +30,22 @@ class PdfToolController extends BaseController
     private int $maxSize = 10486000;
 
     #[Inject]
-    private QueueService $queueService;
-
-    #[Inject]
     private PdfToolService $pdfToolService;
 
 
     #[PostMapping(path: "urlToPdf")]
     public function urlToPdf(UrlToPdfRequest $request): ResponseInterface
     {
+
         $validated = $request->validated();
         $useAgent = $this->request->getHeaderLine("User-Agent");
+        $paper = PdfToolService::$paper[$validated['paper']];
         $request = Gotenberg::chromium($this->apiUrl)
 //            ->pdfFormat()
 //            ->omitBackground()
             ->printBackground()
             ->preferCssPageSize()
-            ->paperSize(8.27, 11.7)
+            ->paperSize($paper['width'], $paper['height'])
 //            ->margins(1, 1, 1, 1)
             ->waitDelay('200ms')
             ->userAgent($useAgent)
@@ -98,7 +95,7 @@ class PdfToolController extends BaseController
                     Stream::path($this->path . $uploadRes['relativePath']),
                 );
             $filename = Gotenberg::save($pdf, $this->path);
-        } catch (FilesystemException|UnableToWriteFile $exception) {
+        } catch (UnableToWriteFile $exception) {
             $this->logger->error($exception->getMessage());
             return $this->fail(ErrorCode::UPLOAD_FAIL);
         } catch (GotenbergApiErroed $e) {

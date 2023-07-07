@@ -16,7 +16,7 @@ class UrlToPdfRequest extends BaseFormRequest
     {
         return [
             "url" => ["required", "string"],
-            "paper" => ['nullable', "integer"],
+            "paper" => ['required', "integer"],
             "marginTop" => ['nullable', "integer", "max:20"],
             "marginBottom" => ['nullable', "integer", "max:20"],
             "marginLeft" => ['nullable', "integer", "max:20"],
