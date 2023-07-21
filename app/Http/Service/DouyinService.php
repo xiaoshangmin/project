@@ -10,23 +10,28 @@ class DouyinService extends Spider
 
     public function analysis(string $url): array
     {
-        if (strpos($url, 'iesdouyin')) {
-            preg_match('/\/(\d+)\//', $url, $id);
+//        if (strpos($url, 'iesdouyin')) {
+//            preg_match('/\/(\d+)\//', $url, $id);
+//        } else {
+        $header = get_headers($url, true);
+        if (is_string($header['Location'])) {
+            $loc = $header['Location'];
         } else {
-            $header = get_headers($url, true);
-            if (is_string($header['Location'])) {
-                $loc = $header['Location'];
+            if (str_contains($header['Location'][1], 'video')) {
+                $loc = $header['Location'][1];
             } else {
-                if (str_contains($header['Location'][1], 'video')) {
-                    $loc = $header['Location'][1];
-                } else {
-                    $loc = $header['Location'][0];
-                }
+                $loc = $header['Location'][0];
             }
-            preg_match('/video\/(.*)\?/', $loc, $id);
+        }
+        if (strpos($loc, "video")) {
+            preg_match('/video\/(.*)\/\?/', $loc, $id);
+        }
+        if (strpos($loc, "note")) {
+            preg_match('/note\/(.*)\/\?/', $loc, $id);
         }
 
-        $dyUrl = 'https://www.douyin.com/aweme/v1/web/aweme/detail/?aweme_id=' . rtrim($id[1], '/') . '&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333';
+//        }
+        $dyUrl = 'https://www.douyin.com/aweme/v1/web/aweme/detail/?aweme_id=' . $id[1] . '&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333';
         $data = ['url' => $dyUrl, 'userAgent' => self::UA];
         $header = ['Content-Type' => 'application/json'];
         $rs = $this->curl($this->xbogusApiUrl, $header, $data);
@@ -56,13 +61,13 @@ class DouyinService extends Spider
         //                    61: 'video',
         //                    150: 'image'
         //                }
-        if ($item['aweme_type'] == 2) {
+        if ($item['aweme_type'] == 2 || $item['aweme_type'] == 68) {
             $imagesList = $item["images"];
             $pics = [];
             foreach ($imagesList as $url) {
                 $pics[] = $url['url_list'][0];
             }
-            return $this->images($pics, $item['share_info']['share_title']);
+            return $this->images($pics, $item['desc']);
         } else {
             $video_url = $item["video"]["play_addr"]["url_list"][0];
             return $this->video($item['desc'], $item['video']['origin_cover']['url_list'][0], $video_url);
