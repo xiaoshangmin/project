@@ -34,8 +34,8 @@ abstract class Spider implements SpiderInterface
             ]);
             if (!empty($data)) {
                 $response = $client->post($url, [
-                    'decode_content' => 'gzip,deflate',
-                    'allow_redirects' => true,
+//                    'decode_content' => 'gzip,deflate',
+//                    'allow_redirects' => true,
                     'body' => json_encode($data, JSON_UNESCAPED_UNICODE),
                     // 'cookies' => $cookieJar,
                 ]);
