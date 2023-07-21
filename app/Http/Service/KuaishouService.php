@@ -13,6 +13,7 @@ class KuaishouService extends Spider
         } elseif (is_string($locs)) {
 
         }
+        $this->logger->info($locs);
         preg_match('/photoId=(.*?)\&/', $locs, $matches);
         $headers = [
             'Cookie' => 'did=web_c816580c352e5333790f5e2e7da9b151; didv=1655992503000;',
@@ -24,6 +25,7 @@ class KuaishouService extends Spider
             "isLongVideo" => false
         ];
         $data = $this->curl('https://v.m.chenzhongtech.com/rest/wd/photo/info', $headers, $post_data);
+        $this->logger->info($data);
         $json = json_decode($data, true);
         if (isset($json['atlas'])) {
             $cdn = $json['atlas']['cdn'][0];
