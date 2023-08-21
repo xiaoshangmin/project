@@ -1,5 +1,5 @@
 <?php
-
+declare(strict_types=1);
 namespace App\Http\Traits;
 
 use App\Constants\ErrorCode;
@@ -14,7 +14,7 @@ trait ApiResponse
      * @param int $code
      * @return ResponseInterface
      */
-    public function success(array $data = [], int $code = ErrorCode::SUCCESS): PsrResponseInterface
+    public function success(array|string $data = [], int $code = ErrorCode::SUCCESS): PsrResponseInterface
     {
         $response = \Hyperf\Support\make(ResponseInterface::class);
         $body = [
@@ -30,7 +30,7 @@ trait ApiResponse
      * @param array $data
      * @return ResponseInterface
      */
-    public function fail(int $code = ErrorCode::FAIL, array $data = []): PsrResponseInterface
+    public function fail(int $code = ErrorCode::FAIL, array|string $data = []): PsrResponseInterface
     {
         $response = \Hyperf\Support\make(ResponseInterface::class);
         $body = [
