@@ -8,11 +8,10 @@ use Psr\Http\Message\ResponseInterface as PsrResponseInterface;
 
 trait ApiResponse
 {
-
     /**
-     * @param array $data
+     * @param array|string $data
      * @param int $code
-     * @return ResponseInterface
+     * @return PsrResponseInterface
      */
     public function success(array|string $data = [], int $code = ErrorCode::SUCCESS): PsrResponseInterface
     {
@@ -27,8 +26,8 @@ trait ApiResponse
 
     /**
      * @param int $code
-     * @param array $data
-     * @return ResponseInterface
+     * @param array|string $data
+     * @return PsrResponseInterface
      */
     public function fail(int $code = ErrorCode::FAIL, array|string $data = []): PsrResponseInterface
     {
