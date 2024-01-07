@@ -4,12 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controller;
 
+use App\Model\Fdc;
+use Facebook\WebDriver\Chrome\ChromeOptions;
+use Facebook\WebDriver\Remote\DesiredCapabilities;
+use Facebook\WebDriver\WebDriverBy;
+use Facebook\WebDriver\WebDriverExpectedCondition;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Filesystem\FilesystemFactory;
 use Hyperf\Guzzle\ClientFactory;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use League\Flysystem\StorageAttributes;
+use Facebook\WebDriver\Remote\RemoteWebDriver;
 
 #[Controller(prefix: "api/test")]
 class TestController extends BaseController
@@ -24,21 +30,55 @@ class TestController extends BaseController
     }
 
     #[GetMapping(path: "test")]
-    public function test(FilesystemFactory $factory)
+    public function test()
     {
-        $local = $factory->get('local');
-        $list = $local->listContents('/office', true)->filter(fn(StorageAttributes $attributes) => $attributes->isFile())->toArray();
+        $waitSeconds = 5;
+        $serverUrl = 'http://standalone-chrome:4444';
+        $chromeOptions = new ChromeOptions();
+//        $chromeOptions->addArguments(["--disable-web-security"]);
+//        $chromeOptions->addArguments(['--start-maximized']);
+//        $chromeOptions->addArguments(['--allow-http-background-page']);
+        $chromeOptions->addArguments(['--headless']);
+//        $chromeOptions->addArguments(['--allow-insecure-localhost','--ignore-certificate-errors','--ignore-certificate-errors-spki-list']);
+//        $chromeOptions->addArguments(['--ignore-urlfetcher-cert-requests']);
+        $capabilities = DesiredCapabilities::chrome();
+        $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
+//        $capabilities->setCapability('acceptSslCerts',false);
+//        $capabilities->setCapability('acceptInsecureCerts',true);
+        $driver = RemoteWebDriver::create($serverUrl, $capabilities);
+        $str = 'ok';
+        $insertArr = [];
+        $index = 1;
         try {
-            foreach ($list as $item) {
-                if (time() - $item->lastModified() > 4 * 3600) {
-                    $dir = dirname($item->path());
-                    $local->deleteDirectory($dir);
-                }
-            }
-        } catch (Exception $e) {
-            return $e->getMessage();
-        }
+            $driver->get('http://zjj.sz.gov.cn/ris/bol/szfdc/index.aspx');
+            $driver->manage()->timeouts()->implicitlyWait(120);
+            while ($index <= 405) {
+                sleep(random_int(2,10));
+//                $driver->wait($waitSeconds)->until(
+//                    WebDriverExpectedCondition::visibilityOfAnyElementLocated(
+//                        WebDriverBy::cssSelector('#AspNetPager1 a')
+//                    )
+//                );
+                $elements = $driver->findElements(WebDriverBy::cssSelector('td > a'));
+                $eleArr = array_chunk($elements, 2);
 
+                foreach ($eleArr as $element) {
+                    preg_match('/id=(\d+)/', $element[0]->getAttribute("href"), $match);
+                    Fdc::updateOrInsert(['id' => $match[1]], ['pre_sale_cert_name' => $element[0]->getText(),
+                        'project_name' => $element[1]->getText()]);
+                }
+                $pages = $driver->findElements(WebDriverBy::cssSelector("#AspNetPager1 a"));
+                $page = end($pages);
+                $page->click();
+                $index++;
+            }
+
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        } finally {
+            $driver->quit();
+        }
+        return $str;
     }
 
     #[GetMapping(path: "bi")]
