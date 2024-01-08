@@ -46,37 +46,48 @@ class TestController extends BaseController
 //        $capabilities->setCapability('acceptSslCerts',false);
 //        $capabilities->setCapability('acceptInsecureCerts',true);
         $driver = RemoteWebDriver::create($serverUrl, $capabilities);
-        $str = 'ok'.PHP_EOL;
+        $str = 'ok' . PHP_EOL;
         $insertArr = [];
         $index = 1;
         try {
             $driver->get('http://zjj.sz.gov.cn/ris/bol/szfdc/index.aspx');
             $driver->manage()->timeouts()->implicitlyWait(120);
-//            while ($index <= 405) {
-            sleep(random_int(2, 10));
+            while ($index <= 405) {
+                sleep(random_int(2, 10));
 //                $driver->wait($waitSeconds)->until(
 //                    WebDriverExpectedCondition::visibilityOfAnyElementLocated(
 //                        WebDriverBy::cssSelector('#AspNetPager1 a')
 //                    )
 //                );
-            $elements = $driver->findElements(WebDriverBy::cssSelector('td'));
-            $eleArr = array_chunk($elements, 6);
+                if ($index>100) {
+                    $elements = $driver->findElements(WebDriverBy::cssSelector('td'));
+                    $eleArr = array_chunk($elements, 6);
 
-            foreach ($eleArr as $element) {
+                    foreach ($eleArr as $element) {
 //                    Fdc::updateOrInsert(['id' => $match[1]], ['pre_sale_cert_name' => $element[0]->getText(),
 //                        'project_name' => $element[1]->getText()]);
-                if (count($element) == 6) {
-                    $a = $element[1]->findElement(WebDriverBy::cssSelector('a'));
-                    preg_match('/id=(\d+)/',$a->getAttribute("href"), $match);
-                    $str .= $match[1] .'--'. $element[2]->getText() .'--'. $element[3]->getText() .'--'. $element[4]->getText() . $element[5]->getText() . PHP_EOL;
-                }
+                        if (count($element) == 6) {
+                            $a = $element[1]->findElement(WebDriverBy::cssSelector('a'));
+                            preg_match('/id=(\d+)/', $a->getAttribute("href"), $match);
+//                    $str .= $match[1] .'--'. $element[2]->getText() .'--'. $element[3]->getText() .'--'. $element[4]->getText() . $element[5]->getText() . PHP_EOL;
+                            $fdc = Fdc::query()->find($match[1]);
+                            if (!is_null($fdc)) {
+                                $fdc->pre_sale_cert_name = $element[1]->getText();
+                                $fdc->project_name = $element[2]->getText();
+                                $fdc->ent = $element[3]->getText();
+                                $fdc->area = $element[4]->getText();
+                                $fdc->approve_time = $element[5]->getText();
+                                $fdc->save();
+                            }
+                        }
 
+                    }
+                }
+                $pages = $driver->findElements(WebDriverBy::cssSelector("#AspNetPager1 a"));
+                $page = end($pages);
+                $page->click();
+                $index++;
             }
-//                $pages = $driver->findElements(WebDriverBy::cssSelector("#AspNetPager1 a"));
-//                $page = end($pages);
-//                $page->click();
-//                $index++;
-//            }
 
         } catch (\Exception $e) {
             return $e->getMessage();
