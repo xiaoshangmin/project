@@ -59,7 +59,7 @@ class TestController extends BaseController
 //                        WebDriverBy::cssSelector('#AspNetPager1 a')
 //                    )
 //                );
-                if ($index>100) {
+                if ($index>200) {
                     $elements = $driver->findElements(WebDriverBy::cssSelector('td'));
                     $eleArr = array_chunk($elements, 6);
 
@@ -76,7 +76,9 @@ class TestController extends BaseController
                                 $fdc->project_name = $element[2]->getText();
                                 $fdc->ent = $element[3]->getText();
                                 $fdc->area = $element[4]->getText();
-                                $fdc->approve_time = $element[5]->getText();
+                                if(!empty($element[5]->getText())) {
+                                    $fdc->approve_time = $element[5]->getText();
+                                }
                                 $fdc->save();
                             }
                         }
