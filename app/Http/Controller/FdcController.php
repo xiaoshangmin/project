@@ -10,6 +10,7 @@ use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
+use Hyperf\DbConnection\Db;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\ClientFactory;
 use Hyperf\HttpServer\Annotation\Controller;
@@ -104,21 +105,21 @@ class FdcController extends BaseController
         $capabilities = DesiredCapabilities::chrome();
         $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
 
-//        $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
+        $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
+        $driver->manage()->timeouts()->implicitlyWait(120);
         $str = 'ok' . PHP_EOL;
-        $fdcList = Fdc::select(['id'])->get()->values();
-        return json_encode($fdcList);
+        $fdcList = Fdc::select(['id'])->orderBy('id', 'desc')->get();
         try {
             foreach ($fdcList as $fdc) {
                 $insert = [];
-                $driver->get('http://zjj.sz.gov.cn/ris/bol/szfdc/projectdetail.aspx?id=' . $fdc->id);
-                $driver->manage()->timeouts()->implicitlyWait(30);
+                $url = 'http://zjj.sz.gov.cn/ris/bol/szfdc/projectdetail.aspx?id=' . $fdc->id;
+                $driver->get($url);
                 $table = $driver->findElements(WebDriverBy::tagName('table'));
                 $td = $table[1]->findElements(WebDriverBy::cssSelector('tr td'));
                 $tdArr = array_chunk($td, 5);
                 foreach ($tdArr as $item) {
                     $href = $item[4]->findElement(WebDriverBy::tagName("a"));
-                    preg_match('/\?id=(\d+)/', $href, $match);
+                    preg_match('/\?id=(\d+)/', $href->getAttribute('href'), $match);
                     $insert[] = [
                         'id' => $match[1],
                         'fdc_id' => $fdc->id,
@@ -126,11 +127,9 @@ class FdcController extends BaseController
                         'url' => $href->getAttribute("href"),
                     ];
                 }
-                $str .= json_encode($insert);
                 if (!empty($insert)) {
-                    Building::create($insert);
+                    Db::table("building")->insert($insert);
                 }
-                break;
 //            $elements = $driver->findElements(WebDriverBy::cssSelector('#divShowBranch > a'));
 //            foreach ($elements as $element) {
 //                $str .= $element->getAttribute("href") . "--" . $element->getText() . PHP_EOL;

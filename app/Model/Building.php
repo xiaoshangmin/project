@@ -26,7 +26,7 @@ class Building extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected array $fillable = [];
+    protected array $fillable = ['fdc_id','building','url'];
 
     /**
      * The attributes that should be cast to native types.
