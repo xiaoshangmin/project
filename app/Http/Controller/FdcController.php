@@ -106,7 +106,7 @@ class FdcController extends BaseController
         $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
 
         $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
-        $driver->manage()->timeouts()->implicitlyWait(120);
+        $driver->manage()->timeouts()->implicitlyWait(30);
         $str = 'ok' . PHP_EOL;
 //        $fdcList = Fdc::select(['id'])->orderBy('id', 'desc')->get();
 //        $fdcList = Fdc::select('SELECT f.id FROM fdc f LEFT JOIN building b ON f.id=b.fdc_id WHERE b.id IS NULL ORDER BY f.id DESC;')->get();
@@ -120,8 +120,12 @@ class FdcController extends BaseController
             foreach ($fdcList as $fdc) {
                 $insert = [];
                 $url = 'http://zjj.sz.gov.cn/ris/bol/szfdc/projectdetail.aspx?id=' . $fdc->id;
+                $this->logger->info('url:' . $url);
                 $driver->get($url);
                 $table = $driver->findElements(WebDriverBy::tagName('table'));
+                if (!isset($table[1])){
+                    continue;
+                }
                 $td = $table[1]->findElements(WebDriverBy::cssSelector('tr td'));
                 $tdArr = array_chunk($td, 5);
                 foreach ($tdArr as $item) {
@@ -137,13 +141,14 @@ class FdcController extends BaseController
                 if (!empty($insert)) {
                     Db::table("building")->insert($insert);
                 }
+//                sleep(random_int(1, 6));
 //            $elements = $driver->findElements(WebDriverBy::cssSelector('#divShowBranch > a'));
 //            foreach ($elements as $element) {
 //                $str .= $element->getAttribute("href") . "--" . $element->getText() . PHP_EOL;
 //            }
             }
         } catch (\Exception $e) {
-            return 'url:' . $url. ':'.$e->getMessage();
+            return $e->getMessage();
         } finally {
             $driver->quit();
         }
