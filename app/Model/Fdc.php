@@ -22,7 +22,7 @@ class Fdc extends Model
     /**
      * The attributes that are mass assignable.
      */
-    protected array $fillable = [];
+    protected array $fillable = ['id','pre_sale_cert_name','project_name','ent','area','approve_time'];
 
     /**
      * The attributes that should be cast to native types.

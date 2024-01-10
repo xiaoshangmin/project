@@ -108,7 +108,14 @@ class FdcController extends BaseController
         $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
         $driver->manage()->timeouts()->implicitlyWait(120);
         $str = 'ok' . PHP_EOL;
-        $fdcList = Fdc::select(['id'])->orderBy('id', 'desc')->get();
+//        $fdcList = Fdc::select(['id'])->orderBy('id', 'desc')->get();
+//        $fdcList = Fdc::select('SELECT f.id FROM fdc f LEFT JOIN building b ON f.id=b.fdc_id WHERE b.id IS NULL ORDER BY f.id DESC;')->get();
+        $fdcList = Db::table("fdc")->select(['fdc.id'])
+            ->leftJoin("building", 'fdc.id', '=', 'building.fdc_id')
+            ->orderBy('fdc.id', 'desc')
+//            ->where('fdc.id', '>', '5200')
+            ->whereNull('building.id')->get();
+        $url = '';
         try {
             foreach ($fdcList as $fdc) {
                 $insert = [];
@@ -136,7 +143,7 @@ class FdcController extends BaseController
 //            }
             }
         } catch (\Exception $e) {
-            return $e->getMessage();
+            return 'url:' . $url. ':'.$e->getMessage();
         } finally {
             $driver->quit();
         }
