@@ -106,7 +106,7 @@ class FdcController extends BaseController
         $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
 
         $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
-        $driver->manage()->timeouts()->implicitlyWait(30);
+        $driver->manage()->timeouts()->implicitlyWait(10);
         $str = 'ok' . PHP_EOL;
 //        $fdcList = Fdc::select(['id'])->orderBy('id', 'desc')->get();
 //        $fdcList = Fdc::select('SELECT f.id FROM fdc f LEFT JOIN building b ON f.id=b.fdc_id WHERE b.id IS NULL ORDER BY f.id DESC;')->get();
@@ -115,7 +115,7 @@ class FdcController extends BaseController
             ->orderBy('fdc.id', 'desc')
 //            ->where('fdc.id', '>', '5200')
             ->whereNull('building.id')->get();
-        $url = '';
+        $skipIdList = [347, 335, 322, 314, 313, 289, 276, 268, 252, 235, 231, 224, 203, 191, 190, 183, 174, 171, 154, 146, 140, 139, 135, 132, 116, 115, 114, 113, 110, 103, 93, 91, 90, 86, 80, 70, 63, 62, 58, 46, 25, 18, 16, 3];
         try {
             foreach ($fdcList as $fdc) {
                 $insert = [];
@@ -123,7 +123,7 @@ class FdcController extends BaseController
                 $this->logger->info('url:' . $url);
                 $driver->get($url);
                 $table = $driver->findElements(WebDriverBy::tagName('table'));
-                if (!isset($table[1])){
+                if (!isset($table[1])) {
                     continue;
                 }
                 $td = $table[1]->findElements(WebDriverBy::cssSelector('tr td'));
