@@ -4,23 +4,18 @@ declare(strict_types=1);
 
 namespace App\Http\Controller;
 
-use App\Model\Building;
 use App\Model\Fdc;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
 use Hyperf\DbConnection\Db;
-use Hyperf\Di\Annotation\Inject;
-use Hyperf\Guzzle\ClientFactory;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 
 #[Controller(prefix: "api/fdc")]
 class FdcController extends BaseController
 {
-    #[Inject]
-    private ClientFactory $clientFactory;
 
     private string $serverUrl = 'http://standalone-chrome:4444';
 
@@ -97,8 +92,8 @@ class FdcController extends BaseController
         return $str;
     }
 
-    #[GetMapping(path: "getDetail")]
-    public function getDetail()
+    #[GetMapping(path: "getBuilding")]
+    public function getBuilding()
     {
         $chromeOptions = new ChromeOptions();
         $chromeOptions->addArguments(['--headless']);
@@ -108,14 +103,15 @@ class FdcController extends BaseController
         $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
         $driver->manage()->timeouts()->implicitlyWait(10);
         $str = 'ok' . PHP_EOL;
-//        $fdcList = Fdc::select(['id'])->orderBy('id', 'desc')->get();
-//        $fdcList = Fdc::select('SELECT f.id FROM fdc f LEFT JOIN building b ON f.id=b.fdc_id WHERE b.id IS NULL ORDER BY f.id DESC;')->get();
+
+        $skipIdList = [347, 335, 322, 314, 313, 289, 276, 268, 252, 235, 231, 224, 203, 191, 190, 183, 174, 171, 154, 146, 140, 139, 135, 132, 116, 115, 114, 113, 110, 103, 93, 91, 90, 86, 80, 70, 63, 62, 58, 46, 25, 18, 16, 3];
+
         $fdcList = Db::table("fdc")->select(['fdc.id'])
             ->leftJoin("building", 'fdc.id', '=', 'building.fdc_id')
             ->orderBy('fdc.id', 'desc')
-//            ->where('fdc.id', '>', '5200')
+            ->whereNotIn('fdc.id', $skipIdList)
             ->whereNull('building.id')->get();
-        $skipIdList = [347, 335, 322, 314, 313, 289, 276, 268, 252, 235, 231, 224, 203, 191, 190, 183, 174, 171, 154, 146, 140, 139, 135, 132, 116, 115, 114, 113, 110, 103, 93, 91, 90, 86, 80, 70, 63, 62, 58, 46, 25, 18, 16, 3];
+
         try {
             foreach ($fdcList as $fdc) {
                 $insert = [];
@@ -141,11 +137,6 @@ class FdcController extends BaseController
                 if (!empty($insert)) {
                     Db::table("building")->insert($insert);
                 }
-//                sleep(random_int(1, 6));
-//            $elements = $driver->findElements(WebDriverBy::cssSelector('#divShowBranch > a'));
-//            foreach ($elements as $element) {
-//                $str .= $element->getAttribute("href") . "--" . $element->getText() . PHP_EOL;
-//            }
             }
         } catch (\Exception $e) {
             return $e->getMessage();
@@ -153,5 +144,10 @@ class FdcController extends BaseController
             $driver->quit();
         }
         return $str;
+    }
+
+    #[GetMapping(path: "getBuilding")]
+    public function getDetail(){
+
     }
 }
