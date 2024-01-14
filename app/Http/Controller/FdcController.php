@@ -4,7 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controller;
 
+use App\Model\Building;
 use App\Model\Fdc;
+use App\Model\Room;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
@@ -25,6 +27,10 @@ class FdcController extends BaseController
         return __METHOD__;
     }
 
+    /**
+     * 抓取项目列表
+     * @return string
+     */
     #[GetMapping(path: "syncList")]
     public function syncList()
     {
@@ -92,8 +98,12 @@ class FdcController extends BaseController
         return $str;
     }
 
-    #[GetMapping(path: "getBuilding")]
-    public function getBuilding()
+    /**
+     * 抓取项目列表
+     * @return string
+     */
+    #[GetMapping(path: "getProject")]
+    public function getProject()
     {
         $chromeOptions = new ChromeOptions();
         $chromeOptions->addArguments(['--headless']);
@@ -107,10 +117,10 @@ class FdcController extends BaseController
         $skipIdList = [347, 335, 322, 314, 313, 289, 276, 268, 252, 235, 231, 224, 203, 191, 190, 183, 174, 171, 154, 146, 140, 139, 135, 132, 116, 115, 114, 113, 110, 103, 93, 91, 90, 86, 80, 70, 63, 62, 58, 46, 25, 18, 16, 3];
 
         $fdcList = Db::table("fdc")->select(['fdc.id'])
-            ->leftJoin("building", 'fdc.id', '=', 'building.fdc_id')
+            ->leftJoin("project_detail", 'fdc.id', '=', 'project_detail.fdc_id')
             ->orderBy('fdc.id', 'desc')
             ->whereNotIn('fdc.id', $skipIdList)
-            ->whereNull('building.id')->get();
+            ->whereNull('project_detail.id')->get();
 
         try {
             foreach ($fdcList as $fdc) {
@@ -135,6 +145,60 @@ class FdcController extends BaseController
                     ];
                 }
                 if (!empty($insert)) {
+                    Db::table("project_detail")->insert($insert);
+                }
+            }
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        } finally {
+            $driver->quit();
+        }
+        return $str;
+    }
+
+    /**
+     * 抓取楼栋单元列表
+     * @return string
+     */
+    #[GetMapping(path: "getUnits")]
+    public function getUnits()
+    {
+        $chromeOptions = new ChromeOptions();
+        $chromeOptions->addArguments(['--headless']);
+        $capabilities = DesiredCapabilities::chrome();
+        $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
+
+        $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
+        $driver->manage()->timeouts()->implicitlyWait(30);
+        $str = 'ok' . PHP_EOL;
+
+        $projectList = Db::select("SELECT
+	project_detail.`id`,
+	project_detail.`fdc_id`,
+	project_detail.`url` ,
+	building.project_id
+FROM
+	`project_detail` 
+	LEFT JOIN building ON project_detail.id=building.project_id
+	WHERE building.project_id IS NULL
+ORDER BY
+	`fdc_id` DESC");
+        try {
+            foreach ($projectList as $project) {
+                $insert = [];
+                $url = "http://zjj.sz.gov.cn/ris/bol/szfdc/{$project->url}";
+                $this->logger->info('url:' . $url);
+                $driver->get($url);
+                $unitsList = $driver->findElements(WebDriverBy::cssSelector('#divShowBranch a'));
+                foreach ($unitsList as $unit) {
+                    $insert[] = [
+                        'project_id' => $project->id,
+                        'fdc_id' => $project->fdc_id,
+                        'units' => trim($unit->getText()),
+                        'url' => $unit->getAttribute("href"),
+                    ];
+                }
+                if (!empty($insert)) {
                     Db::table("building")->insert($insert);
                 }
             }
@@ -146,8 +210,99 @@ class FdcController extends BaseController
         return $str;
     }
 
-    #[GetMapping(path: "getBuilding")]
-    public function getDetail(){
+    /**
+     * 抓取房间列表
+     * @return string
+     */
+    #[GetMapping(path: "getRoom")]
+    public function getRoom()
+    {
+        $chromeOptions = new ChromeOptions();
+        $chromeOptions->addArguments(['--headless']);
+        $capabilities = DesiredCapabilities::chrome();
+        $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
+
+        $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
+        $driver->manage()->timeouts()->implicitlyWait(10);
+        $str = 'ok' . PHP_EOL;
+
+        $buildingList = Building::where('has_get_room','=',0)->orderBy('fdc_id','desc')->get();
+        //预售ys  销售xs
+        $type = 'ys';
+        try {
+            foreach ($buildingList as $building) {
+                $insert = [];
+                $url = "http://zjj.sz.gov.cn/ris/bol/szfdc/{$building->url}{$type}";
+                $this->logger->info('url:' . $url);
+                $driver->get($url);
+                $roomList = $driver->findElements(WebDriverBy::cssSelector('td>div>a.presale2like'));
+                foreach ($roomList as $room) {
+//                    $str .= $room->getText() . $room->getAttribute('href') . PHP_EOL;
+                    $insert[] = [
+                        'project_id' => $building->project_id,
+                        'fdc_id' => $building->fdc_id,
+                        'units' => $building->units,
+                        'status' => $room->getText(),
+                        'url' => $room->getAttribute("href"),
+                    ];
+                }
+                if (!empty($insert)) {
+                    Db::table("room")->insert($insert);
+                    $building->has_get_room = 1;
+                    $building->save();
+                }else{
+                    $building->has_get_room = 2;
+                    $building->save();
+                }
+            }
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        } finally {
+            $driver->quit();
+        }
+        return $str;
+    }
+
+
+    /**
+     * 抓取房间详情列表
+     * @return string
+     */
+    #[GetMapping(path: "getRoomDetail")]
+    public function getRoomDetail()
+    {
+        $chromeOptions = new ChromeOptions();
+        $chromeOptions->addArguments(['--headless']);
+        $capabilities = DesiredCapabilities::chrome();
+        $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
+
+        $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
+        $driver->get('http://zjj.sz.gov.cn:8004/');
+        $driver->manage()->timeouts()->implicitlyWait(10);
+        $str = 'ok' . PHP_EOL;
+
+        $roomList = Room::where('room_num','=','')->orderBy('id','desc')->limit(1000)->get();
+
+        try {
+            foreach ($roomList as $room) {
+                $insert = [];
+                $url = "http://zjj.sz.gov.cn/ris/bol/szfdc/{$room->url}";
+                $this->logger->info('url:' . $url);
+                $driver->get($url);
+                $roomInfoList = $driver->findElements(WebDriverBy::cssSelector('tr td'));
+                foreach ($roomInfoList as $info) {
+                    $str .= $info->getText() .PHP_EOL;
+//                    $info->getText();
+                }
+                break;
+
+            }
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        } finally {
+            $driver->quit();
+        }
+        return $str;
 
     }
 }
