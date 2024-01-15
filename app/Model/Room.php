@@ -15,7 +15,7 @@ use Hyperf\DbConnection\Model\Model;
  * @property string $room_num 
  * @property string $floor 
  * @property string $selling_price 
- * @property int $barrier_free 
+ * @property string $barrier_free 
  * @property string $room_type 
  * @property string $floor_space 
  * @property string $room_space 
@@ -43,5 +43,5 @@ class Room extends Model
     /**
      * The attributes that should be cast to native types.
      */
-    protected array $casts = ['id' => 'integer', 'fdc_id' => 'integer', 'project_id' => 'integer', 'barrier_free' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
+    protected array $casts = ['id' => 'integer', 'fdc_id' => 'integer', 'project_id' => 'integer', 'created_at' => 'datetime', 'updated_at' => 'datetime'];
 }
