@@ -278,10 +278,10 @@ ORDER BY
 
         $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
 //        $driver->get('http://zjj.sz.gov.cn:8004/');
-        $driver->manage()->timeouts()->implicitlyWait(10);
+        $driver->manage()->timeouts()->implicitlyWait(5);
         $str = 'ok' . PHP_EOL;
 
-        $roomList = Room::where('room_num', '=', '')->orderBy('id', 'desc')->limit(2000)->get();
+        $roomList = Room::where('room_num', '=', '')->orderBy('id', 'desc')->limit(50000)->get();
 
         try {
             foreach ($roomList as $room) {
@@ -289,35 +289,33 @@ ORDER BY
                 $this->logger->info('url:' . $url);
                 $driver->get($url);
                 $roomInfo = $driver->findElements(WebDriverBy::cssSelector('tr td'));
-                $sellingPrice = $roomInfo[7]->getText();//拟售价格
-                $floor = $roomInfo[9]->getText();//楼层
+//                $sellingPrice = $roomInfo[7]->getText();//拟售价格
+//                $floor = $roomInfo[9]->getText();//楼层
                 $roomNum = $roomInfo[11]->getText();//房间号
-                $roomType = $roomInfo[13]->getText();//房间用途
-                $barrierFree = $roomInfo[15]->getText();//是否无障碍住房
-                $floorSpace = $roomInfo[17]->getText();//建筑面积(预售)
-                $roomSpace = $roomInfo[19]->getText();//户内面积(预售)
-                $shareSpace = $roomInfo[21]->getText();//分摊面积(预售)
-                $finalFloorSpace = $roomInfo[23]->getText();//建筑面积(竣工)
-                $finalRoomSpace = $roomInfo[25]->getText();//户内面积(竣工)
-                $finalShareSpace = $roomInfo[27]->getText();//分摊面积(竣工)
+//                $roomType = $roomInfo[13]->getText();//房间用途
+//                $barrierFree = $roomInfo[15]->getText();//是否无障碍住房
+//                $floorSpace = $roomInfo[17]->getText();//建筑面积(预售)
+//                $roomSpace = $roomInfo[19]->getText();//户内面积(预售)
+//                $shareSpace = $roomInfo[21]->getText();//分摊面积(预售)
+//                $finalFloorSpace = $roomInfo[23]->getText();//建筑面积(竣工)
+//                $finalRoomSpace = $roomInfo[25]->getText();//户内面积(竣工)
+//                $finalShareSpace = $roomInfo[27]->getText();//分摊面积(竣工)
 //                $str .= $sellingPrice . PHP_EOL . $floor . PHP_EOL . $roomNum . PHP_EOL . $roomType . PHP_EOL . $barrierFree . PHP_EOL . $floorSpace . PHP_EOL . $roomSpace
 //                    . PHP_EOL . $shareSpace . PHP_EOL . $finalFloorSpace . PHP_EOL . $finalRoomSpace . PHP_EOL . $finalShareSpace . PHP_EOL;
                 if (!empty($roomNum)) {
-                    $room->selling_price = $sellingPrice;
-                    $room->floor = $floor;
-                    $room->room_num = $roomNum;
-                    $room->room_type = $roomType;
-                    $room->barrier_free = $barrierFree;
-                    $room->floor_space = $floorSpace;
-                    $room->room_space = $roomSpace;
-                    $room->share_space = $shareSpace;
-                    $room->final_floor_space = $finalFloorSpace;
-                    $room->final_room_space = $finalRoomSpace;
-                    $room->final_share_space = $finalShareSpace;
+                    $room->selling_price = $roomInfo[7]->getText();//拟售价格
+                    $room->floor = $roomInfo[9]->getText();//楼层
+                    $room->room_num = $roomInfo[11]->getText();//房间号
+                    $room->room_type = $roomInfo[13]->getText();//房间用途
+                    $room->barrier_free =$roomInfo[15]->getText();//是否无障碍住房
+                    $room->floor_space = $roomInfo[17]->getText();//建筑面积(预售)
+                    $room->room_space = $roomInfo[19]->getText();//户内面积(预售)
+                    $room->share_space =  $roomInfo[21]->getText();//分摊面积(预售)
+                    $room->final_floor_space = $roomInfo[23]->getText();//建筑面积(竣工)
+                    $room->final_room_space = $roomInfo[25]->getText();//户内面积(竣工)
+                    $room->final_share_space = $roomInfo[27]->getText();//分摊面积(竣工)
                     $room->save();
                 }
-//                break;
-
             }
         } catch (\Exception $e) {
             return $e->getMessage();
