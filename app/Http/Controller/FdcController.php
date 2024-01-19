@@ -291,6 +291,9 @@ ORDER BY
                 $roomInfo = $driver->findElements(WebDriverBy::cssSelector('tr td'));
 //                $sellingPrice = $roomInfo[7]->getText();//拟售价格
 //                $floor = $roomInfo[9]->getText();//楼层
+                if(empty($roomInfo) || !isset($roomInfo[11])){
+                    continue;
+                }
                 $roomNum = $roomInfo[11]->getText();//房间号
 //                $roomType = $roomInfo[13]->getText();//房间用途
 //                $barrierFree = $roomInfo[15]->getText();//是否无障碍住房
