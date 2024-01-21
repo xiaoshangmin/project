@@ -50,7 +50,7 @@ class FdcController extends BaseController
         $index = 1;
         try {
             $driver->get('http://zjj.sz.gov.cn/ris/bol/szfdc/index.aspx');
-            $driver->manage()->timeouts()->implicitlyWait(120);
+            $driver->manage()->timeouts()->implicitlyWait(30);
 //            while ($index <= 405) {
 //                sleep(random_int(2, 8));
 //                if ($index > 200) {
@@ -115,13 +115,15 @@ class FdcController extends BaseController
         $str = 'ok' . PHP_EOL;
 
         $skipIdList = [347, 335, 322, 314, 313, 289, 276, 268, 252, 235, 231, 224, 203, 191, 190, 183, 174, 171, 154, 146, 140, 139, 135, 132, 116, 115, 114, 113, 110, 103, 93, 91, 90, 86, 80, 70, 63, 62, 58, 46, 25, 18, 16, 3];
-
-        $fdcList = Db::table("fdc")->select(['fdc.id'])
-            ->leftJoin("project_detail", 'fdc.id', '=', 'project_detail.fdc_id')
-            ->orderBy('fdc.id', 'desc')
-            ->whereNotIn('fdc.id', $skipIdList)
-            ->whereNull('project_detail.id')->get();
-
+//
+//        $fdcList = Db::table("fdc")->select(['fdc.id'])
+//            ->leftJoin("project_detail", 'fdc.id', '=', 'project_detail.fdc_id')
+//            ->orderBy('fdc.id', 'desc')
+//            ->whereNotIn('project_detail.id', $skipIdList)
+//            ->whereNull('project_detail.id')
+//            ->get();
+        $fdcList = Db::table("fdc")->select(['id'])->where('ys_total_room','=','')
+            ->orderBy('id', 'desc')->get();
         try {
             foreach ($fdcList as $fdc) {
                 $insert = [];
@@ -132,8 +134,31 @@ class FdcController extends BaseController
                 if (!isset($table[1])) {
                     continue;
                 }
-                $td = $table[1]->findElements(WebDriverBy::cssSelector('tr td'));
-                $tdArr = array_chunk($td, 5);
+                $td = $table[0]->findElements(WebDriverBy::cssSelector('tr td'));
+                $tdArr = array_chunk($td,2);
+                $update = [];
+                foreach ($tdArr as $item) {
+                    if('宗地位置'==$item[0]->getText()) {
+//                        $str .= $item[0]->getText() . '--' . $item[1]->getText() . PHP_EOL;
+                        $update['address'] = $item[1]->getText();
+                    }
+                    if('房屋用途'==$item[0]->getText()) {
+//                        $str .= $item[0]->getText() . '--' . $item[1]->getText() . PHP_EOL;
+                        $update['room_type'] = $item[1]->getText();
+                    }
+                    if('预售总套数'==$item[0]->getText()) {
+//                        $str .= $item[0]->getText() . '--' . $item[1]->getText() . PHP_EOL;
+                        $update['ys_total_room'] = $item[1]->getText();
+                    }
+                }
+//                return json_encode($update);
+//                break;
+                if(!empty($update)) {
+                    Db::table("fdc")->where('id',$fdc->id)->update($update);
+                }
+                continue;
+                $buildingTd = $table[1]->findElements(WebDriverBy::cssSelector('tr td'));
+                $tdArr = array_chunk($buildingTd, 5);
                 foreach ($tdArr as $item) {
                     $href = $item[4]->findElement(WebDriverBy::tagName("a"));
                     preg_match('/\?id=(\d+)/', $href->getAttribute('href'), $match);
@@ -147,6 +172,47 @@ class FdcController extends BaseController
                 if (!empty($insert)) {
                     Db::table("project_detail")->insert($insert);
                 }
+            }
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        } finally {
+            $driver->quit();
+        }
+        return $str;
+    }
+
+    /**
+     * 许可证详细信息
+     * @return string
+     */
+    #[GetMapping(path: "getCert")]
+    public function getCert()
+    {
+        $chromeOptions = new ChromeOptions();
+        $chromeOptions->addArguments(['--headless']);
+        $capabilities = DesiredCapabilities::chrome();
+        $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
+
+        $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
+        $driver->manage()->timeouts()->implicitlyWait(5);
+        $str = 'ok' . PHP_EOL;
+        $fdcList = Db::table("fdc")->select(['id'])
+            ->where('total_room','=','')->orderBy('id', 'desc')->get();
+
+        try {
+            foreach ($fdcList as $fdc) {
+                $url = 'http://zjj.sz.gov.cn/ris/bol/szfdc/certdetail.aspx?id=' . $fdc->id;
+                $this->logger->info('url:' . $url);
+                $driver->get($url);
+                $table = $driver->findElements(WebDriverBy::cssSelector('tr td'));
+                if (!isset($table[0])) {
+                    continue;
+                }
+                $arr = array_chunk($table,2);
+                foreach ($arr as $td) {
+                    $str .= $td[0]->getText().'--'. $td[1]->getText() .PHP_EOL;
+                }
+                break;
             }
         } catch (\Exception $e) {
             return $e->getMessage();
@@ -281,7 +347,7 @@ ORDER BY
         $driver->manage()->timeouts()->implicitlyWait(5);
         $str = 'ok' . PHP_EOL;
 
-        $roomList = Room::where('room_num', '=', '')->orderBy('id', 'desc')->limit(50000)->get();
+        $roomList = Room::where('room_num', '=', '')->orderBy('id')->limit(200000)->get();
 
         try {
             foreach ($roomList as $room) {
