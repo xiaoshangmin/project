@@ -4,8 +4,6 @@ declare(strict_types=1);
 
 namespace App\Model;
 
-use Hyperf\DbConnection\Model\Model;
-
 /**
  * @property int $id 
  * @property int $fdc_id 
@@ -20,7 +18,7 @@ use Hyperf\DbConnection\Model\Model;
  * @property \Carbon\Carbon $created_at 
  * @property \Carbon\Carbon $updated_at 
  */
-class ProjectDetail extends Model
+class ProjectDetail extends AbstractModel
 {
     /**
      * The table associated with the model.

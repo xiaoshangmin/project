@@ -2,13 +2,19 @@
 
 namespace App\Http\Service;
 
+use App\Model\Fdc;
 use Hyperf\DbConnection\Db;
+use Hyperf\Di\Annotation\Inject;
 
 class FdcService
 {
 
-    public function getList(){
-        return Db::table('fdc')->paginate(10);
+    #[Inject]
+    protected Fdc $model;
+
+    public function getList(array $where, array $columns = ['*'], array $options = []): array
+    {
+        return $this->model->getPageList($where, $columns, $options);
     }
 
 }

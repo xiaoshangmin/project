@@ -19,7 +19,7 @@ class FdcMiniController extends BaseController
     #[GetMapping(path: "list")]
     public function list()
     {
-        $list = $this->fdcService->getList();
-        return $this->success($list->items());
+        $list = $this->fdcService->getList([]);
+        return $this->success($list);
     }
 }
