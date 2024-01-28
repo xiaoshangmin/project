@@ -27,7 +27,8 @@ class FdcMiniController extends BaseController
     #[RequestMapping(path: "list")]
     public function list()
     {
-        $list = $this->fdcService->getList([], ['*'], ['orderByRaw' => 'id desc']);
+        $keyword = $this->request->post("keyword", "");
+        $list = $this->fdcService->getList([['project_name', "like", "{$keyword}%"]], ['*'], ['orderByRaw' => 'id desc']);
         return $this->success($list);
     }
 
@@ -49,9 +50,9 @@ class FdcMiniController extends BaseController
             foreach ($roomList as $room) {
                 $room['label'] = $room['room_num'];
                 $room['image'] = "https://img.wowyou.cc/file/0bef92b75e849ce81fb7e.jpg";
-                if (isset($unitsList[$room['units']])){
+                if (isset($unitsList[$room['units']])) {
                     $unitsList[$room['units']]['items'][] = $room;
-                }else {
+                } else {
                     $unitsList[$room['units']] = [
                         "label" => $room['units'],
                         "title" => $room['units'],

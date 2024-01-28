@@ -116,14 +116,15 @@ class FdcController extends BaseController
 
         $skipIdList = [347, 335, 322, 314, 313, 289, 276, 268, 252, 235, 231, 224, 203, 191, 190, 183, 174, 171, 154, 146, 140, 139, 135, 132, 116, 115, 114, 113, 110, 103, 93, 91, 90, 86, 80, 70, 63, 62, 58, 46, 25, 18, 16, 3];
 //
-//        $fdcList = Db::table("fdc")->select(['fdc.id'])
-//            ->leftJoin("project_detail", 'fdc.id', '=', 'project_detail.fdc_id')
-//            ->orderBy('fdc.id', 'desc')
-//            ->whereNotIn('project_detail.id', $skipIdList)
-//            ->whereNull('project_detail.id')
-//            ->get();
-        $fdcList = Db::table("fdc")->select(['id'])->where('ys_total_room','=','')
-            ->orderBy('id', 'desc')->get();
+        $fdcList = Db::table("fdc")->select(['fdc.id'])
+            ->leftJoin("project_detail", 'fdc.id', '=', 'project_detail.fdc_id')
+            ->orderBy('fdc.id', 'desc')
+            ->whereNotIn('project_detail.id', $skipIdList)
+            ->whereNull('project_detail.id')
+            ->get();
+//        $fdcList = Db::table("fdc")->select(['id'])->where('ys_total_room','=','')
+//            ->orderBy('id', 'desc')->get();
+//        return $str;
         try {
             foreach ($fdcList as $fdc) {
                 $insert = [];
@@ -182,7 +183,7 @@ class FdcController extends BaseController
     }
 
     /**
-     * 许可证详细信息
+     * 许可证详细信息 暂时无可用信息 不用执行
      * @return string
      */
     #[GetMapping(path: "getCert")]
@@ -291,10 +292,11 @@ ORDER BY
         $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
         $driver->manage()->timeouts()->implicitlyWait(10);
         $str = 'ok' . PHP_EOL;
-
+        // select * from `building` where `has_get_room` = '0' order by `fdc_id` desc
         $buildingList = Building::where('has_get_room', '=', 0)->orderBy('fdc_id', 'desc')->get();
         //预售ys  销售xs
         $type = 'ys';
+
         try {
             foreach ($buildingList as $building) {
                 $insert = [];
@@ -347,7 +349,7 @@ ORDER BY
         $driver->manage()->timeouts()->implicitlyWait(5);
         $str = 'ok' . PHP_EOL;
 
-        $roomList = Room::where('room_num', '=', '')->orderBy('id')->limit(200000)->get();
+        $roomList = Room::where('room_num', '=', '')->orderBy('id')->limit(100000)->get();
 
         try {
             foreach ($roomList as $room) {
