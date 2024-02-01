@@ -6,6 +6,7 @@ namespace App\Http\Controller;
 
 use App\Model\Building;
 use App\Model\Fdc;
+use App\Model\GuidePrice;
 use App\Model\Room;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
@@ -136,26 +137,26 @@ class FdcController extends BaseController
                     continue;
                 }
                 $td = $table[0]->findElements(WebDriverBy::cssSelector('tr td'));
-                $tdArr = array_chunk($td,2);
+                $tdArr = array_chunk($td, 2);
                 $update = [];
                 foreach ($tdArr as $item) {
-                    if('宗地位置'==$item[0]->getText()) {
+                    if ('宗地位置' == $item[0]->getText()) {
 //                        $str .= $item[0]->getText() . '--' . $item[1]->getText() . PHP_EOL;
                         $update['address'] = $item[1]->getText();
                     }
-                    if('房屋用途'==$item[0]->getText()) {
+                    if ('房屋用途' == $item[0]->getText()) {
 //                        $str .= $item[0]->getText() . '--' . $item[1]->getText() . PHP_EOL;
                         $update['room_type'] = $item[1]->getText();
                     }
-                    if('预售总套数'==$item[0]->getText()) {
+                    if ('预售总套数' == $item[0]->getText()) {
 //                        $str .= $item[0]->getText() . '--' . $item[1]->getText() . PHP_EOL;
                         $update['ys_total_room'] = $item[1]->getText();
                     }
                 }
 //                return json_encode($update);
 //                break;
-                if(!empty($update)) {
-                    Db::table("fdc")->where('id',$fdc->id)->update($update);
+                if (!empty($update)) {
+                    Db::table("fdc")->where('id', $fdc->id)->update($update);
                 }
                 continue;
                 $buildingTd = $table[1]->findElements(WebDriverBy::cssSelector('tr td'));
@@ -198,7 +199,7 @@ class FdcController extends BaseController
         $driver->manage()->timeouts()->implicitlyWait(5);
         $str = 'ok' . PHP_EOL;
         $fdcList = Db::table("fdc")->select(['id'])
-            ->where('total_room','=','')->orderBy('id', 'desc')->get();
+            ->where('total_room', '=', '')->orderBy('id', 'desc')->get();
 
         try {
             foreach ($fdcList as $fdc) {
@@ -209,9 +210,9 @@ class FdcController extends BaseController
                 if (!isset($table[0])) {
                     continue;
                 }
-                $arr = array_chunk($table,2);
+                $arr = array_chunk($table, 2);
                 foreach ($arr as $td) {
-                    $str .= $td[0]->getText().'--'. $td[1]->getText() .PHP_EOL;
+                    $str .= $td[0]->getText() . '--' . $td[1]->getText() . PHP_EOL;
                 }
                 break;
             }
@@ -359,7 +360,7 @@ ORDER BY
                 $roomInfo = $driver->findElements(WebDriverBy::cssSelector('tr td'));
 //                $sellingPrice = $roomInfo[7]->getText();//拟售价格
 //                $floor = $roomInfo[9]->getText();//楼层
-                if(empty($roomInfo) || !isset($roomInfo[11])){
+                if (empty($roomInfo) || !isset($roomInfo[11])) {
                     continue;
                 }
                 $roomNum = $roomInfo[11]->getText();//房间号
@@ -378,16 +379,63 @@ ORDER BY
                     $room->floor = $roomInfo[9]->getText();//楼层
                     $room->room_num = $roomInfo[11]->getText();//房间号
                     $room->room_type = $roomInfo[13]->getText();//房间用途
-                    $room->barrier_free =$roomInfo[15]->getText();//是否无障碍住房
+                    $room->barrier_free = $roomInfo[15]->getText();//是否无障碍住房
                     $room->floor_space = $roomInfo[17]->getText();//建筑面积(预售)
                     $room->room_space = $roomInfo[19]->getText();//户内面积(预售)
-                    $room->share_space =  $roomInfo[21]->getText();//分摊面积(预售)
+                    $room->share_space = $roomInfo[21]->getText();//分摊面积(预售)
                     $room->final_floor_space = $roomInfo[23]->getText();//建筑面积(竣工)
                     $room->final_room_space = $roomInfo[25]->getText();//户内面积(竣工)
                     $room->final_share_space = $roomInfo[27]->getText();//分摊面积(竣工)
                     $room->save();
                 }
             }
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        } finally {
+            $driver->quit();
+        }
+        return $str;
+
+    }
+
+    /**
+     * 抓取指导价
+     * @return string
+     */
+    #[GetMapping(path: "getGuidePrice")]
+    public function getGuidePrice()
+    {
+        $chromeOptions = new ChromeOptions();
+        $chromeOptions->addArguments(['--headless']);
+        $capabilities = DesiredCapabilities::chrome();
+        $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
+
+        $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
+        $driver->manage()->timeouts()->implicitlyWait(5);
+        $str = 'ok' . PHP_EOL;
+
+        try {
+            $url = "http://zjj.sz.gov.cn:8004/houseCondition/four";
+            $this->logger->info('url:' . $url);
+            $driver->get($url);
+            $priceInfo = $driver->findElements(WebDriverBy::cssSelector('tr[style="height:16pt"] p'));
+            $arr = array_chunk($priceInfo, 5);
+            $insert = [];
+            foreach ($arr as $item) {
+                $str .= $item[0]->getText() . $item[1]->getText() . $item[2]->getText() . $item[3]->getText() . $item[4]->getText() . PHP_EOL;
+                $insert[] = [
+                    'id' => $item[0]->getText(),
+                    'area'=>$item[1]->getText(),
+                    'street'=>$item[2]->getText(),
+                    'name'=>$item[3]->getText(),
+                    'price'=>$item[4]->getText()
+                ];
+            }
+
+            if (!empty($insert)) {
+                Db::table("guide_price")->insert($insert);
+            }
+
         } catch (\Exception $e) {
             return $e->getMessage();
         } finally {
