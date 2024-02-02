@@ -3,6 +3,8 @@ declare(strict_types=1);
 
 namespace App\Util;
 
+use GuzzleHttp\Client;
+
 class Common
 {
     /**
@@ -78,4 +80,5 @@ class Common
         return true;
 
     }
+
 }

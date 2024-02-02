@@ -6,19 +6,26 @@ namespace App\Http\Controller;
 
 use App\Model\Building;
 use App\Model\Fdc;
-use App\Model\GuidePrice;
 use App\Model\Room;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
 use Facebook\WebDriver\WebDriverBy;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
 use Hyperf\DbConnection\Db;
+use Hyperf\Di\Annotation\Inject;
+use Hyperf\Guzzle\ClientFactory;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\GetMapping;
 
 #[Controller(prefix: "api/fdc")]
 class FdcController extends BaseController
 {
+
+
+    #[Inject]
+    public ClientFactory $clientFactory;
 
     private string $serverUrl = 'http://standalone-chrome:4444';
 
@@ -346,7 +353,6 @@ ORDER BY
         $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
 
         $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
-//        $driver->get('http://zjj.sz.gov.cn:8004/');
         $driver->manage()->timeouts()->implicitlyWait(5);
         $str = 'ok' . PHP_EOL;
 
@@ -425,10 +431,10 @@ ORDER BY
                 $str .= $item[0]->getText() . $item[1]->getText() . $item[2]->getText() . $item[3]->getText() . $item[4]->getText() . PHP_EOL;
                 $insert[] = [
                     'id' => $item[0]->getText(),
-                    'area'=>$item[1]->getText(),
-                    'street'=>$item[2]->getText(),
-                    'name'=>$item[3]->getText(),
-                    'price'=>$item[4]->getText()
+                    'area' => $item[1]->getText(),
+                    'street' => $item[2]->getText(),
+                    'name' => $item[3]->getText(),
+                    'price' => $item[4]->getText()
                 ];
             }
 
@@ -442,6 +448,53 @@ ORDER BY
             $driver->quit();
         }
         return $str;
+    }
 
+    /**
+     * 抓取二手房成交统计
+     * @return string
+     */
+    #[GetMapping(path: "getOldHouseDeal")]
+    public function getOldHouseDeal()
+    {
+        try {
+            $client = $this->clientFactory->create([
+                'timeout' => 10,
+                'verify' => false,
+                'allow_redirects' => true,
+            ]);
+            //二手房
+            $response = $client->postAsync('http://zjj.sz.gov.cn:8004/api/marketInfoShow/getEsfCjxxGsData')->wait();
+            $jsonStr = $response->getBody()->getContents();
+            $resArr = json_decode($jsonStr, true);
+            if (isset($resArr['status']) && $resArr['status'] == 1) {
+                $xmlDateDay = strtotime(str_replace(['年', '月', '日'], "", $resArr['data']['xmlDateDay']));
+                $mj = $resArr['data']['dataMj'];
+                $ts = $resArr['data']['dataTs'];
+                Db::table('house_deal')->updateOrInsert(
+                    ['xml_date_day' => $xmlDateDay, 'type' => 1],
+                    ['data' => json_encode(['mj' => $mj, 'ts' => $ts])]
+                );
+            }
+            //一手房
+            $response = $client->postAsync('http://zjj.sz.gov.cn:8004/api/marketInfoShow/getYsfCjxxGsData')->wait();
+            $jsonStr = $response->getBody()->getContents();
+            $resArr = json_decode($jsonStr, true);
+            if (isset($resArr['status']) && $resArr['status'] == 1) {
+                $xmlDateDay = strtotime(str_replace(['年', '月', '日'], "", $resArr['data']['xmlDateDay']));
+                $mj = $resArr['data']['dataMj'];
+                $ts = $resArr['data']['dataTs'];
+                Db::table('house_deal')->updateOrInsert(
+                    ['xml_date_day' => $xmlDateDay, 'type' => 2],
+                    ['data' => json_encode(['mj' => $mj, 'ts' => $ts])]
+                );
+            }
+        } catch (RequestException $e) {
+            $this->logger->info("getOldHouseDeal curl RequestException=" . $e->getMessage());
+            return $e->getMessage();
+        } catch (GuzzleException $e) {
+            $this->logger->info("getOldHouseDeal curl GuzzleException=" . $e->getMessage());
+            return $e->getMessage();
+        }
     }
 }
