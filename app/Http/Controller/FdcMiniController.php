@@ -72,4 +72,9 @@ class FdcMiniController extends BaseController
         ];
         return $this->success($return);
     }
+
+    #[RequestMapping(path: "getHouseDeal")]
+    public function getHouseDeal(){
+
+    }
 }

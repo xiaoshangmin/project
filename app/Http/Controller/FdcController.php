@@ -451,11 +451,11 @@ ORDER BY
     }
 
     /**
-     * 抓取二手房成交统计
+     * 抓取成交量统计
      * @return string
      */
-    #[GetMapping(path: "getOldHouseDeal")]
-    public function getOldHouseDeal()
+    #[GetMapping(path: "getHouseDeal")]
+    public function getHouseDeal()
     {
         try {
             $client = $this->clientFactory->create([
@@ -496,5 +496,58 @@ ORDER BY
             $this->logger->info("getOldHouseDeal curl GuzzleException=" . $e->getMessage());
             return $e->getMessage();
         }
+    }
+
+    /**
+     * 抓取成交量详细
+     * @return string
+     */
+    #[GetMapping(path: "getHouseDealDetail")]
+    public function getHouseDealDetail()
+    {
+        $chromeOptions = new ChromeOptions();
+        $chromeOptions->addArguments(['--headless']);
+        $capabilities = DesiredCapabilities::chrome();
+        $capabilities->setCapability(ChromeOptions::CAPABILITY, $chromeOptions);
+
+        $driver = RemoteWebDriver::create($this->serverUrl, $capabilities);
+        $driver->manage()->timeouts()->implicitlyWait(5);
+        $str = 'ok' . PHP_EOL;
+
+        try {
+            //二手
+            $url = "http://zjj.sz.gov.cn/ris/szfdc/showcjgs/esfcjgs.aspx";
+            $this->logger->info('url:' . $url);
+            $driver->get($url);
+            $xmlDateDay = $driver->findElement(WebDriverBy::id("lblCurTime1"));
+            $str .= $xmlDateDay->getText() . PHP_EOL;
+            $idList = ['hypAll', 'hypBa', 'hypFt', 'hypLg', 'hypLh', 'hypNs', 'hypQh', 'hypYt', 'hypLhQ', 'hypGm', 'hypPs', 'hypDp', 'hypSSHZ'];
+            $index = 0;
+            foreach ($idList as $key => $item) {
+                $index++;
+                $area = $driver->findElement(WebDriverBy::xpath('//a[@style="color:Red;"]'));//div[class="left recordLink"]
+                $str .= $area->getText() . PHP_EOL;
+                $tableList = $driver->findElements(WebDriverBy::tagName("table"));
+                if (!empty($tableList) && count($tableList) == 2) {
+                    $spanList = $tableList[0]->findElements(WebDriverBy::cssSelector("td span"));
+                    $spanArr = array_chunk($spanList, 3);
+                    foreach ($spanArr as $span) {
+                        $str .= $span[0]->getText() ."---". $span[1]->getText() ."---". $span[2]->getText() . PHP_EOL;
+                    }
+
+                }
+                if (isset($idList[$index])) {
+                    $ele = $driver->findElement(WebDriverBy::id($idList[$index]));
+                    $ele->click();
+                    sleep(2);
+                }
+            }
+
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        } finally {
+            $driver->quit();
+        }
+        return $str;
     }
 }
