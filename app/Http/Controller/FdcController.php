@@ -489,6 +489,7 @@ ORDER BY
                     ['data' => json_encode(['mj' => $mj, 'ts' => $ts])]
                 );
             }
+            return "ok" . PHP_EOL;
         } catch (RequestException $e) {
             $this->logger->info("getOldHouseDeal curl RequestException=" . $e->getMessage());
             return $e->getMessage();
@@ -521,25 +522,90 @@ ORDER BY
             $driver->get($url);
             $xmlDateDay = $driver->findElement(WebDriverBy::id("lblCurTime1"));
             $str .= $xmlDateDay->getText() . PHP_EOL;
-            $idList = ['hypAll', 'hypBa', 'hypFt', 'hypLg', 'hypLh', 'hypNs', 'hypQh', 'hypYt', 'hypLhQ', 'hypGm', 'hypPs', 'hypDp', 'hypSSHZ'];
-            $index = 0;
-            foreach ($idList as $key => $item) {
-                $index++;
-                $area = $driver->findElement(WebDriverBy::xpath('//a[@style="color:Red;"]'));//div[class="left recordLink"]
-                $str .= $area->getText() . PHP_EOL;
-                $tableList = $driver->findElements(WebDriverBy::tagName("table"));
-                if (!empty($tableList) && count($tableList) == 2) {
-                    $spanList = $tableList[0]->findElements(WebDriverBy::cssSelector("td span"));
-                    $spanArr = array_chunk($spanList, 3);
-                    foreach ($spanArr as $span) {
-                        $str .= $span[0]->getText() ."---". $span[1]->getText() ."---". $span[2]->getText() . PHP_EOL;
-                    }
+            $xmlDateDay = strtotime(str_replace(['年', '月', '日'], "", $xmlDateDay->getText()));
+            $oldDetail = Db::table('house_deal_detail')
+                ->where('xml_date_day', '=', $xmlDateDay)
+                ->where('type', '=', 2)
+                ->first();
+            if (empty($oldDetail)) {
+                $idList = ['hypAll', 'hypBa', 'hypFt', 'hypLg', 'hypLh', 'hypNs', 'hypQh', 'hypYt', 'hypLhQ', 'hypGm', 'hypPs', 'hypDp', 'hypSSHZ'];
+                $index = 0;
+                $insertList = [];
+                foreach ($idList as $item) {
+                    $index++;
+                    $area = $driver->findElement(WebDriverBy::xpath('//a[@style="color:Red;"]'));//div[class="left recordLink"]
+//                $str .= $area->getText() . PHP_EOL;
+                    $tableList = $driver->findElements(WebDriverBy::tagName("table"));
+                    if (!empty($tableList) && count($tableList) == 2) {
+                        $spanList = $tableList[0]->findElements(WebDriverBy::cssSelector("td span"));
+                        $spanArr = array_chunk($spanList, 3);
+                        foreach ($spanArr as $span) {
+//                        $str .= $span[0]->getText() . "---" . $span[1]->getText() . "---" . $span[2]->getText() . PHP_EOL;
+                            $insertList[] = [
+                                'area' => $area->getText(),
+                                'xml_date_day' => $xmlDateDay,
+                                'type' => 2,
+                                'use' => $span[0]->getText(),
+                                'deal_area' => $span[1]->getText(),
+                                'deal_num' => $span[2]->getText()
+                            ];
+                        }
 
+                    }
+                    if (isset($idList[$index])) {
+                        $ele = $driver->findElement(WebDriverBy::id($idList[$index]));
+                        $ele->click();
+                        sleep(2);
+                    }
                 }
-                if (isset($idList[$index])) {
-                    $ele = $driver->findElement(WebDriverBy::id($idList[$index]));
-                    $ele->click();
-                    sleep(2);
+                if (!empty($insertList)) {
+                    Db::table("house_deal_detail")->insert($insertList);
+                }
+            }
+            $newDetail = Db::table('house_deal_detail')
+                ->where('xml_date_day', '=', $xmlDateDay)
+                ->where('type', '=', 1)
+                ->first();
+            if (empty($newDetail)) {
+                $idList = ['hypAll', 'hypBa', 'hypFt', 'hypLg', 'hypLh', 'hypNs', 'hypYt', 'hypLongHua', 'hypGm', 'hypPs', 'hypDP', 'hypsshz'];
+                //一手
+                $url = "http://zjj.sz.gov.cn/ris/szfdc/showcjgs/ysfcjgs.aspx";
+                $this->logger->info('url:' . $url);
+                $driver->get($url);
+
+                $index = 0;
+                $insertList = [];
+                foreach ($idList as $item) {
+                    $index++;
+                    $area = $driver->findElement(WebDriverBy::id('ctl03_lbldistrict2'));//div[class="left recordLink"]
+//                    $str .= $area->getText() . PHP_EOL;
+                    $tableList = $driver->findElements(WebDriverBy::tagName("table"));
+                    if (!empty($tableList) && count($tableList) == 2) {
+                        $spanList = $tableList[0]->findElements(WebDriverBy::cssSelector("td span"));
+                        $spanArr = array_chunk($spanList, 5);
+                        foreach ($spanArr as $span) {
+//                            $str .= $span[0]->getText() . "---" . $span[1]->getText() . "---" . $span[2]->getText() . PHP_EOL;
+                            $insertList[] = [
+                                'area' => $area->getText(),
+                                'xml_date_day' => $xmlDateDay,
+                                'type' => 1,
+                                'use' => $span[0]->getText(),
+                                'deal_area' => $span[1]->getText(),
+                                'deal_num' => $span[2]->getText(),
+                                'sellable' => $span[3]->getText(),
+                                'sellable_area' => $span[4]->getText(),
+                            ];
+                        }
+
+                    }
+                    if (isset($idList[$index])) {
+                        $ele = $driver->findElement(WebDriverBy::id($idList[$index]));
+                        $ele->click();
+                        sleep(2);
+                    }
+                }
+                if (!empty($insertList)) {
+                    Db::table("house_deal_detail")->insert($insertList);
                 }
             }
 
