@@ -19,7 +19,7 @@ class HouseDeal extends Model
     /**
      * The table associated with the model.
      */
-    protected ?string $table = 'old_house_deal';
+    protected ?string $table = 'house_deal';
 
     /**
      * The attributes that are mass assignable.

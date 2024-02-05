@@ -3,7 +3,6 @@
 namespace App\Http\Service;
 
 use App\Model\Fdc;
-use Hyperf\DbConnection\Db;
 use Hyperf\Di\Annotation\Inject;
 
 class FdcService

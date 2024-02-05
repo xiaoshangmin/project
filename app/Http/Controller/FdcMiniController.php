@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controller;
 
 use App\Http\Service\FdcService;
+use App\Http\Service\HouseDealService;
 use App\Http\Service\ProjectDetailService;
 use App\Http\Service\RoomService;
 use Hyperf\Di\Annotation\Inject;
@@ -23,6 +24,9 @@ class FdcMiniController extends BaseController
 
     #[Inject]
     protected ProjectDetailService $projectDetailService;
+
+    #[Inject]
+    protected HouseDealService $houseDealService;
 
     #[RequestMapping(path: "list")]
     public function list()
@@ -74,7 +78,10 @@ class FdcMiniController extends BaseController
     }
 
     #[RequestMapping(path: "getHouseDeal")]
-    public function getHouseDeal(){
-
+    public function getHouseDeal()
+    {
+        $now = strtotime(date("Y-m-d", time() - 86400));
+        $res = $this->houseDealService->getDealDetail($now);
+        return json_encode($res);
     }
 }
