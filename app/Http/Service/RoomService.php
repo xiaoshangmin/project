@@ -45,6 +45,7 @@ class RoomService
             }
             $room['rate'] = '--';
             $room['total_price'] = '--';
+            $room['room_price'] = '--';
             if ($room['floor_space'] != '--' && $room['room_space'] != '--') {
                 $room['rate'] = (bcdiv($room['room_space'], $room['floor_space'], 4) * 100) . "%";
             }
