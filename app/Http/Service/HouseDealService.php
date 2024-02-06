@@ -27,8 +27,10 @@ class HouseDealService
         $newData = [];
         foreach ($data as $item) {
             $key = $item['type'] == 1 ? 'old' : 'new';
-            $jsonStr = json_decode($item['data'], true);
-            $newData[$key] = ['data' => $jsonStr, 'date' => date('Y-m-d', $item['xml_date_day'])];
+            $newData[$key] = [
+                'data' => json_decode($item['data'], true),
+                'date' => date('Y-m-d', $item['xml_date_day'])
+            ];
         }
         $newDetailList = [];
         foreach ($detailList as $item) {
@@ -41,9 +43,15 @@ class HouseDealService
         }
         $tjList = [];
         foreach ($newDetailList as $key => $value) {
+            $temp = [];
             foreach ($value as $item) {
-                $tjList[$key][] = $item;
+                if ('全市' == $item['area']) {
+                    $temp = $item;
+                } else {
+                    $tjList[$key][] = $item;
+                }
             }
+            array_unshift($tjList[$key], $temp);
         }
         return ['pie' => $newData, 'tj' => $tjList];
 

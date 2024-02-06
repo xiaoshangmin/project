@@ -36,30 +36,33 @@ class FdcMiniController extends BaseController
         return $this->success($list);
     }
 
+    /**
+     * 房价列表
+     * @return \Psr\Http\Message\ResponseInterface
+     */
     #[RequestMapping(path: "detail")]
     public function detail()
     {
         $fdcId = (int)$this->request->input('fdcId');// 19768;
-        $fdcList = $this->roomService->getByFdcId($fdcId);
+        $roomList = $this->roomService->getByFdcId($fdcId);
         $newList = [];
 
-        foreach ($fdcList as $building) {
+        foreach ($roomList as $building) {
             //楼栋
             $newList[$building['project_id']][] = $building;
         }
         $newRoomList = [];
-        foreach ($newList as $roomList) {
+        foreach ($newList as $projectList) {
             $unitsList = [];
             //单元
-            foreach ($roomList as $room) {
+            foreach ($projectList as $room) {
                 $room['label'] = $room['room_num'];
-                $room['image'] = "https://img.wowyou.cc/file/0bef92b75e849ce81fb7e.jpg";
                 if (isset($unitsList[$room['units']])) {
                     $unitsList[$room['units']]['items'][] = $room;
                 } else {
                     $unitsList[$room['units']] = [
-                        "label" => $room['units'],
-                        "title" => $room['units'],
+                        "label" => $room['units'] ?: '未命名',
+                        "title" => $room['units'] ?: '未命名',
                         "badgeProps" => [],
                         "items" => [$room],
                     ];
