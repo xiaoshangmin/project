@@ -312,7 +312,8 @@ ORDER BY
         $driver->manage()->timeouts()->implicitlyWait(5);
         $str = 'ok' . PHP_EOL;
 
-        $roomList = Room::where('room_num', '=', '')->orderBy('id')->limit(100000)->get();
+//        $roomList = Room::where('room_num', '=', '')->orderBy('id')->limit(100000)->get();
+        $roomList = Room::where('fdc_id', '=', '130840')->orderBy('id')->limit(100000)->get();
 
         try {
             foreach ($roomList as $room) {
