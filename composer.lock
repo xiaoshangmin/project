@@ -4,7 +4,7 @@
         "Read more about it at https://getcomposer.org/doc/01-basic-usage.md#installing-dependencies",
         "This file is @generated automatically"
     ],
-    "content-hash": "a778f3d17f510c06d812e87bb9c33411",
+    "content-hash": "e94618ec6684caf8535a8bdd1c817f6a",
     "packages": [
         {
             "name": "carbonphp/carbon-doctrine-types",
@@ -2147,6 +2147,71 @@
                 "source": "https://github.com/hyperf/hyperf"
             },
             "time": "2023-09-19T01:50:18+00:00"
+        },
+        {
+            "name": "hyperf/crontab",
+            "version": "v3.0.45",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/hyperf/crontab.git",
+                "reference": "f5593a9a791707cf277512b734fad394faf27fbd"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/hyperf/crontab/zipball/f5593a9a791707cf277512b734fad394faf27fbd",
+                "reference": "f5593a9a791707cf277512b734fad394faf27fbd",
+                "shasum": "",
+                "mirrors": [
+                    {
+                        "url": "https://mirrors.aliyun.com/composer/dists/%package%/%reference%.%type%",
+                        "preferred": true
+                    }
+                ]
+            },
+            "require": {
+                "hyperf/framework": "~3.0.0",
+                "hyperf/support": "~3.0.0",
+                "hyperf/utils": "~3.0.0",
+                "nesbot/carbon": "^2.0",
+                "php": ">=8.0"
+            },
+            "suggest": {
+                "hyperf/command": "Required to use command trigger.",
+                "hyperf/process": "Auto register the Crontab process for server."
+            },
+            "type": "library",
+            "extra": {
+                "branch-alias": {
+                    "dev-master": "3.0-dev"
+                },
+                "hyperf": {
+                    "config": "Hyperf\\Crontab\\ConfigProvider"
+                }
+            },
+            "autoload": {
+                "psr-4": {
+                    "Hyperf\\Crontab\\": "src/"
+                }
+            },
+            "notification-url": "https://packagist.org/downloads/",
+            "license": [
+                "MIT"
+            ],
+            "description": "A crontab component for Hyperf.",
+            "homepage": "https://hyperf.io",
+            "keywords": [
+                "crontab",
+                "hyperf",
+                "php",
+                "swoole"
+            ],
+            "support": {
+                "docs": "https://hyperf.wiki",
+                "issues": "https://github.com/hyperf/hyperf/issues",
+                "pull-request": "https://github.com/hyperf/hyperf/pulls",
+                "source": "https://github.com/hyperf/hyperf"
+            },
+            "time": "2023-11-20T08:42:11+00:00"
         },
         {
             "name": "hyperf/database",
