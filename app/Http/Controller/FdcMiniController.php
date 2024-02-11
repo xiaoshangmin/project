@@ -32,7 +32,15 @@ class FdcMiniController extends BaseController
     public function list()
     {
         $keyword = $this->request->post("keyword", "");
-        $list = $this->fdcService->getList([['project_name', "like", "{$keyword}%"]], ['*'], ['orderByRaw' => 'id desc']);
+        $area = $this->request->post("area", "");
+        $where = [];
+        if ($area!=""&&$area!="all"){
+            $where[] = ['area','=',trim($area)];
+        }
+        if (!empty($keyword)){
+            $where[] = ['project_name', "like", "{$keyword}%"];
+        }
+        $list = $this->fdcService->getList($where, ['*'], ['orderByRaw' => 'id desc']);
         return $this->success($list);
     }
 

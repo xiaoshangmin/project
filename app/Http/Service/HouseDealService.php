@@ -26,7 +26,7 @@ class HouseDealService
         }
         $newData = [];
         foreach ($data as $item) {
-            $key = $item['type'] == 1 ? 'old' : 'new';
+            $key = $item['type'] == 1 ? 'new' : 'old';
             $newData[$key] = [
                 'data' => json_decode($item['data'], true),
                 'date' => date('Y-m-d', $item['xml_date_day'])
@@ -34,7 +34,7 @@ class HouseDealService
         }
         $newDetailList = [];
         foreach ($detailList as $item) {
-            $key = $item['type'] == 1 ? 'old' : 'new';
+            $key = $item['type'] == 1 ? 'new' : 'old';
             if (isset($newDetailList[$key][$item['area']])) {
                 $newDetailList[$key][$item['area']]['item'][] = $item;
             } else {

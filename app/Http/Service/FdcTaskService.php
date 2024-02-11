@@ -489,8 +489,8 @@ ORDER BY
                                 'xml_date_day' => $xmlDateDay,
                                 'type' => 1,
                                 'use' => $span[0]->getText(),
-                                'deal_area' => $span[1]->getText(),
-                                'deal_num' => $span[2]->getText(),
+                                'deal_num' => $span[1]->getText(),
+                                'deal_area' => $span[2]->getText(),
                                 'sellable' => $span[3]->getText(),
                                 'sellable_area' => $span[4]->getText(),
                             ];
