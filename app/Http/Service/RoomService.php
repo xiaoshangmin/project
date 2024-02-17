@@ -14,7 +14,7 @@ class RoomService
     public function getByFdcId(int $fdcId): array
     {
         $list = $this->model->where('fdc_id', $fdcId)
-            ->select(['room_num', 'room_type','project_id', 'units', 'selling_price', 'floor_space', 'room_space', 'final_floor_space', 'final_room_space', 'status'])
+            ->select(['room_num', 'room_type','project_id','floor', 'units', 'selling_price', 'floor_space', 'room_space', 'final_floor_space', 'final_room_space', 'status'])
             ->get()->toArray();
         return $this->buildRoomData($list);
     }
@@ -42,6 +42,10 @@ class RoomService
             if (!empty($room['final_room_space'])) {
                 preg_match('/([\d.])+/', $room['final_room_space'], $match);
                 $room['final_room_space'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
+            }
+            if (!empty($room['floor'])) {
+                preg_match('/([\d.])+/', $room['floor'], $match);
+                $room['floor'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '';
             }
             $room['rate'] = '--';
             $room['total_price'] = '--';

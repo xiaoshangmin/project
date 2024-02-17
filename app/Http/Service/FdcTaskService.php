@@ -98,6 +98,108 @@ class FdcTaskService
         return $str;
     }
 
+
+    //{
+    //    "status": 200,
+    //    "msg": "成功",
+    //    "data": {
+    //        "total": 196,
+    //        "pageSize": 1,
+    //        "list": [
+    //            {
+    //                "id": 826974,
+    //                "preSellId": null,
+    //                "type": 2,
+    //                "project": "中航格澜阳光花园11栋",
+    //                "organName": "深圳市宅猫房地产有限公司",
+    //                "serialNo": "243592067847宅猫找房",
+    //                "zone": "龙华",
+    //                "publishDate": "2024-01-25",
+    //                "contractDate": "2024-01-25 ~ 2024-03-26",
+    //                "address": "宝安区观澜街道大和路西侧",
+    //                "coordinateX": "504410.4775357939",
+    //                "coordinateY": "2510971.8083608835",
+    //                "parcelNo": "A906-0104"
+    //            }
+    //        ]
+    //    }
+    //}
+    //http://zjj.sz.gov.cn/szfdcscjy/projectPublish/getHouseInfoListToPublicity
+    //{"buildingbranch":"未知","floor":"","fybId":"157","housenb":"","status":-1,"type":"","ysProjectId":44,"preSellId":33}
+    public function getProjectByApi(){
+        try {
+            $str = "ok" . PHP_EOL;
+            $client = $this->clientFactory->create([
+                'timeout' => 10,
+                'verify' => false,
+                'allow_redirects' => true,
+            ]);
+            $fdcList = Fdc::select(['id','project_name'])->orderByDesc('id')->get();
+            foreach ($fdcList as $fdc) {
+                //搜索
+                $body = [
+                    "pageIndex"=>1,
+                    "pageSize"=> 10,
+                    "search"=>$fdc->project_name,
+                    "status"=> "",
+                    "type"=>1,//可以修改这个类型
+                    "yearList"=> [],
+                    "zoneList"=>[]
+                ];
+                $response = $client->post(
+                    'http://zjj.sz.gov.cn/szfdccommon/homeMap/getProjectList',
+                    ['json'=>$body]
+                );
+                $jsonStr = $response->getBody()->getContents();
+                $resArr = json_decode($jsonStr, true);
+                if (isset($resArr['data']['list']) && !empty($resArr['data']['list'])){
+                    foreach ($resArr['data']['list'] as $item) {
+                        if ($item['preSellId'] == $fdc->id) {
+                            if ($item['type'] == 1) {
+                                $url = "http://zjj.sz.gov.cn/szfdccommon/homeMap/getYsProjectDetail?preSellId={$item['preSellId']}&ysProjectId={$item['id']}";
+                                $this->logger->info($url);
+                                $detail = $client->post($url);
+                                $jsonStr = $detail->getBody()->getContents();
+                                $resArr = json_decode($jsonStr, true);
+                                if (isset($resArr['data']) && !empty($resArr['data'])){
+                                    $d = $resArr['data'];
+                                    $fdc->average_price = $d['averagePrice']?:'';//备案均价
+                                    $fdc->coordinatex = $d['coordinateX']?:'';
+                                    $fdc->coordinatey = $d['coordinateY']?:'';
+                                    $fdc->remark = $d['fpmemo'];
+                                    $fdc->ys_project_id = $d['id'];
+                                }
+                                $fdc->save();
+                                break;
+                            } elseif ($item['type'] == 2) {
+                                $url = "http://zjj.sz.gov.cn/szfdccommon/homeMap/getEsfSellProjectDetail?esfSelId={$item['id']}";
+                                $this->logger->info($url);
+                                $detail = $client->post($url);
+                                $jsonStr = $detail->getBody()->getContents();
+                                $resArr = json_decode($jsonStr, true);
+                                if (isset($resArr['data']) && !empty($resArr['data'])){
+                                    $d = $resArr['data'];
+                                    $fdc->price_reference = $d['priceReference']?:'';
+                                    $fdc->coordinatex = $d['coordinateX']?:'';
+                                    $fdc->coordinatey = $d['coordinateY']?:'';
+                                }
+                                $fdc->save();
+                                break;
+                            }
+                        }
+                    }
+                }
+            }
+            return $str;
+        } catch (RequestException $e) {
+            $this->logger->info("getHouseDeal curl RequestException=" . $e->getMessage());
+            return $e->getMessage();
+        } catch (GuzzleException $e) {
+            $this->logger->info("getHouseDeal curl GuzzleException=" . $e->getMessage());
+            return $e->getMessage();
+        }
+    }
+
     /**
      * 抓取项目详情和楼栋列表
      * @return string
@@ -115,10 +217,12 @@ class FdcTaskService
 
 
         $fdcList = Db::table("fdc")->select(['fdc.id'])
-            ->leftJoin("project_detail", 'fdc.id', '=', 'project_detail.fdc_id')
+//            ->leftJoin("project_detail", 'fdc.id', '=', 'project_detail.fdc_id')
             ->orderBy('fdc.id', 'desc')
-            ->where('fdc.id', '>',5200)
-            ->whereNull('project_detail.fdc_id')
+//            ->where('fdc.id', '>',5200)
+            ->where('fdc.id', '<=',5200)
+            ->where('fdc.pmc','=','')
+//            ->whereNull('project_detail.fdc_id')
             ->get();
 
         try {
@@ -144,11 +248,15 @@ class FdcTaskService
                     if ('预售总套数' == $item[0]->getText()) {
                         $update['ys_total_room'] = $item[1]->getText();
                     }
+                    if ('物业管理公司' == $item[0]->getText()) {
+                        $update['pmc'] = $item[1]->getText();
+                    }
                 }
 
                 if (!empty($update)) {
                     Db::table("fdc")->where('id', $fdc->id)->update($update);
                 }
+                continue;
                 $detail = Db::table("project_detail")->where('fdc_id','=',$fdc->id)->first();
                 if (!empty($detail)){
                     continue;
@@ -300,8 +408,8 @@ ORDER BY
         $driver->manage()->timeouts()->implicitlyWait(5);
         $str = 'ok' . PHP_EOL;
 
-//        $roomList = Room::where('room_num', '=', '')->orderBy('id')->limit(100000)->get();
-        $roomList = Room::where('fdc_id', '=', '130840')->orderBy('id')->limit(100000)->get();
+        $roomList = Room::where('room_num', '=', '')->orderBy('id')->limit(100000)->get();
+//        $roomList = Room::where('fdc_id', '=', '130840')->orderBy('id')->limit(100000)->get();
 
         try {
             foreach ($roomList as $room) {

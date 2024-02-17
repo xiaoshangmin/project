@@ -32,6 +32,17 @@ class FdcController extends BaseController
         return $this->fdcTaskService->syncList();
     }
 
+
+    /**
+     * 抓取项目详情
+     * @return string
+     */
+    #[GetMapping(path: "getProjectByApi")]
+    public function getProjectByApi()
+    {
+        return $this->fdcTaskService->getProjectByApi();
+    }
+
     /**
      * 抓取项目详情和楼栋列表
      * @return string

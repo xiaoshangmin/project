@@ -40,8 +40,10 @@ class FdcMiniController extends BaseController
         if (!empty($keyword)){
             $where[] = ['project_name', "like", "{$keyword}%"];
         }
-        $list = $this->fdcService->getList($where, ['*'], ['orderByRaw' => 'id desc']);
-        return $this->success($list);
+        $list = $this->fdcService->getList($where,
+            ['id','address','room_type','ys_total_room','approve_time','project_name'],
+            ['orderByRaw' => 'id desc']);
+        return $this->success(['data'=>$list['data'],'lastPage'=>$list['last_page']]);
     }
 
     /**
@@ -71,6 +73,8 @@ class FdcMiniController extends BaseController
                     $unitsList[$room['units']] = [
                         "label" => $room['units'] ?: '未命名',
                         "title" => $room['units'] ?: '未命名',
+//                        "label" => $room['floor'] ?: '未命名',
+//                        "title" => $room['floor'] ?: '未命名',
                         "badgeProps" => [],
                         "items" => [$room],
                     ];
@@ -81,9 +85,13 @@ class FdcMiniController extends BaseController
         }
         $projectDetailList = $this->projectDetailService->getByFdcId($fdcId);
         $buildingList = array_column($projectDetailList, 'building');
+
+        $fdcInfo = $this->fdcService->getById($fdcId);
+
         $return = [
             "roomList" => $newRoomList,
             "building" => $buildingList,
+            'fdcInfo' =>$fdcInfo,
         ];
         return $this->success($return);
     }

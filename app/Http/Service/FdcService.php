@@ -16,4 +16,8 @@ class FdcService
         return $this->model->getPageList($where, $columns, $options);
     }
 
+    public function getById($fdcId){
+        return $this->model::find($fdcId);
+    }
+
 }
