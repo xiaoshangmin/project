@@ -41,7 +41,7 @@ class FdcMiniController extends BaseController
             $where[] = ['project_name', "like", "{$keyword}%"];
         }
         $list = $this->fdcService->getList($where,
-            ['id','address','room_type','ys_total_room','approve_time','project_name'],
+            ['id','address','room_type','average_price','ys_total_room','approve_time','project_name'],
             ['orderByRaw' => 'id desc']);
         return $this->success(['data'=>$list['data'],'lastPage'=>$list['last_page']]);
     }

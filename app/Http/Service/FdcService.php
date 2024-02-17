@@ -13,7 +13,11 @@ class FdcService
 
     public function getList(array $where, array $columns = ['*'], array $options = []): array
     {
-        return $this->model->getPageList($where, $columns, $options);
+        $list = $this->model->getPageList($where, $columns, $options);
+        foreach ($list['data'] as &$item) {
+            $item['room_type'] = explode('、',$item['room_type']);
+        }
+        return $list;
     }
 
     public function getById($fdcId){

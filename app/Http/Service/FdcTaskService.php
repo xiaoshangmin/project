@@ -134,12 +134,12 @@ class FdcTaskService
                 'verify' => false,
                 'allow_redirects' => true,
             ]);
-            $fdcList = Fdc::select(['id','project_name'])->orderByDesc('id')->get();
+            $fdcList = Fdc::where('ys_project_id','=','')->select(['id','project_name'])->orderByDesc('id')->get();
             foreach ($fdcList as $fdc) {
                 //搜索
                 $body = [
                     "pageIndex"=>1,
-                    "pageSize"=> 10,
+                    "pageSize"=> 33,
                     "search"=>$fdc->project_name,
                     "status"=> "",
                     "type"=>1,//可以修改这个类型
@@ -256,7 +256,6 @@ class FdcTaskService
                 if (!empty($update)) {
                     Db::table("fdc")->where('id', $fdc->id)->update($update);
                 }
-                continue;
                 $detail = Db::table("project_detail")->where('fdc_id','=',$fdc->id)->first();
                 if (!empty($detail)){
                     continue;
