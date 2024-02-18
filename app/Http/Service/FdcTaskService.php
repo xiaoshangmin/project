@@ -358,7 +358,7 @@ class FdcTaskService
 //            ->leftJoin("building", 'fdc.id', '=', 'building.fdc_id')
             ->orderBy('fdc.id', 'desc')
 //            ->where('fdc.id', '>',5200)
-            ->where('fdc.id', '<=', 5200)
+            ->where('fdc.id', '>=', 5200)
             ->where('fdc.pmc', '=', '')
 //            ->whereNull('building.fdc_id')
             ->get();
@@ -472,17 +472,18 @@ ORDER BY
                 'allow_redirects' => true,
             ]);
 
-            $infoList = Db::select("SELECT building.`id`,building.`fdc_id`,fdc.`ys_project_id` FROM building LEFT JOIN fdc ON building.`fdc_id`=fdc.`id` WHERE fdc.`id`=33");
-            foreach ($infoList as $item) {
+            $infoList = Db::select(
+                "SELECT building.`id`,building.`fdc_id`,building.`building`, fdc.`ys_project_id` FROM building LEFT JOIN fdc ON building.`fdc_id`=fdc.`id` WHERE building.`has_get_room`=0 ORDER BY id DESC;");
+            foreach ($infoList as $info) {
                 $body = [
                     "buildingbranch" => "",
                     "floor" => "",
-                    "fybId" => $item->id,
+                    "fybId" => $info->id,
                     "housenb" => "",
                     "status" => -1,
                     "type" => "",
-                    "ysProjectId" => $item->ys_project_id,
-                    "preSellId" => $item->fdc_id
+                    "ysProjectId" => $info->ys_project_id,
+                    "preSellId" => $info->fdc_id
                 ];
                 //获取房间信息
                 $url = "http://zjj.sz.gov.cn/szfdcscjy/projectPublish/getHouseInfoListToPublicity";
@@ -490,7 +491,38 @@ ORDER BY
                 $jsonStr = $response->getBody()->getContents();
                 $resArr = json_decode($jsonStr, true);
                 if (isset($resArr['data']) && !empty($resArr['data'])) {
-
+                    foreach ($resArr['data'] as $item) {
+                        foreach ($item['list'] as $list) {
+                            $units = $list['buildingbranch'] ?: '未命名';
+                            $room = Room::where(
+                                ['fdc_id' => $info->fdc_id, 'type' => 1, 'building_id' => $info->id, 'units' => "[{$units}]", 'room_num' => $list['housenb'], 'floor' => $list['floor']])
+                                ->first();
+                            $d = [
+                                'fdc_id' => $info->fdc_id,
+                                'type' => 1,
+                                'building_id' => $info->id,
+                                'room_num' => $list['housenb'],
+                                'floor' => $list['floor'],
+                                'status' => $list['lastStatusName'],
+                                'units' => $list['buildingbranch'] ?: '未命名',
+                                'room_id' => $list['id'],
+                                'selling_price' => $list['askpriceeachB'] ?: 0,
+                                'room_type' => $list['useage'],
+                                'floor_space' => $list['ysbuildingarea'],
+                                'room_space' => $list['ysinsidearea'],
+                                'share_space' => $list['ysexpandarea'],
+                                'final_floor_space' => $list['jgbuildingarea'] ?: 0,
+                                'final_room_space' => $list['jginsidearea'] ?: 0,
+                                'final_share_space' => $list['jgexpandarea'] ?: 0
+                            ];
+                            if (!empty($room)) {
+                                Db::table('room')->where('id', $room['id'])->update($d);
+                            } else {
+                                Db::table('room')->insert($d);
+                            }
+                        }
+                        Db::table('building')->where('id', $info->id)->update(['has_get_room' => 1]);
+                    }
                 }
             }
             return $str;
