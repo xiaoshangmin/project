@@ -59,7 +59,7 @@ class FdcMiniController extends BaseController
 
         foreach ($roomList as $building) {
             //楼栋
-            $newList[$building['project_id']][] = $building;
+            $newList[$building['building_id']][] = $building;
         }
         $newRoomList = [];
         foreach ($newList as $projectList) {
