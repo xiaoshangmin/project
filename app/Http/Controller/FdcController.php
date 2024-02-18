@@ -44,13 +44,23 @@ class FdcController extends BaseController
     }
 
     /**
-     * 抓取项目详情和楼栋列表
+     * 抓取楼栋
      * @return string
      */
-    #[GetMapping(path: "getProject")]
-    public function getProject()
+    #[GetMapping(path: "getProjectDetailByApi")]
+    public function getProjectDetailByApi()
     {
-       return $this->fdcTaskService->getProject();
+        return $this->fdcTaskService->getProjectDetailByApi();
+    }
+
+    /**
+     * 抓取项目详额外信息
+     * @return string
+     */
+    #[GetMapping(path: "getFdcExtra")]
+    public function getFdcExtra()
+    {
+       return $this->fdcTaskService->getFdcExtra();
     }
 
 
@@ -63,6 +73,19 @@ class FdcController extends BaseController
     {
         return $this->fdcTaskService->getUnits();
     }
+
+
+
+    /**
+     * 抓取房间列表
+     * @return string
+     */
+    #[GetMapping(path: "getRoomByApi")]
+    public function getRoomByApi()
+    {
+        return $this->fdcTaskService->getRoomByApi();
+    }
+
 
     /**
      * 抓取房间列表

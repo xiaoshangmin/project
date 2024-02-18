@@ -2,14 +2,14 @@
 
 namespace App\Http\Service;
 
-use App\Model\ProjectDetail;
+use App\Model\Building;
 use Hyperf\Di\Annotation\Inject;
 
-class ProjectDetailService
+class BuildingService
 {
 
     #[Inject]
-    protected ProjectDetail $model;
+    protected Building $model;
 
     public function getByFdcId(int $fdcId): array
     {

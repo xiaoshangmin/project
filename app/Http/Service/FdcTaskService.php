@@ -2,9 +2,9 @@
 
 namespace App\Http\Service;
 
-use App\Model\Building;
 use App\Model\Fdc;
 use App\Model\Room;
+use App\Model\Units;
 use Facebook\WebDriver\Chrome\ChromeOptions;
 use Facebook\WebDriver\Remote\DesiredCapabilities;
 use Facebook\WebDriver\Remote\RemoteWebDriver;
@@ -29,6 +29,7 @@ class FdcTaskService
 
 
     /**
+     * #1 第一步
      * 抓取项目列表
      * @return string
      */
@@ -124,9 +125,14 @@ class FdcTaskService
     //        ]
     //    }
     //}
-    //http://zjj.sz.gov.cn/szfdcscjy/projectPublish/getHouseInfoListToPublicity
-    //{"buildingbranch":"未知","floor":"","fybId":"157","housenb":"","status":-1,"type":"","ysProjectId":44,"preSellId":33}
-    public function getProjectByApi(){
+
+    /**
+     * #2 第二步
+     * 获取经纬度，备注，备案价
+     * @return string
+     */
+    public function getProjectByApi()
+    {
         try {
             $str = "ok" . PHP_EOL;
             $client = $this->clientFactory->create([
@@ -134,25 +140,25 @@ class FdcTaskService
                 'verify' => false,
                 'allow_redirects' => true,
             ]);
-            $fdcList = Fdc::where('ys_project_id','=','')->select(['id','project_name'])->orderByDesc('id')->get();
+            $fdcList = Fdc::where('ys_project_id', '=', '')->select(['id', 'project_name'])->orderByDesc('id')->get();
             foreach ($fdcList as $fdc) {
                 //搜索
                 $body = [
-                    "pageIndex"=>1,
-                    "pageSize"=> 33,
-                    "search"=>$fdc->project_name,
-                    "status"=> "",
-                    "type"=>1,//可以修改这个类型
-                    "yearList"=> [],
-                    "zoneList"=>[]
+                    "pageIndex" => 1,
+                    "pageSize" => 33,
+                    "search" => $fdc->project_name,
+                    "status" => "",
+                    "type" => 1,//可以修改这个类型
+                    "yearList" => [],
+                    "zoneList" => []
                 ];
                 $response = $client->post(
                     'http://zjj.sz.gov.cn/szfdccommon/homeMap/getProjectList',
-                    ['json'=>$body]
+                    ['json' => $body]
                 );
                 $jsonStr = $response->getBody()->getContents();
                 $resArr = json_decode($jsonStr, true);
-                if (isset($resArr['data']['list']) && !empty($resArr['data']['list'])){
+                if (isset($resArr['data']['list']) && !empty($resArr['data']['list'])) {
                     foreach ($resArr['data']['list'] as $item) {
                         if ($item['preSellId'] == $fdc->id) {
                             if ($item['type'] == 1) {
@@ -161,11 +167,11 @@ class FdcTaskService
                                 $detail = $client->post($url);
                                 $jsonStr = $detail->getBody()->getContents();
                                 $resArr = json_decode($jsonStr, true);
-                                if (isset($resArr['data']) && !empty($resArr['data'])){
+                                if (isset($resArr['data']) && !empty($resArr['data'])) {
                                     $d = $resArr['data'];
-                                    $fdc->average_price = $d['averagePrice']?:'';//备案均价
-                                    $fdc->coordinatex = $d['coordinateX']?:'';
-                                    $fdc->coordinatey = $d['coordinateY']?:'';
+                                    $fdc->average_price = $d['averagePrice'] ?: '';//备案均价
+                                    $fdc->coordinatex = $d['coordinateX'] ?: '';
+                                    $fdc->coordinatey = $d['coordinateY'] ?: '';
                                     $fdc->remark = $d['fpmemo'];
                                     $fdc->ys_project_id = $d['id'];
                                 }
@@ -177,11 +183,11 @@ class FdcTaskService
                                 $detail = $client->post($url);
                                 $jsonStr = $detail->getBody()->getContents();
                                 $resArr = json_decode($jsonStr, true);
-                                if (isset($resArr['data']) && !empty($resArr['data'])){
+                                if (isset($resArr['data']) && !empty($resArr['data'])) {
                                     $d = $resArr['data'];
-                                    $fdc->price_reference = $d['priceReference']?:'';
-                                    $fdc->coordinatex = $d['coordinateX']?:'';
-                                    $fdc->coordinatey = $d['coordinateY']?:'';
+                                    $fdc->price_reference = $d['priceReference'] ?: '';
+                                    $fdc->coordinatex = $d['coordinateX'] ?: '';
+                                    $fdc->coordinatey = $d['coordinateY'] ?: '';
                                 }
                                 $fdc->save();
                                 break;
@@ -200,11 +206,143 @@ class FdcTaskService
         }
     }
 
+
+    //{
+    //    "status": 200,
+    //    "msg": "成功",
+    //    "data": [
+    //        {
+    //            "label": "9栋",
+    //            "value": "null",
+    //            "key": "157",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "8栋",
+    //            "value": "null",
+    //            "key": "156",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "7栋",
+    //            "value": "null",
+    //            "key": "155",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "6栋",
+    //            "value": "null",
+    //            "key": "154",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "5栋",
+    //            "value": "null",
+    //            "key": "153",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "4栋",
+    //            "value": "null",
+    //            "key": "152",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "3栋",
+    //            "value": "null",
+    //            "key": "151",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "2栋",
+    //            "value": "null",
+    //            "key": "150",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "1栋",
+    //            "value": "null",
+    //            "key": "149",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "14栋",
+    //            "value": "null",
+    //            "key": "162",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "13栋",
+    //            "value": "null",
+    //            "key": "161",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "12栋",
+    //            "value": "null",
+    //            "key": "160",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "11栋",
+    //            "value": "null",
+    //            "key": "159",
+    //            "acive": false
+    //        },
+    //        {
+    //            "label": "10栋",
+    //            "value": "null",
+    //            "key": "158",
+    //            "acive": false
+    //        }
+    //    ]
+    //}
     /**
-     * 抓取项目详情和楼栋列表
+     * #3 第三步
+     * 获取楼栋信息
      * @return string
      */
-    public function getProject()
+    public function getProjectDetailByApi()
+    {
+        try {
+            $str = "ok" . PHP_EOL;
+            $client = $this->clientFactory->create([
+                'timeout' => 10,
+                'verify' => false,
+                'allow_redirects' => true,
+            ]);
+            $fdcList = Fdc::select(['id', 'ys_project_id'])->orderByDesc('id')->get();
+            foreach ($fdcList as $fdc) {
+                //获取楼栋信息
+                $url = "http://zjj.sz.gov.cn/szfdcscjy/projectPublish/getBuildingNameListToPublicity?ysProjectId={$fdc->ys_project_id}&preSellId={$fdc->id}";
+                $response = $client->post($url);
+                $jsonStr = $response->getBody()->getContents();
+                $resArr = json_decode($jsonStr, true);
+                if (isset($resArr['data']) && !empty($resArr['data'])) {
+                    foreach ($resArr['data'] as $item) {
+                        Db::table('building')->updateOrInsert(
+                            ['fdc_id' => $fdc->id, 'type' => 1, 'id' => $item['key']],
+                            ['building' => $item['label']]
+                        );
+                    }
+                }
+            }
+            return $str;
+        } catch (RequestException $e) {
+            $this->logger->info("getHouseDeal curl RequestException=" . $e->getMessage());
+            return $e->getMessage();
+        } catch (GuzzleException $e) {
+            $this->logger->info("getHouseDeal curl GuzzleException=" . $e->getMessage());
+            return $e->getMessage();
+        }
+    }
+
+
+    /** #4 第四步
+     * 抓取项目额外信息
+     * @return string
+     */
+    public function getFdcExtra()
     {
         $chromeOptions = new ChromeOptions();
         $chromeOptions->addArguments(['--headless']);
@@ -217,12 +355,12 @@ class FdcTaskService
 
 
         $fdcList = Db::table("fdc")->select(['fdc.id'])
-//            ->leftJoin("project_detail", 'fdc.id', '=', 'project_detail.fdc_id')
+//            ->leftJoin("building", 'fdc.id', '=', 'building.fdc_id')
             ->orderBy('fdc.id', 'desc')
 //            ->where('fdc.id', '>',5200)
-            ->where('fdc.id', '<=',5200)
-            ->where('fdc.pmc','=','')
-//            ->whereNull('project_detail.fdc_id')
+            ->where('fdc.id', '<=', 5200)
+            ->where('fdc.pmc', '=', '')
+//            ->whereNull('building.fdc_id')
             ->get();
 
         try {
@@ -256,25 +394,6 @@ class FdcTaskService
                 if (!empty($update)) {
                     Db::table("fdc")->where('id', $fdc->id)->update($update);
                 }
-                $detail = Db::table("project_detail")->where('fdc_id','=',$fdc->id)->first();
-                if (!empty($detail)){
-                    continue;
-                }
-                $buildingTd = $table[1]->findElements(WebDriverBy::cssSelector('tr td'));
-                $tdArr = array_chunk($buildingTd, 5);
-                foreach ($tdArr as $item) {
-                    $href = $item[4]->findElement(WebDriverBy::tagName("a"));
-                    preg_match('/\?id=(\d+)/', $href->getAttribute('href'), $match);
-                    $insert[] = [
-                        'id' => $match[1],
-                        'fdc_id' => $fdc->id,
-                        'building' => trim($item[1]->getText()),
-                        'url' => $href->getAttribute("href"),
-                    ];
-                }
-                if (!empty($insert)) {
-                    Db::table("project_detail")->insert($insert);
-                }
             }
         } catch (\Exception $e) {
             return $e->getMessage();
@@ -285,6 +404,7 @@ class FdcTaskService
     }
 
     /**
+     * #5 第五步
      * 抓取楼栋单元列表
      * @return string
      */
@@ -300,14 +420,14 @@ class FdcTaskService
         $str = 'ok' . PHP_EOL;
 
         $projectList = Db::select("SELECT
-	project_detail.`id`,
-	project_detail.`fdc_id`,
-	project_detail.`url` ,
-	building.project_id
+	building.`id`,
+	building.`fdc_id`,
+	building.`url` ,
+	units.project_id
 FROM
-	`project_detail` 
-	LEFT JOIN building ON project_detail.id=building.project_id
-	WHERE building.project_id IS NULL AND project_detail.`fdc_id`>17000
+	`building` 
+	LEFT JOIN units ON building.id=units.project_id
+	WHERE units.project_id IS NULL AND building.`fdc_id`>17000
 ORDER BY
 	`fdc_id` DESC");
         try {
@@ -339,6 +459,53 @@ ORDER BY
 
 
     /**
+     * 暂不使用
+     * @return string
+     */
+    public function getRoomByApi()
+    {
+        try {
+            $str = "ok" . PHP_EOL;
+            $client = $this->clientFactory->create([
+                'timeout' => 10,
+                'verify' => false,
+                'allow_redirects' => true,
+            ]);
+
+            $infoList = Db::select("SELECT building.`id`,building.`fdc_id`,fdc.`ys_project_id` FROM building LEFT JOIN fdc ON building.`fdc_id`=fdc.`id` WHERE fdc.`id`=33");
+            foreach ($infoList as $item) {
+                $body = [
+                    "buildingbranch" => "",
+                    "floor" => "",
+                    "fybId" => $item->id,
+                    "housenb" => "",
+                    "status" => -1,
+                    "type" => "",
+                    "ysProjectId" => $item->ys_project_id,
+                    "preSellId" => $item->fdc_id
+                ];
+                //获取房间信息
+                $url = "http://zjj.sz.gov.cn/szfdcscjy/projectPublish/getHouseInfoListToPublicity";
+                $response = $client->post($url, ['json' => $body]);
+                $jsonStr = $response->getBody()->getContents();
+                $resArr = json_decode($jsonStr, true);
+                if (isset($resArr['data']) && !empty($resArr['data'])) {
+
+                }
+            }
+            return $str;
+        } catch (RequestException $e) {
+            $this->logger->info("getHouseDeal curl RequestException=" . $e->getMessage());
+            return $e->getMessage();
+        } catch (GuzzleException $e) {
+            $this->logger->info("getHouseDeal curl GuzzleException=" . $e->getMessage());
+            return $e->getMessage();
+        }
+    }
+
+
+    /**
+     * #6 第六步
      * 抓取房间列表
      * @return string
      */
@@ -353,7 +520,7 @@ ORDER BY
         $driver->manage()->timeouts()->implicitlyWait(10);
         $str = 'ok' . PHP_EOL;
         // select * from `building` where `has_get_room` = '0' order by `fdc_id` desc
-        $buildingList = Building::where('has_get_room', '=', 0)->orderBy('fdc_id', 'desc')->get();
+        $buildingList = Units::where('has_get_room', '=', 0)->orderBy('fdc_id', 'desc')->get();
         //预售ys  销售xs
         $type = 'ys';
 
@@ -393,6 +560,7 @@ ORDER BY
 
 
     /**
+     * #7 第七步
      * 抓取房间详情列表
      * @return string
      */
@@ -408,7 +576,6 @@ ORDER BY
         $str = 'ok' . PHP_EOL;
 
         $roomList = Room::where('room_num', '=', '')->orderBy('id')->limit(100000)->get();
-//        $roomList = Room::where('fdc_id', '=', '130840')->orderBy('id')->limit(100000)->get();
 
         try {
             foreach ($roomList as $room) {
@@ -416,22 +583,10 @@ ORDER BY
                 $this->logger->info('url:' . $url);
                 $driver->get($url);
                 $roomInfo = $driver->findElements(WebDriverBy::cssSelector('tr td'));
-//                $sellingPrice = $roomInfo[7]->getText();//拟售价格
-//                $floor = $roomInfo[9]->getText();//楼层
                 if (empty($roomInfo) || !isset($roomInfo[11])) {
                     continue;
                 }
                 $roomNum = $roomInfo[11]->getText();//房间号
-//                $roomType = $roomInfo[13]->getText();//房间用途
-//                $barrierFree = $roomInfo[15]->getText();//是否无障碍住房
-//                $floorSpace = $roomInfo[17]->getText();//建筑面积(预售)
-//                $roomSpace = $roomInfo[19]->getText();//户内面积(预售)
-//                $shareSpace = $roomInfo[21]->getText();//分摊面积(预售)
-//                $finalFloorSpace = $roomInfo[23]->getText();//建筑面积(竣工)
-//                $finalRoomSpace = $roomInfo[25]->getText();//户内面积(竣工)
-//                $finalShareSpace = $roomInfo[27]->getText();//分摊面积(竣工)
-//                $str .= $sellingPrice . PHP_EOL . $floor . PHP_EOL . $roomNum . PHP_EOL . $roomType . PHP_EOL . $barrierFree . PHP_EOL . $floorSpace . PHP_EOL . $roomSpace
-//                    . PHP_EOL . $shareSpace . PHP_EOL . $finalFloorSpace . PHP_EOL . $finalRoomSpace . PHP_EOL . $finalShareSpace . PHP_EOL;
                 if (!empty($roomNum)) {
                     $room->selling_price = $roomInfo[7]->getText();//拟售价格
                     $room->floor = $roomInfo[9]->getText();//楼层

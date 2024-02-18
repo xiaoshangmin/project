@@ -4,9 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controller;
 
+use App\Http\Service\BuildingService;
 use App\Http\Service\FdcService;
 use App\Http\Service\HouseDealService;
-use App\Http\Service\ProjectDetailService;
 use App\Http\Service\RoomService;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
@@ -23,7 +23,7 @@ class FdcMiniController extends BaseController
     protected RoomService $roomService;
 
     #[Inject]
-    protected ProjectDetailService $projectDetailService;
+    protected BuildingService $buildingService;
 
     #[Inject]
     protected HouseDealService $houseDealService;
@@ -34,16 +34,16 @@ class FdcMiniController extends BaseController
         $keyword = $this->request->post("keyword", "");
         $area = $this->request->post("area", "");
         $where = [];
-        if ($area!=""&&$area!="all"){
-            $where[] = ['area','=',trim($area)];
+        if ($area != "" && $area != "all") {
+            $where[] = ['area', '=', trim($area)];
         }
-        if (!empty($keyword)){
+        if (!empty($keyword)) {
             $where[] = ['project_name', "like", "{$keyword}%"];
         }
         $list = $this->fdcService->getList($where,
-            ['id','address','room_type','average_price','ys_total_room','approve_time','project_name'],
+            ['id', 'address', 'room_type', 'average_price', 'ys_total_room', 'approve_time', 'project_name'],
             ['orderByRaw' => 'id desc']);
-        return $this->success(['data'=>$list['data'],'lastPage'=>$list['last_page']]);
+        return $this->success(['data' => $list['data'], 'lastPage' => $list['last_page']]);
     }
 
     /**
@@ -83,7 +83,7 @@ class FdcMiniController extends BaseController
             $unitsList = array_values($unitsList);
             $newRoomList[] = $unitsList;
         }
-        $projectDetailList = $this->projectDetailService->getByFdcId($fdcId);
+        $projectDetailList = $this->buildingService->getByFdcId($fdcId);
         $buildingList = array_column($projectDetailList, 'building');
 
         $fdcInfo = $this->fdcService->getById($fdcId);
@@ -91,7 +91,7 @@ class FdcMiniController extends BaseController
         $return = [
             "roomList" => $newRoomList,
             "building" => $buildingList,
-            'fdcInfo' =>$fdcInfo,
+            'fdcInfo' => $fdcInfo,
         ];
         return $this->success($return);
     }
