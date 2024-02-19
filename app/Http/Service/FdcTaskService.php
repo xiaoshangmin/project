@@ -508,9 +508,9 @@ ORDER BY
                                 'room_id' => $list['id'],
                                 'selling_price' => $list['askpriceeachB'] ?: 0,
                                 'room_type' => $list['useage'],
-                                'floor_space' => $list['ysbuildingarea'],
-                                'room_space' => $list['ysinsidearea'],
-                                'share_space' => $list['ysexpandarea'],
+                                'floor_space' => $list['ysbuildingarea']?:0,
+                                'room_space' => $list['ysinsidearea']?:0,
+                                'share_space' => $list['ysexpandarea']?:0,
                                 'final_floor_space' => $list['jgbuildingarea'] ?: 0,
                                 'final_room_space' => $list['jginsidearea'] ?: 0,
                                 'final_share_space' => $list['jgexpandarea'] ?: 0
