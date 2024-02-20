@@ -15,7 +15,7 @@ class RoomService
     {
         $list = $this->model->where('fdc_id', $fdcId)
             ->select(['room_num', 'room_type','building_id','floor', 'units', 'selling_price', 'floor_space', 'room_space', 'final_floor_space', 'final_room_space', 'status'])
-            ->get()->toArray();
+            ->orderBy('room_id','desc')->get()->toArray();
         return $this->buildRoomData($list);
     }
 

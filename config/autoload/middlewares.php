@@ -12,6 +12,7 @@ declare(strict_types=1);
 return [
     'http' => [
         \App\Middleware\Auth\CorsMiddleware::class,
+        \App\Middleware\Auth\MiniAuthMiddleware::class,
         \Hyperf\Validation\Middleware\ValidationMiddleware::class
     ],
 ];

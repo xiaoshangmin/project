@@ -71,6 +71,7 @@
         },
         "files": [
             "app/Utils/Common.php",
+            "app/Utils/Sign.php",
             "app/Utils/Functions.php"
         ]
     },

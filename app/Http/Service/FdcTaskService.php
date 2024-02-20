@@ -507,7 +507,7 @@ ORDER BY
                                 'units' => $list['buildingbranch'] ?: '未命名',
                                 'room_id' => $list['id'],
                                 'selling_price' => $list['askpriceeachB'] ?: 0,
-                                'room_type' => $list['useage'],
+                                'room_type' => $list['useage']?:'',
                                 'floor_space' => $list['ysbuildingarea']?:0,
                                 'room_space' => $list['ysinsidearea']?:0,
                                 'share_space' => $list['ysexpandarea']?:0,

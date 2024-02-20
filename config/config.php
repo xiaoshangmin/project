@@ -16,7 +16,7 @@ use Psr\Log\LogLevel;
 
 return [
     'app_name' => env('APP_NAME', 'project'),
-    'app_env' => env('APP_ENV', 'dev'),
+    'app_env' => env('APP_ENV', 'production'),
     'scan_cacheable' => env('SCAN_CACHEABLE', false),
     StdoutLoggerInterface::class => [
         'log_level' => [

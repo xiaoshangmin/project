@@ -8,11 +8,14 @@ use App\Http\Service\BuildingService;
 use App\Http\Service\FdcService;
 use App\Http\Service\HouseDealService;
 use App\Http\Service\RoomService;
+use App\Middleware\Auth\MiniAuthMiddleware;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\RequestMapping;
 
 #[Controller(prefix: "api/mini/fdc")]
+#[Middleware(MiniAuthMiddleware::class)]
 class FdcMiniController extends BaseController
 {
 
