@@ -37,6 +37,7 @@ class MiniAuthMiddleware implements MiddlewareInterface
                 [
                     'code' => ErrorCode::FAIL,
                     'message' => '签名错误',
+                    'data'=>$this->request->all()
                 ]
             );
         }

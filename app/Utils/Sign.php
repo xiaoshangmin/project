@@ -21,7 +21,11 @@ class Sign
         ksort($data);
         $string = self::formatUrlParams($data);
         //签名步骤二：在string后加入KEY
-        $string = $string . "&key=" . $key;
+        if (!empty($string)){
+            $string = $string . "&key=" . $key;
+        }else{
+            $string = "key=" . $key;
+        }
         //签名步骤三：MD5加密或者HMAC-SHA256
         if ($signType == 'md5') {
             //如果签名小于等于32个,则使用md5验证
