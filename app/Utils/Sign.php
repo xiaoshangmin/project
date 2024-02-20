@@ -43,7 +43,7 @@ class Sign
     {
         $buff = "";
         foreach ($data as $k => $v) {
-            if ($k != "sign" && $v !== "" && $v !== "null" && !is_array($v)) {
+            if ($k != "sign" && $v !== "null" && !is_array($v)) {
                 $buff .= $k . "=" . $v . "&";
             }
         }
