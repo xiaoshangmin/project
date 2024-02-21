@@ -3,7 +3,30 @@
 use App\Util\Sign;
 use GuzzleHttp\Client;
 use GuzzleHttp\Cookie\CookieJar;
+use proj4php\Point;
+use proj4php\Proj;
+use proj4php\Proj4php;
 
+
+if (!function_exists('projTransform')) {
+    /**
+     * 坐标转换
+     * https://github.com/proj4php/proj4php
+     * @param string $x
+     * @param string $y
+     * @return array
+     */
+    function projTransform(string $x, string $y): array
+    {
+        $proj4Php = new Proj4php();
+        $proj = new Proj('EPSG:4547', $proj4Php);
+        $projLWGS84 = new Proj('EPSG:4326', $proj4Php);
+
+        $pointSrc = new Point($x, $y, $proj);
+        $pointDest = $proj4Php->transform($projLWGS84, $pointSrc);
+        return $pointDest->toArray();
+    }
+}
 
 /**
  * 小程序接口验证参数
@@ -31,6 +54,13 @@ if (!function_exists('miniSignCheck')) {
 
 if (!function_exists('getContent')) {
 
+    /**
+     * @param string $url
+     * @param array $headers
+     * @param bool $decoded
+     * @return string
+     * @throws \GuzzleHttp\Exception\GuzzleException
+     */
     function getContent(string $url, array $headers = [], bool $decoded = True)
     {
         /**Gets the content of a URL via sending a HTTP GET request.

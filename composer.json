@@ -40,6 +40,7 @@
         "hyperf/websocket-server": "3.0.*",
         "orhanerday/open-ai": "^4.7",
         "php-webdriver/webdriver": "^1.15",
+        "proj4php/proj4php": "^2.0",
         "spatie/pdf-to-image": "^2.2",
         "symfony/yaml": "^6.0"
     },

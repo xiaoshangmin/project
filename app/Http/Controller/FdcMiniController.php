@@ -44,19 +44,19 @@ class FdcMiniController extends BaseController
             $where[] = ['project_name', "like", "{$keyword}%"];
         }
         $list = $this->fdcService->getList($where,
-            ['id', 'address', 'room_type', 'average_price', 'ys_total_room', 'approve_time', 'project_name'],
+            ['id', 'ent', 'room_type', 'average_price', 'ys_total_room', 'approve_time', 'project_name'],
             ['orderByRaw' => 'id desc']);
         return $this->success(['data' => $list['data'], 'lastPage' => $list['last_page']]);
     }
 
     /**
-     * 房价列表
+     * 房间列表
      * @return \Psr\Http\Message\ResponseInterface
      */
     #[RequestMapping(path: "detail")]
     public function detail()
     {
-        $fdcId = (int)$this->request->input('fdcId');// 19768;
+        $fdcId = (int)$this->request->input('fdcId');
         $roomList = $this->roomService->getByFdcId($fdcId);
         $newList = [];
 

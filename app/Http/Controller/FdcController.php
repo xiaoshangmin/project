@@ -22,6 +22,18 @@ class FdcController extends BaseController
         return __METHOD__;
     }
 
+
+    /**
+     * test
+     * @return string
+     */
+    #[GetMapping(path: "test")]
+    public function test()
+    {
+        return projTransform('487572.146888166','2522739.0342432503');
+    }
+
+
     /**
      * 抓取项目列表
      * @return string
