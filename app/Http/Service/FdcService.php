@@ -24,9 +24,18 @@ class FdcService
     {
         $info = $this->model::findOrFail($fdcId)->toArray();
         if (!empty($info['coordinatex']) && !empty($info['coordinatey'])) {
-            $location = projTransform($info['coordinatex'], $info['coordinatey']);
-            $info['coordinatex'] = $location[0];
-            $info['coordinatey'] = $location[1];
+            if (empty($info['lon'])) {
+                $location = projTransform($info['coordinatex'], $info['coordinatey']);
+                $info['coordinatex'] = $location[0];
+                $info['coordinatey'] = $location[1];
+                $this->model::where('id', $info['id'])->update([
+                    'lon' => $location[0],
+                    'lat' => $location[1],
+                ]);
+            } else {
+                $info['coordinatex'] = $info['lon'];
+                $info['coordinatey'] = $info['lat'];
+            }
         }
         return $info;
     }

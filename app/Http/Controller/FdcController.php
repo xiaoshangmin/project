@@ -30,7 +30,9 @@ class FdcController extends BaseController
     #[GetMapping(path: "test")]
     public function test()
     {
-        return projTransform('487572.146888166','2522739.0342432503');
+        $start = time();
+        projTransform('487572.146888166','2522739.0342432503');
+        return time() - $start;
     }
 
 
