@@ -493,9 +493,8 @@ ORDER BY
                 if (isset($resArr['data']) && !empty($resArr['data'])) {
                     foreach ($resArr['data'] as $item) {
                         foreach ($item['list'] as $list) {
-                            $units = $list['buildingbranch'] ?: '未命名';
                             $room = Room::where(
-                                ['fdc_id' => $info->fdc_id, 'type' => 1, 'building_id' => $info->id, 'units' => "[{$units}]", 'room_num' => $list['housenb'], 'floor' => $list['floor']])
+                                ['fdc_id' => $info->fdc_id, 'type' => 1, 'building_id' => $info->id, 'room_num' => $list['housenb'], 'room_id' => $list['id']])
                                 ->first();
                             $d = [
                                 'fdc_id' => $info->fdc_id,
@@ -507,10 +506,10 @@ ORDER BY
                                 'units' => $list['buildingbranch'] ?: '未命名',
                                 'room_id' => $list['id'],
                                 'selling_price' => $list['askpriceeachB'] ?: 0,
-                                'room_type' => $list['useage']?:'',
-                                'floor_space' => $list['ysbuildingarea']?:0,
-                                'room_space' => $list['ysinsidearea']?:0,
-                                'share_space' => $list['ysexpandarea']?:0,
+                                'room_type' => $list['useage'] ?: '',
+                                'floor_space' => $list['ysbuildingarea'] ?: 0,
+                                'room_space' => $list['ysinsidearea'] ?: 0,
+                                'share_space' => $list['ysexpandarea'] ?: 0,
                                 'final_floor_space' => $list['jgbuildingarea'] ?: 0,
                                 'final_room_space' => $list['jginsidearea'] ?: 0,
                                 'final_share_space' => $list['jgexpandarea'] ?: 0

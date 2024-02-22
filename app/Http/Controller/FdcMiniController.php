@@ -36,6 +36,7 @@ class FdcMiniController extends BaseController
     {
         $keyword = $this->request->post("keyword", "");
         $area = $this->request->post("area", "");
+        $priceOrder = $this->request->post("priceOrder", "");
         $where = [];
         if ($area != "" && $area != "all") {
             $where[] = ['area', '=', trim($area)];
@@ -43,9 +44,14 @@ class FdcMiniController extends BaseController
         if (!empty($keyword)) {
             $where[] = ['project_name', "like", "{$keyword}%"];
         }
+        $order = 'id desc';
+        if (!empty($priceOrder) && $priceOrder!='default'){
+            $order = "average_price {$priceOrder}";
+        }
         $list = $this->fdcService->getList($where,
             ['id', 'ent', 'room_type', 'average_price', 'ys_total_room', 'approve_time', 'project_name'],
-            ['orderByRaw' => 'id desc']);
+            ['orderByRaw' => $order]
+        );
         return $this->success(['data' => $list['data'], 'lastPage' => $list['last_page']]);
     }
 
