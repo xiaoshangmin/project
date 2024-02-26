@@ -6,12 +6,15 @@ namespace App\Http\Controller;
 
 use App\Http\Service\BuildingService;
 use App\Http\Service\FdcService;
+use App\Http\Service\GuidePriceService;
 use App\Http\Service\HouseDealService;
 use App\Http\Service\RoomService;
 use App\Middleware\Auth\MiniAuthMiddleware;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
+use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Annotation\RequestMapping;
 
 #[Controller(prefix: "api/mini/fdc")]
@@ -23,6 +26,9 @@ class FdcMiniController extends BaseController
     protected FdcService $fdcService;
 
     #[Inject]
+    protected GuidePriceService $guidePriceService;
+
+    #[Inject]
     protected RoomService $roomService;
 
     #[Inject]
@@ -31,7 +37,7 @@ class FdcMiniController extends BaseController
     #[Inject]
     protected HouseDealService $houseDealService;
 
-    #[RequestMapping(path: "list")]
+    #[PostMapping(path: "list")]
     public function list()
     {
         $keyword = $this->request->post("keyword", "");
@@ -59,7 +65,7 @@ class FdcMiniController extends BaseController
      * 房间列表
      * @return \Psr\Http\Message\ResponseInterface
      */
-    #[RequestMapping(path: "detail")]
+    #[PostMapping(path: "detail")]
     public function detail()
     {
         $fdcId = (int)$this->request->input('fdcId');
@@ -82,8 +88,6 @@ class FdcMiniController extends BaseController
                     $unitsList[$room['units']] = [
                         "label" => $room['units'] ?: '未命名',
                         "title" => $room['units'] ?: '未命名',
-//                        "label" => $room['floor'] ?: '未命名',
-//                        "title" => $room['floor'] ?: '未命名',
                         "badgeProps" => [],
                         "items" => [$room],
                     ];
@@ -105,11 +109,38 @@ class FdcMiniController extends BaseController
         return $this->success($return);
     }
 
-    #[RequestMapping(path: "getHouseDeal")]
+    #[GetMapping(path: "getHouseDeal")]
     public function getHouseDeal()
     {
         $now = strtotime(date("Y-m-d", time() - 86400));
         $res = $this->houseDealService->getDealDetail($now);
-        return json_encode($res);
+//        return json_encode($res);
+        return $this->success($res);
     }
+
+    #[PostMapping(path: "guideList")]
+    public function getGuideList()
+    {
+        $keyword = $this->request->post("keyword", "");
+        $area = $this->request->post("area", "");
+        $priceOrder = $this->request->post("priceOrder", "");
+        $where = [];
+        if ($area != "" && $area != "all") {
+            $where[] = ['area', '=', trim($area)];
+        }
+        if (!empty($keyword)) {
+            $where[] = ['name', "like", "{$keyword}%"];
+        }
+        $order = 'id desc';
+        if (!empty($priceOrder) && $priceOrder!='default'){
+            $order = "price {$priceOrder}";
+        }
+        $list = $this->guidePriceService->getList($where,
+            ['id', 'area', 'street', 'name', 'price'],
+            ['orderByRaw' => $order]
+        );
+        return $this->success(['data' => $list['data'], 'lastPage' => $list['last_page']]);
+    }
+
+
 }
