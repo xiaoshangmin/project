@@ -23,30 +23,30 @@ class RoomService
     {
         $newList = [];
         foreach ($roomList as $room) {
-            if (!empty($room['selling_price'])) {
-                preg_match('/([\d.])+/', $room['selling_price'], $match);
-                $room['selling_price'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
-            }
-            if (!empty($room['floor_space'])) {
-                preg_match('/([\d.])+/', $room['floor_space'], $match);
-                $room['floor_space'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
-            }
-            if (!empty($room['room_space'])) {
-                preg_match('/([\d.])+/', $room['room_space'], $match);
-                $room['room_space'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
-            }
-            if (!empty($room['final_floor_space'])) {
-                preg_match('/([\d.])+/', $room['final_floor_space'], $match);
-                $room['final_floor_space'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
-            }
-            if (!empty($room['final_room_space'])) {
-                preg_match('/([\d.])+/', $room['final_room_space'], $match);
-                $room['final_room_space'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
-            }
-            if (!empty($room['floor'])) {
-                preg_match('/([\d.])+/', $room['floor'], $match);
-                $room['floor'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '';
-            }
+//            if (!empty($room['selling_price'])) {
+//                preg_match('/([\d.])+/', $room['selling_price'], $match);
+//                $room['selling_price'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
+//            }
+//            if (!empty($room['floor_space'])) {
+//                preg_match('/([\d.])+/', $room['floor_space'], $match);
+//                $room['floor_space'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
+//            }
+//            if (!empty($room['room_space'])) {
+//                preg_match('/([\d.])+/', $room['room_space'], $match);
+//                $room['room_space'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
+//            }
+//            if (!empty($room['final_floor_space'])) {
+//                preg_match('/([\d.])+/', $room['final_floor_space'], $match);
+//                $room['final_floor_space'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
+//            }
+//            if (!empty($room['final_room_space'])) {
+//                preg_match('/([\d.])+/', $room['final_room_space'], $match);
+//                $room['final_room_space'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '--';
+//            }
+//            if (!empty($room['floor'])) {
+//                preg_match('/([\d.])+/', $room['floor'], $match);
+//                $room['floor'] = $match[0] ? mb_convert_encoding($match[0], 'UTF-8', 'GBK') : '';
+//            }
             $room['rate'] = '--';
             $room['total_price'] = '--';
             $room['room_price'] = '--';

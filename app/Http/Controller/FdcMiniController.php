@@ -114,7 +114,6 @@ class FdcMiniController extends BaseController
     {
         $now = strtotime(date("Y-m-d", time() - 86400));
         $res = $this->houseDealService->getDealDetail($now);
-//        return json_encode($res);
         return $this->success($res);
     }
 

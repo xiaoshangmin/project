@@ -140,7 +140,7 @@ class FdcTaskService
                 'verify' => false,
                 'allow_redirects' => true,
             ]);
-            $fdcList = Fdc::where('ys_project_id', '=', '')->select(['id', 'project_name'])->orderByDesc('id')->get();
+            $fdcList = Fdc::where('ys_project_id', '=', 0)->select(['id', 'project_name'])->orderByDesc('id')->get();
             foreach ($fdcList as $fdc) {
                 //搜索
                 $body = [
@@ -172,6 +172,11 @@ class FdcTaskService
                                     $fdc->average_price = $d['averagePrice'] ?: '';//备案均价
                                     $fdc->coordinatex = $d['coordinateX'] ?: '';
                                     $fdc->coordinatey = $d['coordinateY'] ?: '';
+                                    if (!empty($d['coordinateX'])){
+                                        $location = projTransform($d['coordinateX'],$d['coordinateY']);
+                                        $fdc->lon = $location[0]?:'';
+                                        $fdc->lat = $location[1]?:'';
+                                    }
                                     $fdc->remark = $d['fpmemo'];
                                     $fdc->ys_project_id = $d['id'];
                                 }
@@ -207,96 +212,7 @@ class FdcTaskService
     }
 
 
-    //{
-    //    "status": 200,
-    //    "msg": "成功",
-    //    "data": [
-    //        {
-    //            "label": "9栋",
-    //            "value": "null",
-    //            "key": "157",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "8栋",
-    //            "value": "null",
-    //            "key": "156",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "7栋",
-    //            "value": "null",
-    //            "key": "155",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "6栋",
-    //            "value": "null",
-    //            "key": "154",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "5栋",
-    //            "value": "null",
-    //            "key": "153",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "4栋",
-    //            "value": "null",
-    //            "key": "152",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "3栋",
-    //            "value": "null",
-    //            "key": "151",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "2栋",
-    //            "value": "null",
-    //            "key": "150",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "1栋",
-    //            "value": "null",
-    //            "key": "149",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "14栋",
-    //            "value": "null",
-    //            "key": "162",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "13栋",
-    //            "value": "null",
-    //            "key": "161",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "12栋",
-    //            "value": "null",
-    //            "key": "160",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "11栋",
-    //            "value": "null",
-    //            "key": "159",
-    //            "acive": false
-    //        },
-    //        {
-    //            "label": "10栋",
-    //            "value": "null",
-    //            "key": "158",
-    //            "acive": false
-    //        }
-    //    ]
-    //}
+
     /**
      * #3 第三步
      * 获取楼栋信息
@@ -311,7 +227,7 @@ class FdcTaskService
                 'verify' => false,
                 'allow_redirects' => true,
             ]);
-            $fdcList = Fdc::select(['id', 'ys_project_id'])->orderByDesc('id')->get();
+            $fdcList = Fdc::select(['id', 'ys_project_id'])->orderByDesc('id')->limit(5)->get();
             foreach ($fdcList as $fdc) {
                 //获取楼栋信息
                 $url = "http://zjj.sz.gov.cn/szfdcscjy/projectPublish/getBuildingNameListToPublicity?ysProjectId={$fdc->ys_project_id}&preSellId={$fdc->id}";
@@ -354,7 +270,7 @@ class FdcTaskService
         $str = 'ok' . PHP_EOL;
 
 
-        $fdcList = Db::table("fdc")->select(['fdc.id'])
+        $fdcList = Db::table("fdc")->select(['fdc.id','fdc.lon','fdc.coordinatex','fdc.coordinatey'])
 //            ->leftJoin("building", 'fdc.id', '=', 'building.fdc_id')
             ->orderBy('fdc.id', 'desc')
 //            ->where('fdc.id', '>',5200)
@@ -389,6 +305,11 @@ class FdcTaskService
                     if ('物业管理公司' == $item[0]->getText()) {
                         $update['pmc'] = $item[1]->getText();
                     }
+                }
+                if (empty($fdc->lon) && !empty($fdc->coordinatex)){
+                    $location = projTransform($fdc->coordinatex,$fdc->coordinatey);
+                    $update['lon'] = $location[0]?:'';
+                    $update['lat'] = $location[1]?:'';
                 }
 
                 if (!empty($update)) {
@@ -433,7 +354,7 @@ ORDER BY
         try {
             foreach ($projectList as $project) {
                 $insert = [];
-                $url = "http://zjj.sz.gov.cn/ris/bol/szfdc/{$project->url}";
+                $url = "http://zjj.sz.gov.cn/ris/bol/szfdc/building.aspx?id={$project->id}&presellid={$project->fdc_id}";
                 $this->logger->info('url:' . $url);
                 $driver->get($url);
                 $unitsList = $driver->findElements(WebDriverBy::cssSelector('#divShowBranch a'));
@@ -446,7 +367,7 @@ ORDER BY
                     ];
                 }
                 if (!empty($insert)) {
-                    Db::table("building")->insert($insert);
+                    Db::table("units")->insert($insert);
                 }
             }
         } catch (\Exception $e) {
@@ -459,7 +380,7 @@ ORDER BY
 
 
     /**
-     * 暂不使用
+     * #6 第六步
      * @return string
      */
     public function getRoomByApi()
@@ -536,7 +457,7 @@ ORDER BY
 
 
     /**
-     * #6 第六步
+     *
      * 抓取房间列表
      * @return string
      */
