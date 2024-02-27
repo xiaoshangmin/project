@@ -8,7 +8,7 @@ use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Crontab\Annotation\Crontab;
 use Hyperf\Di\Annotation\Inject;
 
-#[Crontab(name: "Foo", rule: "0 */1 * * *", callback: "execute", memo: "深圳房地产定时任务")]
+#[Crontab(name: "Foo", rule: "0 */2 * * *", callback: "execute", memo: "深圳房地产定时任务")]
 class FdcTask
 {
     #[Inject]
@@ -19,6 +19,10 @@ class FdcTask
 
     public function execute()
     {
+        $appEnv = env('APP_ENV', 'dev');
+        if ($appEnv != 'production'){
+            return;
+        }
         $this->fdcTaskService->getHouseDeal();
         $this->logger->info("getHouseDeal done");
         $this->fdcTaskService->getHouseDealDetail();
