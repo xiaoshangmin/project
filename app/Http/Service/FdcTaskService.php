@@ -271,12 +271,9 @@ class FdcTaskService
 
 
         $fdcList = Db::table("fdc")->select(['fdc.id','fdc.lon','fdc.coordinatex','fdc.coordinatey'])
-//            ->leftJoin("building", 'fdc.id', '=', 'building.fdc_id')
             ->orderBy('fdc.id', 'desc')
-//            ->where('fdc.id', '>',5200)
-            ->where('fdc.id', '>=', 5200)
+            ->where('fdc.id', '>=', 105373)
             ->where('fdc.pmc', '=', '')
-//            ->whereNull('building.fdc_id')
             ->get();
 
         try {
