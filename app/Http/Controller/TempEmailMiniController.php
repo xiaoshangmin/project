@@ -26,7 +26,12 @@ const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
     {
         $keyword = $this->request->post("email", "");
 
-        $stmt = "select id,`from`,subject,date from emails order by created_at desc";
+        $list = [];
+        if (empty($keyword)){
+            return $this->success($list);
+        }
+
+        $stmt = "select id,`from`,subject,date from emails where message_to='{$keyword}' order by created_at desc";
         $requestData['requests'][] = ['type' => 'execute', 'stmt' => ['sql' => $stmt]];
         $requestData['requests'][] = ['type' => "close"];
         $rs = $this->makeRequest('POST',  self::BASEURL,  self::TOKEN  , $requestData);
@@ -34,7 +39,7 @@ const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
             $rows = $rs['results'][0]['response']['result']['rows'];
             $cols = $rs['results'][0]['response']['result']['cols'];
             $colList = array_column($cols,'name');
-            $list = [];
+
             foreach ($rows as $row) {
                 $rowList = array_column($row,'value');
                 $data = array_combine($colList,$rowList);
