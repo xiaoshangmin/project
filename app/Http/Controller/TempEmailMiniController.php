@@ -14,12 +14,12 @@ use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Annotation\RequestMapping;
 
 #[Controller(prefix: "api/mini/temp/email")]
-//#[Middleware(MiniAuthMiddleware::class)]
+#[Middleware(MiniAuthMiddleware::class)]
 class TempEmailMiniController extends BaseController
 {
 
-    const  TOKEN              = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MTExNzY4NTcsImlkIjoiYzgzZmQyYjgtNjQ3Yi00MDMwLTkyMWYtOTU2ZmQxMWM2MGNkIn0.j5vx0pBUYkyvfQqndYhPpAYDThoJrH_Y6MxfLZRunnXlEY57H5DA8-JYD1sHHIn8Ah9NvpHRCnEqJWtzPoYBBg";
-const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
+    const  TOKEN  = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MTExNzY4NTcsImlkIjoiYzgzZmQyYjgtNjQ3Yi00MDMwLTkyMWYtOTU2ZmQxMWM2MGNkIn0.j5vx0pBUYkyvfQqndYhPpAYDThoJrH_Y6MxfLZRunnXlEY57H5DA8-JYD1sHHIn8Ah9NvpHRCnEqJWtzPoYBBg";
+    const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
 
     #[PostMapping(path: "list")]
     public function list()
@@ -27,23 +27,23 @@ const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
         $keyword = $this->request->post("email", "");
 
         $list = [];
-        if (empty($keyword)){
+        if (empty($keyword)) {
             return $this->success($list);
         }
 
         $stmt = "select id,`from`,subject,date from emails where message_to='{$keyword}' order by created_at desc";
         $requestData['requests'][] = ['type' => 'execute', 'stmt' => ['sql' => $stmt]];
         $requestData['requests'][] = ['type' => "close"];
-        $rs = $this->makeRequest('POST',  self::BASEURL,  self::TOKEN  , $requestData);
-        if (isset( $rs['results'][0]['response']['result'])) {
+        $rs = $this->makeRequest('POST',  self::BASEURL,  self::TOKEN, $requestData);
+        if (isset($rs['results'][0]['response']['result'])) {
             $rows = $rs['results'][0]['response']['result']['rows'];
             $cols = $rs['results'][0]['response']['result']['cols'];
-            $colList = array_column($cols,'name');
+            $colList = array_column($cols, 'name');
 
             foreach ($rows as $row) {
-                $rowList = array_column($row,'value');
-                $data = array_combine($colList,$rowList);
-                if (!empty($data['from'])){
+                $rowList = array_column($row, 'value');
+                $data = array_combine($colList, $rowList);
+                if (!empty($data['from'])) {
                     $data['from'] = json_decode($data['from']);
                 }
                 $dateTime = new DateTime($data['date']);
@@ -53,7 +53,6 @@ const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
             }
 
             return $this->success($list);
-
         }
     }
 
@@ -61,37 +60,36 @@ const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
     public function detail()
     {
         $id = $this->request->post("id", "");
+        $list = [];
+        if (empty($id)) {
+            return $this->success($list);
+        }
         $stmt = "select `from`,message_from,message_to,subject,html,text,date from emails where id = '{$id}'";
         $requestData['requests'][] = ['type' => 'execute', 'stmt' => ['sql' => $stmt]];
         $requestData['requests'][] = ['type' => "close"];
-        $rs = $this->makeRequest('POST', self::BASEURL,  self::TOKEN , $requestData);
-        if (isset( $rs['results'][0]['response']['result'])) {
+        $rs = $this->makeRequest('POST', self::BASEURL,  self::TOKEN, $requestData);
+        if (isset($rs['results'][0]['response']['result'])) {
             $rows = $rs['results'][0]['response']['result']['rows'];
             $cols = $rs['results'][0]['response']['result']['cols'];
-            $colList = array_column($cols,'name');
-            $list = [];
+            $colList = array_column($cols, 'name');
             foreach ($rows as $row) {
                 $data = [];
-                foreach ($colList as $index=>$col) {
-                    if (isset($row[$index])){
-                        if ('from' == $col && !empty($row[$index]['value'])){
+                foreach ($colList as $index => $col) {
+                    if (isset($row[$index])) {
+                        if ('from' == $col && !empty($row[$index]['value'])) {
                             $data['from'] = json_decode($row[$index]['value']);
-                        }elseif ('date' == $col && !empty($row[$index]['value'])){
+                        } elseif ('date' == $col && !empty($row[$index]['value'])) {
                             $dateTime = new DateTime($row[$index]['value']);
                             $data['date'] = $dateTime->format('H:i');
+                        } else {
+                            $data[$col] = $row[$index]['value'] ?? "";
                         }
-                        else{
-                            $data[$col] = $row[$index]['value']??"";
-                        }
-
                     }
                 }
                 $list = $data;
-
             }
 
             return $this->success($list);
-
         }
     }
 
@@ -126,6 +124,4 @@ const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
             return json_decode($response, true);
         }
     }
-
-
 }
