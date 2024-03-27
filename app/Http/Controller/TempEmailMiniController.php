@@ -6,15 +6,14 @@ namespace App\Http\Controller;
 
 use App\Middleware\Auth\MiniAuthMiddleware;
 use DateTime;
-use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
-use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\PostMapping;
-use Hyperf\HttpServer\Annotation\RequestMapping;
+use Hyperf\RateLimit\Annotation\RateLimit;
 
 #[Controller(prefix: "api/mini/temp/email")]
 #[Middleware(MiniAuthMiddleware::class)]
+#[RateLimit(limitCallback: [TempEmailMiniController::class, "limitCallback"])]
 class TempEmailMiniController extends BaseController
 {
 
@@ -22,6 +21,7 @@ class TempEmailMiniController extends BaseController
     const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
 
     #[PostMapping(path: "list")]
+    #[RateLimit(create: 1, capacity: 3,)]
     public function list()
     {
         $keyword = $this->request->post("email", "");
@@ -91,6 +91,15 @@ class TempEmailMiniController extends BaseController
 
             return $this->success($list);
         }
+    }
+
+
+    public static function limitCallback(float $seconds, ProceedingJoinPoint $proceedingJoinPoint)
+    {
+        // $seconds 下次生成Token 的间隔, 单位为秒
+        // $proceedingJoinPoint 此次请求执行的切入点
+        // 可以通过调用 `$proceedingJoinPoint->process()` 继续完成执行，或者自行处理
+        return $proceedingJoinPoint->process();
     }
 
     private function makeRequest(string $method, string $url, string $authToken, array $data = []): mixed
