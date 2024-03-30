@@ -30,8 +30,8 @@ class TempEmailMiniController extends BaseController
         if (empty($keyword)) {
             return $this->success($list);
         }
-
-        $stmt = "select id,`from`,subject,date from emails where message_to='{$keyword}' order by created_at desc";
+        $todayStartTimestamp = strtotime("today");
+        $stmt = "select id,`from`,subject,date from emails where message_to='{$keyword}' and created_at >={$todayStartTimestamp} order by created_at desc";
         $requestData['requests'][] = ['type' => 'execute', 'stmt' => ['sql' => $stmt]];
         $requestData['requests'][] = ['type' => "close"];
         $rs = $this->makeRequest('POST',  self::BASEURL,  self::TOKEN, $requestData);
