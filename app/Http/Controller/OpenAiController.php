@@ -14,7 +14,7 @@ class OpenAiController extends BaseController
 
     #[GetMapping(path: "chat")]
     public function chat(){ 
-        $storage = BASE_PATH . '/storage/pdf/123.jpg';
+        $storage = BASE_PATH . '/storage/pdf/text.png';
         return (new TesseractOCR($storage))
             ->run();
     }

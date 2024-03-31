@@ -20,6 +20,7 @@ use Hyperf\HttpServer\Contract\RequestInterface;
 use Hyperf\Validation\ValidationException;
 use Psr\Http\Message\ResponseInterface;
 use Throwable;
+use function Hyperf\Support\make;
 
 class AppExceptionHandler extends ExceptionHandler
 {
