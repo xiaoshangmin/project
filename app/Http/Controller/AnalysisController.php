@@ -8,11 +8,14 @@ use App\Http\Service\DouyinService;
 use App\Http\Service\KuaishouService;
 use App\Http\Service\QueueService;
 use App\Http\Service\WeiboService;
+use App\Middleware\Auth\MiniAuthMiddleware;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\PostMapping;
 
 #[Controller(prefix: 'api/analysis')]
+#[Middleware(MiniAuthMiddleware::class)]
 class AnalysisController extends BaseController
 {
 
@@ -36,6 +39,7 @@ class AnalysisController extends BaseController
     {
         $url = $this->request->post('url');
         $vid = $this->request->post('vid');
+        $this->logger->info(print_r($this->request->all(),true));
         $basai_id = $this->request->post('basai_id');
         $api = null;//new \analysis\Video();
         if (strpos($url, 'pipix')) {

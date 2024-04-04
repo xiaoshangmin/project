@@ -7,6 +7,7 @@ use App\Http\Service\FdcTaskService;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Crontab\Annotation\Crontab;
 use Hyperf\Di\Annotation\Inject;
+use function Hyperf\Support\env;
 
 #[Crontab(name: "Foo", rule: "0 */2 * * *", callback: "execute", memo: "深圳房地产定时任务")]
 class FdcTask

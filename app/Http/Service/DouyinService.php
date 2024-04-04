@@ -32,6 +32,7 @@ class DouyinService extends Spider
 
 //        }
         $dyUrl = 'https://www.douyin.com/aweme/v1/web/aweme/detail/?aweme_id=' . $id[1] . '&aid=1128&version_name=23.5.0&device_platform=android&os_version=2333';
+        $this->logger->info($dyUrl);
         $data = ['url' => $dyUrl, 'userAgent' => self::UA];
         $header = ['Content-Type' => 'application/json'];
         $rs = $this->curl($this->xbogusApiUrl, $header, $data);

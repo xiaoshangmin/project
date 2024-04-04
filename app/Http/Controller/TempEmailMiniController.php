@@ -17,7 +17,7 @@ use Hyperf\RateLimit\Annotation\RateLimit;
 class TempEmailMiniController extends BaseController
 {
 
-    const  TOKEN  = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MTExNzY4NTcsImlkIjoiYzgzZmQyYjgtNjQ3Yi00MDMwLTkyMWYtOTU2ZmQxMWM2MGNkIn0.j5vx0pBUYkyvfQqndYhPpAYDThoJrH_Y6MxfLZRunnXlEY57H5DA8-JYD1sHHIn8Ah9NvpHRCnEqJWtzPoYBBg";
+    const  TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MTExNzY4NTcsImlkIjoiYzgzZmQyYjgtNjQ3Yi00MDMwLTkyMWYtOTU2ZmQxMWM2MGNkIn0.j5vx0pBUYkyvfQqndYhPpAYDThoJrH_Y6MxfLZRunnXlEY57H5DA8-JYD1sHHIn8Ah9NvpHRCnEqJWtzPoYBBg";
     const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
 
     #[PostMapping(path: "list")]
@@ -34,7 +34,7 @@ class TempEmailMiniController extends BaseController
         $stmt = "select id,`from`,subject,date from emails where message_to='{$keyword}' and created_at >={$todayStartTimestamp} order by created_at desc";
         $requestData['requests'][] = ['type' => 'execute', 'stmt' => ['sql' => $stmt]];
         $requestData['requests'][] = ['type' => "close"];
-        $rs = $this->makeRequest('POST',  self::BASEURL,  self::TOKEN, $requestData);
+        $rs = $this->makeRequest('POST', self::BASEURL, self::TOKEN, $requestData);
         if (isset($rs['results'][0]['response']['result'])) {
             $rows = $rs['results'][0]['response']['result']['rows'];
             $cols = $rs['results'][0]['response']['result']['cols'];
@@ -67,7 +67,7 @@ class TempEmailMiniController extends BaseController
         $stmt = "select `from`,message_from,message_to,subject,html,text,date from emails where id = '{$id}'";
         $requestData['requests'][] = ['type' => 'execute', 'stmt' => ['sql' => $stmt]];
         $requestData['requests'][] = ['type' => "close"];
-        $rs = $this->makeRequest('POST', self::BASEURL,  self::TOKEN, $requestData);
+        $rs = $this->makeRequest('POST', self::BASEURL, self::TOKEN, $requestData);
         if (isset($rs['results'][0]['response']['result'])) {
             $rows = $rs['results'][0]['response']['result']['rows'];
             $cols = $rs['results'][0]['response']['result']['cols'];

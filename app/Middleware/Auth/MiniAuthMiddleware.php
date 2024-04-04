@@ -31,7 +31,6 @@ class MiniAuthMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
 
-
         if (!miniSignCheck($this->request->all())) {
             return $this->response->json(
                 [
