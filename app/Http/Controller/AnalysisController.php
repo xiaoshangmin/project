@@ -58,10 +58,7 @@ class AnalysisController extends BaseController
             $arr = $this->analysisService->xhs($url);
         } elseif (strpos($url, 'huoshan')) {
             $arr = $api->huoshan($url);
-        } elseif (strpos($url, 'h5.weishi') || strpos($url, 'isee.weishi')) {
-            $wb = new Ws();
-            $arr = $wb->analyse($url);
-        } elseif (strpos($url, 'instagram.com')) {
+        }   elseif (strpos($url, 'instagram.com')) {
             $wb = new Ins();
             $arr = $wb->analyse($url);
         } elseif (strpos($url, 'oasis.weibo')) {
