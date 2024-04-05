@@ -7,6 +7,7 @@ class WeiboService extends Spider
 
     public function analysis(string $url)
     {
+        $genvisitor = $this->genvisitor();
         //手机端
         if (strpos($url, 'm.weibo.cn')) {
             preg_match('/(\d+)$/', $url, $id);
@@ -34,10 +35,13 @@ class WeiboService extends Spider
             //pc端
             preg_match('/\/([\w]+)$/', $url, $id);
             $url = "https://weibo.com/ajax/statuses/show?id=" . $id[1];
-            $json = $this->curl($url);
+            $header = ['Cookie'=>join(';',$genvisitor)];
+            $json = $this->curl($url,$header);
+            $this->logger->info($json);
             $json = json_decode($json, true);
             if (isset($json['page_info']['media_info'])) {
-                return $this->video($json['page_info']['media_info']['next_title'], $json['page_info']['page_pic'], $json['page_info']['media_info']['stream_url_hd']);
+                return $this->video($json['page_info']['media_info']['next_title'], $json['page_info']['page_pic'],
+                    $json['page_info']['media_info']['playback_list'][0]['play_info']['url']);
             } else if (isset($json['pic_ids'])) {
                 $picIds = $json['pic_ids'];
                 if (empty($json['pic_ids']) && isset($json['retweeted_status']['pic_ids']) && !empty($json['retweeted_status']['pic_ids'])) {
@@ -56,5 +60,30 @@ class WeiboService extends Spider
             }
         }
         return [];
+    }
+
+
+    private function genvisitor(){
+        $url = 'https://passport.weibo.com/visitor/genvisitor';
+        $json = $this->curl($url,[],[],[
+            'cb'=>'gen_callback',
+            'fp'=>'{"os":"1","browser":"Chrome70,0,3538,25","fonts":"undefined","screenInfo":"1920*1080*24","plugins":""}'
+        ]);
+        preg_match('/\(([\s\S]*)\)/',$json,$match);
+        $this->logger->info($match[1]);
+        if (isset($match[1])) {
+            $rs = json_decode($match[1],true);
+            $tid = $rs['data']['tid'];
+            $newTid = $rs['data']['new_tid']?3:2;
+            $confidence = $rs['data']['confidence']??100;
+            $confidence = sprintf("%03d", $confidence);
+            $url = "https://passport.weibo.com/visitor/visitor?a=incarnate&t=$tid&w=$newTid&c=$confidence&gc=&cb=cross_domain&from=weibo&_rand=0.9599167551911155";
+            $header = get_headers($url,true);
+            if (isset($header['Set-Cookie'])){
+                return $header['Set-Cookie'];
+            }
+//            $stream = $this->curl($url, ['Referer' => 'https://passport.weibo.com']);
+            $this->logger->info(json_encode($header));
+        }
     }
 }

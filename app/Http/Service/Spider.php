@@ -3,6 +3,7 @@
 namespace App\Http\Service;
 
 use App\Contract\SpiderInterface;
+use GuzzleHttp\Cookie\CookieJar;
 use GuzzleHttp\Exception\GuzzleException;
 use GuzzleHttp\Exception\RequestException;
 use Hyperf\Contract\StdoutLoggerInterface;
@@ -18,7 +19,7 @@ abstract class Spider implements SpiderInterface
     public StdoutLoggerInterface $logger;
 
     //自动302重定向
-    public function curl(string $url, array $header = [], array $data = [])
+    public function curl(string $url, array $header = [], array $body = [],array $formParams = [])
     {
         $headers = [
             'User-Agent' => self::UA
@@ -26,17 +27,26 @@ abstract class Spider implements SpiderInterface
         if (!empty($header)) {
             $headers = array_merge($headers, $header);
         }
+        $cookieJar = new CookieJar();
         try {
             $client = $this->clientFactory->create([
                 'timeout' => 10,
                 'verify' => false,
                 'headers' => $headers,
+                'allow_redirects' => ['cookies' => true],
+                'cookies' =>  $cookieJar, // 使用cookie jar
             ]);
-            if (!empty($data)) {
+            if (!empty($formParams)) {
                 $response = $client->post($url, [
 //                    'decode_content' => 'gzip,deflate',
-//                    'allow_redirects' => true,
-                    'body' => json_encode($data, JSON_UNESCAPED_UNICODE),
+//                    'body' => json_encode($body, JSON_UNESCAPED_UNICODE),
+                    'form_params' => $formParams
+                    // 'cookies' => $cookieJar,
+                ]);
+            }else if (!empty($body)) {
+                $response = $client->post($url, [
+//                    'decode_content' => 'gzip,deflate',
+                    'body' => json_encode($body, JSON_UNESCAPED_UNICODE),
                     // 'cookies' => $cookieJar,
                 ]);
             } else {
