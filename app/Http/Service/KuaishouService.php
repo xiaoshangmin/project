@@ -5,7 +5,29 @@ namespace App\Http\Service;
 class KuaishouService extends Spider
 {
 
+
     public function analysis(string $url)
+    {
+        $text = $this->curl($url);
+//        $this->logger->info("st", [$text]);
+        preg_match('/<script>window.__APOLLO_STATE__=([^;]+)/', $text, $response);
+
+        $this->logger->info($response[1]);
+        $json = json_decode($response[1], true);
+        foreach ($json['defaultClient'] as $key => $item) {
+            if (str_starts_with($key, 'VisionVideoDetailPhoto')) {
+                return $this->video($item['caption'], '', $item['photoUrl']);
+            }
+        }
+        return [];
+    }
+
+    /**
+     * 本地可以 腾讯云上不行
+     * @param string $url
+     * @return array|string[]
+     */
+    public function analysis2(string $url)
     {
         $locs = get_headers($url, true)['Location'];
         if (is_array($locs)) {
@@ -13,18 +35,22 @@ class KuaishouService extends Spider
         } elseif (is_string($locs)) {
 
         }
-        $this->logger->info($locs);
+
+        $this->logger->info(json_encode($locs));
         preg_match('/photoId=(.*?)\&/', $locs, $matches);
+        $time = time() * 1000;
         $headers = [
-            'Cookie' => 'did=web_c816580c352e5333790f5e2e7da9b151; didv=1655992503000;',
+            'Cookie' => "did=web_f1114dcab7c9403a87a65dbd2574137a; didv={$time};",
             'Referer' => $locs,
-            'Content-Type' => 'application/json'
+            'Origin' => 'https://v.m.chenzhongtech.com',
+            'Content-Type' => 'application/json',
+            'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
         ];
         $post_data = [
             "photoId" => str_replace(['video/', '?'], '', $matches[1]),
             "isLongVideo" => false
         ];
-        $data = $this->curl('https://v.m.chenzhongtech.com/rest/wd/photo/info', $headers, $post_data);
+        $data = $this->curl('https://v.m.chenzhongtech.com/rest/wd/photo/info?kpn=KUAISHOU&captchaToken=', $headers, $post_data);
         $this->logger->info($data);
         $json = json_decode($data, true);
         if (isset($json['atlas'])) {
