@@ -47,7 +47,7 @@ class AnalysisController extends BaseController
         $basai_id = $this->request->post('basai_id');
         $api = null;//new \analysis\Video();
         if (strpos($url, 'pipix')) {
-            $arr = $api->pipixia($url);
+            $arr = $this->analysisService->pipixia($url);
         } elseif (strpos($url, 'douyin')) {
             $arr = $this->douyinService->analysis($url);
         } elseif (strpos($url, 'weibo.com') || strpos($url, 'm.weibo.cn')) {
@@ -55,13 +55,13 @@ class AnalysisController extends BaseController
         } elseif (strpos($url, 'kuaishou')) {
             $arr = $this->kuaishouService->analysis($url);
         } elseif (strpos($url, 'bilibili.com') || strpos($url, 'b23.tv')) {
-//            $arr = $this->analysisService->bilibili($url);
+            $arr = $this->analysisService->bilibili($url);
             //异步处理
-            $this->service->youGetPush(['uid' => $this->request->header('auth'), 'url' => $url]);
+//            $this->service->youGetPush(['uid' => $this->request->header('auth'), 'url' => $url]);
         } elseif (strpos($url, 'xhslink') !== false || strpos($url, 'xiaohongshu.com') !== false) {
             $arr = $this->xhsService->analysis($url);
         } elseif (strpos($url, 'huoshan')) {
-            $arr = $api->huoshan($url);
+            $arr = $this->analysisService->huoshan($url);
         }   elseif (strpos($url, 'instagram.com')) {
             $wb = new Ins();
             $arr = $wb->analyse($url);

@@ -311,12 +311,13 @@ class AnalysisService implements AnalysisInterface
     {
         $text = $this->curl($url);
         preg_match('/<script>window.__INITIAL_STATE__=([^;]+)/', $text, $response);
+//        $this->logger->info($response[1]);
         $response = json_decode($response[1], true);
         $aid = $response['videoData']['aid'];
         $cid = $response['videoData']['cid'];
         $cover = $response['videoData']['pic'];
-        $title = $response['videoData']['title'];
-        $jsonStr = $this->curl("https://api.bilibili.com/x/player/playurl?avid={$aid}&cid={$cid}&qn=1&type=&otype=json&platform=html5&high_quality=1");
+        $title = $response['videoData']['desc'];
+        $jsonStr = $this->curl("https://api.bilibili.com/x/player/playurl?avid={$aid}&cid={$cid}&qn=112&type=&otype=json&platform=html5&high_quality=1");
         $json = json_decode($jsonStr, true);
         return $this->video($title, $cover, $json['data']['durl'][0]['url']);
     }
