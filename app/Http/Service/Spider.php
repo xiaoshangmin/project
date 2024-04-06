@@ -9,6 +9,7 @@ use GuzzleHttp\Exception\RequestException;
 use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\ClientFactory;
+use Psr\Http\Message\StreamInterface;
 
 abstract class Spider implements SpiderInterface
 {
@@ -19,7 +20,7 @@ abstract class Spider implements SpiderInterface
     public StdoutLoggerInterface $logger;
 
     //自动302重定向
-    public function curl(string $url, array $header = [], array $body = [],array $formParams = [])
+    public function curl(string $url, array $header = [], array $body = [], array $formParams = []): ?StreamInterface
     {
         $headers = [
             'User-Agent' => self::UA
@@ -34,7 +35,7 @@ abstract class Spider implements SpiderInterface
                 'verify' => false,
                 'headers' => $headers,
                 'allow_redirects' => ['cookies' => true],
-                'cookies' =>  $cookieJar, // 使用cookie jar
+                'cookies' => $cookieJar, // 使用cookie jar
             ]);
             if (!empty($formParams)) {
                 $response = $client->post($url, [
@@ -43,7 +44,7 @@ abstract class Spider implements SpiderInterface
                     'form_params' => $formParams
                     // 'cookies' => $cookieJar,
                 ]);
-            }else if (!empty($body)) {
+            } else if (!empty($body)) {
                 $response = $client->post($url, [
 //                    'decode_content' => 'gzip,deflate',
                     'body' => json_encode($body, JSON_UNESCAPED_UNICODE),

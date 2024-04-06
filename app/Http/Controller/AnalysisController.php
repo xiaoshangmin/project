@@ -8,6 +8,7 @@ use App\Http\Service\DouyinService;
 use App\Http\Service\KuaishouService;
 use App\Http\Service\QueueService;
 use App\Http\Service\WeiboService;
+use App\Http\Service\XhsService;
 use App\Middleware\Auth\MiniAuthMiddleware;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\HttpServer\Annotation\Controller;
@@ -34,6 +35,9 @@ class AnalysisController extends BaseController
     #[Inject]
     private WeiboService $weiboService;
 
+    #[Inject]
+    private XhsService $xhsService;
+
     #[PostMapping(path: 'media')]
     public function getMedia()
     {
@@ -55,7 +59,7 @@ class AnalysisController extends BaseController
             //异步处理
             $this->service->youGetPush(['uid' => $this->request->header('auth'), 'url' => $url]);
         } elseif (strpos($url, 'xhslink') !== false || strpos($url, 'xiaohongshu.com') !== false) {
-            $arr = $this->analysisService->xhs($url);
+            $arr = $this->xhsService->analysis($url);
         } elseif (strpos($url, 'huoshan')) {
             $arr = $api->huoshan($url);
         }   elseif (strpos($url, 'instagram.com')) {
