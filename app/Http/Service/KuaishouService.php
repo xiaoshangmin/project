@@ -6,7 +6,39 @@ class KuaishouService extends Spider
 {
 
 
+    /**
+     * 抓包提取下载小助手接口
+     * @param string $url
+     * @return array|string[]
+     */
     public function analysis(string $url)
+    {
+        $data = [
+            "token" => "",
+            "link" => $url
+        ];
+        $rs = $this->curl('https://spxz.doudoukeji.club/video/getVideo', [
+            'Content-Type' => 'application/json'
+        ], $data);
+        $jsonStr = json_decode($rs, true);
+        if ($jsonStr['code'] == 1) {
+            $info = $this->curl("https://spxz.doudoukeji.club/video/videoInfo?token=184669&id={$jsonStr['data']}");
+            $this->logger->info('ks', [$info]);
+            $res = json_decode($info, true);
+            if ($res['code'] == 1) {
+                if ($res['data']['videoInfo']['type'] == 1) {
+                    return $this->video('', '', $res['data']['videoInfo']['url']);
+                } else {
+                    $imageList = explode(',', $res['data']['videoInfo']['url']);
+                    return $this->images($imageList, '');
+                }
+            }
+        }
+        return [];
+    }
+
+
+    public function analysis2(string $url)
     {
         $text = $this->curl($url);
 //        $this->logger->info("st", [$text]);
@@ -27,7 +59,7 @@ class KuaishouService extends Spider
      * @param string $url
      * @return array|string[]
      */
-    public function analysis2(string $url)
+    public function analysis1(string $url)
     {
         $locs = get_headers($url, true)['Location'];
         if (is_array($locs)) {
