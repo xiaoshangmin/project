@@ -2,6 +2,10 @@
 
 namespace App\Http\Service;
 
+use GuzzleHttp\Cookie\CookieJar;
+use GuzzleHttp\Exception\GuzzleException;
+use GuzzleHttp\Exception\RequestException;
+
 class KuaishouService extends Spider
 {
 
@@ -11,7 +15,7 @@ class KuaishouService extends Spider
      * @param string $url
      * @return array|string[]
      */
-    public function analysis(string $url)
+    public function analysis1(string $url)
     {
         $data = [
             "token" => "",
@@ -59,21 +63,30 @@ class KuaishouService extends Spider
      * @param string $url
      * @return array|string[]
      */
-    public function analysis1(string $url)
+    public function analysis(string $url)
     {
-        $locs = get_headers($url, true)['Location'];
-        if (is_array($locs)) {
-            $locs = $locs[1];
-        } elseif (is_string($locs)) {
+        $locs = get_headers($url, true);
+        $location = $locs['Location'];
+        if (is_array($location)) {
+            $location = $location[1];
+        } elseif (is_string($location)) {
 
         }
-
-        $this->logger->info(json_encode($locs));
-        preg_match('/photoId=(.*?)\&/', $locs, $matches);
+        $cookies = $this->getCookie($location);
+        $cc = "";
+        if (!empty($cookies)) {
+            $c = [];
+            foreach ($cookies as $item) {
+                $i = explode(";", $item)[0];
+                $c[] = $i;
+            }
+            $cc = join(";", $c);
+        }
+        preg_match('/photoId=(.*?)\&/', $location, $matches);
         $time = time() * 1000;
         $headers = [
-            'Cookie' => "did=web_f1114dcab7c9403a87a65dbd2574137a; didv={$time};",
-            'Referer' => $locs,
+            'Cookie' => $cc,//"did=web_f1114dcab7c9403a87a65dbd2574137a; didv={$time};",
+            'Referer' => $location,
             'Origin' => 'https://v.m.chenzhongtech.com',
             'Content-Type' => 'application/json',
             'User-Agent' => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36',
@@ -98,5 +111,36 @@ class KuaishouService extends Spider
             ];
             return $this->video($res['title'], $res['cover'], $json['mp4Url']);
         }
+    }
+
+    //自动302重定向
+    public function getCookie(string $url, array $header = [])
+    {
+        $headers = [
+            'User-Agent' => "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/123.0.0.0 Safari/537.36",
+            "Sec-Ch-Ua-Platform" => "\"Windows\"",
+            "Accept" => "text/html,application/xhtml+xml,application/xml;q=0.9,image/avif,image/webp,image/apng,*/*;q=0.8,application/signed-exchange;v=b3;q=0.7"
+
+        ];
+        if (!empty($header)) {
+            $headers = array_merge($headers, $header);
+        }
+        try {
+            $client = $this->clientFactory->create([
+                'timeout' => 10,
+                'verify' => false,
+                'headers' => $headers,
+                'cookies' => true
+            ]);
+            $response = $client->get($url);
+            return $response->getHeader('set-cookie');
+        } catch (RequestException $e) {
+            $this->logger->info("spider curl RequestException=" . $e->getMessage());
+            return null;
+        } catch (GuzzleException $e) {
+            $this->logger->info("spider curl GuzzleException=" . $e->getMessage());
+            return null;
+        }
+
     }
 }

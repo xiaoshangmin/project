@@ -28,14 +28,14 @@ abstract class Spider implements SpiderInterface
         if (!empty($header)) {
             $headers = array_merge($headers, $header);
         }
-        $cookieJar = new CookieJar();
+//        $cookieJar = new CookieJar();
         try {
             $client = $this->clientFactory->create([
                 'timeout' => 10,
                 'verify' => false,
                 'headers' => $headers,
-                'allow_redirects' => ['cookies' => true],
-                'cookies' => $cookieJar, // 使用cookie jar
+                'allow_redirects' => true,
+//                'cookies' => $cookieJar, // 使用cookie jar
             ]);
             if (!empty($formParams)) {
                 $response = $client->post($url, [
