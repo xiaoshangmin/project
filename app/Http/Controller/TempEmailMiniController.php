@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Controller;
 
 use App\Middleware\Auth\MiniAuthMiddleware;
+use App\Model\Bullet;
 use DateTime;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\Middleware;
@@ -13,7 +14,7 @@ use Hyperf\RateLimit\Annotation\RateLimit;
 
 #[Controller(prefix: "api/mini/temp/email")]
 #[Middleware(MiniAuthMiddleware::class)]
-#[RateLimit(limitCallback: [TempEmailMiniController::class, "limitCallback"])]
+//#[RateLimit(limitCallback: [TempEmailMiniController::class, "limitCallback"])]
 class TempEmailMiniController extends BaseController
 {
 
@@ -21,7 +22,7 @@ class TempEmailMiniController extends BaseController
     const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
 
     #[PostMapping(path: "list")]
-    #[RateLimit(create: 1, capacity: 3,)]
+//    #[RateLimit(create: 1, capacity: 3,)]
     public function list()
     {
         $keyword = $this->request->post("email", "");
@@ -93,6 +94,21 @@ class TempEmailMiniController extends BaseController
         }
     }
 
+    #[PostMapping(path: "record")]
+    public function record()
+    {
+        $model = $this->request->post("model", "");
+        $system = $this->request->post("system", "");
+        $text = $this->request->post("text", "");
+        $wxVersion = $this->request->post("wxversion", "");
+        $bullet = new Bullet();
+        $bullet->model = $model;
+        $bullet->system = $system;
+        $bullet->text = $text;
+        $bullet->wx_version = $wxVersion;
+        $bullet->save();
+
+    }
 
     public static function limitCallback(float $seconds, ProceedingJoinPoint $proceedingJoinPoint)
     {
