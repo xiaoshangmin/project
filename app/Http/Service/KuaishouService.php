@@ -63,7 +63,7 @@ class KuaishouService extends Spider
      * @param string $url
      * @return array|string[]
      */
-    public function analysis(string $url)
+    public function analysis1(string $url)
     {
         $locs = get_headers($url, true);
         $location = $locs['Location'];
