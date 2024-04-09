@@ -15,7 +15,7 @@ class KuaishouService extends Spider
      * @param string $url
      * @return array|string[]
      */
-    public function analysis1(string $url)
+    public function analysis2(string $url)
     {
         $data = [
             "token" => "",
@@ -42,7 +42,7 @@ class KuaishouService extends Spider
     }
 
 
-    public function analysis2(string $url)
+    public function analysis(string $url)
     {
         $text = $this->curl($url);
 //        $this->logger->info("st", [$text]);
