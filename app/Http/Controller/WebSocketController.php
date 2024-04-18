@@ -12,7 +12,7 @@ use Hyperf\Redis\Redis;
 class WebSocketController extends BaseController implements OnMessageInterface, OnOpenInterface, OnCloseInterface
 {
 
-    protected $cache;
+    protected Redis $cache;
 
 
     /**
