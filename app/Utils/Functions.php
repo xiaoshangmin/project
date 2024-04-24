@@ -40,6 +40,10 @@ if (!function_exists('miniSignCheck')) {
         if (empty($params['sign'])) {
             return false;
         } else {
+            //text 不参与计算
+            if (isset($params['text'])) {
+                unset($params['text']);
+            }
             $secret = 'a87ff679a2f3e71d9181a67b7542122c';
             $sign = Sign::createSignature($params, $secret, $signType);//参数验签
             if ($params['sign'] == $sign) {
