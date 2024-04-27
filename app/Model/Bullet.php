@@ -11,7 +11,8 @@ use Hyperf\DbConnection\Model\Model;
  * @property string $model 
  * @property string $system 
  * @property string $text 
- * @property string $wx_version 
+ * @property string $wx_version
+ * @property int $type
  * @property \Carbon\Carbon $created_at 
  */
 class Bullet extends Model

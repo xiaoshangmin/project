@@ -101,11 +101,13 @@ class TempEmailMiniController extends BaseController
         $system = $this->request->post("system", "");
         $text = $this->request->post("text", "");
         $wxVersion = $this->request->post("wxversion", "");
+        $type = $this->request->post("type", 1);
         $bullet = new Bullet();
         $bullet->model = $model;
         $bullet->system = $system;
         $bullet->text = $text;
         $bullet->wx_version = $wxVersion;
+        $bullet->type = $type;
         $bullet->save();
 
     }
