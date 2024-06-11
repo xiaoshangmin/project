@@ -12,6 +12,7 @@ use Hyperf\DbConnection\Model\Model;
  * @property string $system 
  * @property string $text 
  * @property string $wx_version
+ * @property string $sdk_version
  * @property int $type
  * @property \Carbon\Carbon $created_at 
  */
