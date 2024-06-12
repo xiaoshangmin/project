@@ -118,7 +118,7 @@ class TempEmailMiniController extends BaseController
     #[GetMapping(path: "show")]
     public function show()
     {
-        return $this->fail();
+        return $this->success();
 
     }
 
