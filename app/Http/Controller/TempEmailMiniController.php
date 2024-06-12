@@ -10,6 +10,7 @@ use DateTime;
 use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\PostMapping;
+use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\RateLimit\Annotation\RateLimit;
 
 #[Controller(prefix: "api/mini/temp/email")]
@@ -111,6 +112,13 @@ class TempEmailMiniController extends BaseController
         $bullet->sdk_version = $sdkVersion;
         $bullet->type = $type;
         $bullet->save();
+
+    }
+
+    #[GetMapping(path: "show")]
+    public function show()
+    {
+        return false;
 
     }
 
