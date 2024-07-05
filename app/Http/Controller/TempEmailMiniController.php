@@ -122,6 +122,30 @@ class TempEmailMiniController extends BaseController
 
     }
 
+    #[PostMapping(path: "code2Session")]
+    public function code2Session()
+    {
+        $data = [
+            "session_auth"=>""
+        ];
+        return $this->success($data);
+
+    }
+
+    #[GetMapping(path: "qntoken")]
+    public function qntoken()
+    {
+        $ak = 'rdfusVq6_k49DoMpViZsvWTM_6816YWuRwVzMR2Q';
+        $sk = 'Y3G07b6V1uqXMzKWCt8ZdycrdFSXijGOFxow9Rot';
+        // 初始化Auth状态
+        $auth = new Auth($ak, $sk);
+        $expires = 3600;
+        $policy = null;
+        $upToken = $auth->uploadToken('flplant', null, $expires, $policy, true);
+        $rs = ['uptoken' => $upToken];
+        return json_encode($rs);
+    }
+
     public static function limitCallback(float $seconds, ProceedingJoinPoint $proceedingJoinPoint)
     {
         // $seconds 下次生成Token 的间隔, 单位为秒
