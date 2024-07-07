@@ -31,14 +31,21 @@ class MiniAuthMiddleware implements MiddlewareInterface
     public function process(ServerRequestInterface $request, RequestHandlerInterface $handler): ResponseInterface
     {
 
-        if (!miniSignCheck($this->request->all())) {
-            return $this->response->json(
-                [
-                    'code' => ErrorCode::FAIL,
-                    'message' => '签名错误',
-                    'data'=>$this->request->all()
-                ]
-            );
+        //不需要鉴权
+//        if(strpos('qntoken', $request->getUri())){
+//
+//        }
+        $white = ['/api/mini/temp/email/qntoken'];
+        if (!in_array($this->request->getPathInfo(), $white)) {
+            if (!miniSignCheck($this->request->all())) {
+                return $this->response->json(
+                    [
+                        'code' => ErrorCode::FAIL,
+                        'message' => '签名错误',
+                        'data' => $this->request->all()
+                    ]
+                );
+            }
         }
         return $handler->handle($request);
     }
