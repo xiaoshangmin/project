@@ -18,7 +18,6 @@ use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\Redis\Redis;
 use Qiniu\Auth;
-use EasyWeChat\MiniApp\Application;
 
 
 #[Controller(prefix: "api/mini/temp/email")]
@@ -149,7 +148,15 @@ class TempEmailMiniController extends BaseController
     #[GetMapping(path: "show")]
     public function show()
     {
+//        return $this->fail();
         return $this->success();
+
+    }
+
+    #[GetMapping(path: "ads")]
+    public function ads()
+    {
+        return $this->success(['downloadAd'=>0]);
 
     }
 
