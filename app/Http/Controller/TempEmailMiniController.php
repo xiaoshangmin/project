@@ -160,6 +160,14 @@ class TempEmailMiniController extends BaseController
 
     }
 
+    #[GetMapping(path: "inads")]
+    public function inads()
+    {
+        return $this->fail();
+        //return $this->success();
+
+    }
+
     #[PostMapping(path: "code2Session")]
     public function code2Session()
     {
