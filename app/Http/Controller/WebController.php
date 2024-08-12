@@ -22,10 +22,10 @@ class WebController extends BaseController
     public ClientFactory $clientFactory;
 
 
-    #[GetMapping(path: "/og")]
+    #[PostMapping(path: "/og")]
     public function queryOgInfo(): array
     {
-        $url = $this->request->input("url", "");
+        $url = $this->request->post("url", "");
         try {
             $client = $this->clientFactory->create([
                 'timeout' => 10,
