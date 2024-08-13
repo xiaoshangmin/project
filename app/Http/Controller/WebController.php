@@ -22,7 +22,7 @@ class WebController extends BaseController
     public ClientFactory $clientFactory;
 
 
-    #[PostMapping(path: "/og")]
+    #[PostMapping(path: "og")]
     public function queryOgInfo(): array
     {
         $url = $this->request->post("url", "");
