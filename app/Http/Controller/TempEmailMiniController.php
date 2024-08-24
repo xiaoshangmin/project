@@ -219,6 +219,11 @@ class TempEmailMiniController extends BaseController
             "url" => "https://oss.wowyou.cc/font/mushin.otf",
             "active" => false
         ], [
+            "value"=>"kaiti",
+            "name"=>"楷体",
+            "url"=>"https://oss.wowyou.cc/font/FangZhengKaiTiJianTi-1.ttf",
+            "active"=>false,
+        ],[
             "value" => "Uranus_Pixel_11Px",
             "name" => "像素",
             "url" => "https://oss.wowyou.cc/font/Uranus_Pixel_11Px.ttf",
