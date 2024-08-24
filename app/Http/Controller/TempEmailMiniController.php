@@ -211,22 +211,22 @@ class TempEmailMiniController extends BaseController
         ], [
             "value" => "YuFanXiLiu",
             "name" => "宋体",
-            "url" => "https://oss.wowyou.cc/font/YuFanXiLiu.otf",
+            "url" => "https://doc.wowyou.cc/font/YuFanXiLiu.otf",
             "active" => false
         ], [
             "value" => "mushin",
             "name" => "手写",
-            "url" => "https://oss.wowyou.cc/font/mushin.otf",
+            "url" => "https://doc.wowyou.cc/font/mushin.otf",
             "active" => false
         ], [
             "value"=>"kaiti",
             "name"=>"楷体",
-            "url"=>"https://oss.wowyou.cc/font/FangZhengKaiTiJianTi-1.ttf",
+            "url"=>"https://doc.wowyou.cc/font/FangZhengKaiTiJianTi-1.ttf",
             "active"=>false,
         ],[
             "value" => "Uranus_Pixel_11Px",
             "name" => "像素",
-            "url" => "https://oss.wowyou.cc/font/Uranus_Pixel_11Px.ttf",
+            "url" => "https://doc.wowyou.cc/font/Uranus_Pixel_11Px.ttf",
             "active" => false
         ], [
             "value" => "xiaobai",
