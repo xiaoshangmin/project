@@ -201,45 +201,78 @@ class TempEmailMiniController extends BaseController
         return $this->success($word);
     }
 
+    public array $fontList = [[
+        "value" => "inherit",
+        "name" => "原始",
+        "active" => true
+    ], [
+        "value" => "YuFanXiLiu",
+        "name" => "宋体",
+        "url" => "https://doc.wowyou.cc/storage/YuFanXiLiu.otf",
+        "active" => false
+    ], [
+        "value" => "mushin",
+        "name" => "手写",
+        "url" => "https://doc.wowyou.cc/storage/mushin.otf",
+        "active" => false
+    ], [
+        "value"=>"kaiti",
+        "name"=>"楷体",
+        "url"=>"https://doc.wowyou.cc/storage/FangZhengKaiTiJianTi-1.ttf",
+        "active"=>false,
+    ],[
+        "value" => "Uranus_Pixel_11Px",
+        "name" => "像素",
+        "url" => "https://doc.wowyou.cc/storage/Uranus_Pixel_11Px.ttf",
+        "active" => false
+    ], [
+        "value" => "xiaobai",
+        "name" => "小白",
+        "url" => "https://oss.wowyou.cc/font/xiaobai.ttf",
+        "active" => false
+    ], [
+        "value" => "Softbrush",
+        "name" => "软笔",
+        "url" => "https://oss.wowyou.cc/font/Softbrush.ttf",
+        "active" => false
+    ]];
+
+    public array $bgList = [[
+        "left"=> "#000",
+        "right"=> "#fff"
+    ], [
+        "left"=>"#4B80FF",
+        "right"=> "#fff"
+    ],[
+        "left"=> "#FFA700",
+        "right"=> "#fff"
+    ],[
+        "left"=> "#000",
+        "right"=> "#4B80FF"
+    ],[
+        "left"=> "#909",
+        "right"=> "#990"
+    ],[
+        "left"=>"#F4F290",
+        "right"=> "#404040"
+    ]];
+
+
     #[PostMapping(path: "getFont")]
     public function getFont()
     {
-        $fontList = [[
-            "value" => "inherit",
-            "name" => "原始",
-            "active" => true
-        ], [
-            "value" => "YuFanXiLiu",
-            "name" => "宋体",
-            "url" => "https://doc.wowyou.cc/storage/YuFanXiLiu.otf",
-            "active" => false
-        ], [
-            "value" => "mushin",
-            "name" => "手写",
-            "url" => "https://doc.wowyou.cc/storage/mushin.otf",
-            "active" => false
-        ], [
-            "value"=>"kaiti",
-            "name"=>"楷体",
-            "url"=>"https://doc.wowyou.cc/storage/FangZhengKaiTiJianTi-1.ttf",
-            "active"=>false,
-        ],[
-            "value" => "Uranus_Pixel_11Px",
-            "name" => "像素",
-            "url" => "https://doc.wowyou.cc/storage/Uranus_Pixel_11Px.ttf",
-            "active" => false
-        ], [
-            "value" => "xiaobai",
-            "name" => "小白",
-            "url" => "https://oss.wowyou.cc/font/xiaobai.ttf",
-            "active" => false
-        ], [
-            "value" => "Softbrush",
-            "name" => "软笔",
-            "url" => "https://oss.wowyou.cc/font/Softbrush.ttf",
-            "active" => false
-        ]];
-        return $this->success($fontList);
+        return $this->success($this->fontList);
+    }
+
+
+    #[PostMapping(path: "getCommonConfig")]
+    public function getCommonConfig()
+    {
+        $data = [
+            "font"=>$this->fontList,
+            "flipperBgList"=>$this->bgList,
+        ];
+        return $this->success($data);
     }
 
 
