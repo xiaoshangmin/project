@@ -225,12 +225,12 @@ class TempEmailMiniController extends BaseController
     ], [
         "value" => "xiaobai",
         "name" => "小白",
-        "url" => "https://oss.wowyou.cc/font/xiaobai.ttf",
+        "url" => "https://doc.wowyou.cc/storage/xiaobai.ttf",
         "active" => false
     ], [
         "value" => "Softbrush",
         "name" => "软笔",
-        "url" => "https://oss.wowyou.cc/font/Softbrush.ttf",
+        "url" => "https://doc.wowyou.cc/storage/Softbrush.ttf",
         "active" => false
     ]];
 
