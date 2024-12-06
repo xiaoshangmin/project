@@ -35,7 +35,7 @@ class MiniAuthMiddleware implements MiddlewareInterface
 //        if(strpos('qntoken', $request->getUri())){
 //
 //        }
-        $white = ['/api/mini/temp/email/qntoken'];
+        $white = ['/api/mini/temp/email/qntoken','/api/mini/temp/email/uploadFramesPic'];
         if (!in_array($this->request->getPathInfo(), $white)) {
             if (!miniSignCheck($this->request->all())) {
                 return $this->response->json(
