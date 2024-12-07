@@ -6,6 +6,7 @@ namespace App\Job;
 use Hyperf\AsyncQueue\Job;
 use Hyperf\Contract\StdoutLoggerInterface;
 use function Hyperf\Support\make;
+use Hyperf\Redis\Redis;
 
 
 class GifJob extends Job
@@ -26,6 +27,7 @@ class GifJob extends Job
         $auth = $this->params['auth'];
         $taskId = $this->params['taskId'];
         $logger = make(StdoutLoggerInterface::class);
+        $cache = make(Redis::class);
         $path = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR;
         $finalFileName = $path . $taskId . '.gif';
         $images = [];
@@ -34,6 +36,7 @@ class GifJob extends Job
         }
         try {
             $this->createAnimatedGif($images, $finalFileName);
+            $cache->set($taskId,1);
         } catch (\Throwable $e) {
             // 错误处理
             $logger->error("GIF生成失败:[{$auth}':[{$taskId}]:" . $e->getMessage());
