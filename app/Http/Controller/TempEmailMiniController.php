@@ -732,7 +732,7 @@ class TempEmailMiniController extends BaseController
         $auth = $this->request->header('auth');
         $taskId = $this->request->post('id');
         $file = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
-        if(file_exists($file)){
+        if(file_exists($file) && filesize($file) > 0){
             $url = "https://doc.wowyou.cc/storage/" . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
             return $this->success($url);
         }
