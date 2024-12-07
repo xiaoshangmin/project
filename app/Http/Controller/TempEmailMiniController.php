@@ -16,9 +16,10 @@ use Hyperf\HttpServer\Annotation\Controller;
 use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\PostMapping;
 use Hyperf\HttpServer\Annotation\GetMapping;
+use App\Http\Service\QueueService;
 use Hyperf\Redis\Redis;
-use image;
 use Qiniu\Auth;
+use App\Constants\ErrorCode;
 
 
 #[Controller(prefix: "api/mini/temp/email")]
@@ -36,6 +37,9 @@ class TempEmailMiniController extends BaseController
 
     #[Inject]
     public ClientFactory $clientFactory;
+
+    #[Inject]
+    protected QueueService $queueService;
 
     private array $config = [
         'app_id' => 'wx8af8c68b292996dc',
@@ -710,280 +714,51 @@ class TempEmailMiniController extends BaseController
     #[PostMapping(path: "toGif")]
     public function toGif()
     {
-        // $width = (int)$this->request->post("w", "375");
-        // $height = (int)$this->request->post("h", "667");
-        $auth = $this->request->header('auth','tmp');
-        
-        $path = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR;
-        $images = [];
-        for ($i = 0; $i < 30; $i++) {
-            $images[] = $path . "{$i}.png";//imagecreatefrompng($path . "{$i}.png");
+        $auth = $this->request->header('auth');
+        if(empty($auth)){
+            return $this->fail();
         }
+        $taskId = uniqid();
+        //异步处理
+        $data =['auth' =>  $auth, 'taskId' => $taskId];
+        $this->queueService->toGif($data);
+        return $this->success($taskId);
+    }
+
+
+    #[PostMapping(path: "getGif")]
+    public function getGif()
+    {
+        $auth = $this->request->header('auth');
+        $taskId = $this->request->post('id');
+        $file = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
+        if(file_exists($file)){
+            $url = "https://doc.wowyou.cc/storage/" . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
+            return $this->success($url);
+        }
+        return $this->fail();
         
-        $this->createAnimatedGif2($images,BASE_PATH . '/storage/test.gif');
-        return $this->success();
-        // // 设置GIF动画的延迟时间（以毫秒为单位）
-        // $delay = 100; // 100毫秒
-        // $firstImage = imagecreatefromstring(file_get_contents($path . "0.png"));
-        // $width = imagesx($firstImage);
-        // $height = imagesy($firstImage);
-
-        //  // 创建GIF编码器
-        // $gif = imagegif($firstImage);
-
-        // // 创建一个真彩色图像资源
-        // $gif = imagecreatetruecolor($width, $height);
-        // // 循环处理每一帧
-        // for ($i = 0; $i < 30; $i++) {
-        //     $filename = $path . "{$i}.png";
-            
-        //     // 读取每一帧图片
-        //     $frame = imagecreatefrompng($filename); // 假设图片文件名为 frame_1.jpg, frame_2.jpg, ..., frame_30.jpg
-        //     // 将每一帧图片复制到真彩色图像上
-        //     imagecopy($gif, $frame, 0, 0, 0, 0, $width, $height);
-
-        //     // 输出GIF动画的一帧
-        //     imagegif($gif, BASE_PATH . '/storage/test.gif');
-
-        //     // 可选：如果你想在浏览器中直接输出GIF，可以在每次输出后添加一个header
-        //     // header('Content-type: image/gif');
-
-        //     // 释放每一帧的内存
-        //     imagedestroy($frame);
-        // }
-        // imagegif($gif,BASE_PATH . '/storage/test.gif');
-        // // 释放GIF的内存
-        // imagedestroy($gif);
     }
 
-/**
- * 使用GD库将PNG图片合成动态GIF
- * 兼容PHP 8.3版本
- * 
- * @param array $imagePaths PNG图片路径数组
- * @param string $outputPath 输出的GIF文件路径
- * @param int $delay 每帧延迟时间（毫秒）
- */
-function createAnimatedGif3($imagePaths, $outputPath, $delay = 100) {
-    // 检查GD库是否可用
-    if (!function_exists('imagecreatefrompng') || !function_exists('imagegif')) {
-        throw new \Exception('GD库未启用');
-    }
-
-    // 临时文件目录
-    $tempDir = sys_get_temp_dir();
-
-    // 第一帧
-    $firstFrame = imagecreatefrompng($imagePaths[0]);
-
-    // 创建GIF
-    $gif = imagegif($firstFrame, $outputPath);
-
-    // 打开文件以追加帧
-    $fp = fopen($outputPath, 'rb+');
-    fseek($fp, filesize($outputPath) - 1);
-
-    // 处理后续帧
-    foreach (array_slice($imagePaths, 1) as $path) {
-        $frame = imagecreatefrompng($path);
-        
-        // 生成帧
-        ob_start();
-        imagegif($frame);
-        $frameData = ob_get_clean();
-
-        // 写入帧数据
-        fwrite($fp, $frameData);
-        
-        // 释放内存
-        imagedestroy($frame);
-    }
-
-    // 关闭文件
-    fclose($fp);
-
-    // 清理第一帧
-    imagedestroy($firstFrame);
-
-    return true;
-}
-
-    /**
- * 使用GD库将多张PNG图片创建动态GIF
- * 
- * @param array $imagePaths PNG图片路径数组
- * @param string $outputPath 输出的GIF文件路径
- * @param int $delay 每帧延迟时间（1/100秒）
- */
-function createAnimatedGif2($imagePaths, $outputPath, $delay = 50) {
-    // 打开输出文件
-    $gif = fopen($outputPath, 'wb');
-    
-    // GIF文件头
-    fwrite($gif, "GIF89a");
-
-    // 获取第一张图片尺寸
-    $firstImage = imagecreatefrompng($imagePaths[0]);
-    $width = imagesx($firstImage);
-    $height = imagesy($firstImage);
-
-    // 逻辑屏幕描述符
-    fwrite($gif, pack('v', $width));       // 逻辑屏幕宽度
-    fwrite($gif, pack('v', $height));      // 逻辑屏幕高度
-    fwrite($gif, chr(0x87));               // 全局颜色表标志
-    fwrite($gif, chr(0));                  // 背景色索引
-    fwrite($gif, chr(0));                  // 像素宽高比
-
-    // 处理每张图片
-    foreach ($imagePaths as $path) {
-        $img = imagecreatefrompng($path);
-
-        // 图形控制扩展
-        fwrite($gif, chr(0x21));           // 扩展引导码
-        fwrite($gif, chr(0xF9));           // 图形控制标签
-        fwrite($gif, chr(4));              // 块大小
-        fwrite($gif, chr(0x04));           // 图形控制标志
-        fwrite($gif, pack('v', $delay));   // 延迟时间(1/100秒)
-        fwrite($gif, chr(0));              // 透明色索引
-        fwrite($gif, chr(0));              // 块终止器
-
-        // 图像描述符
-        fwrite($gif, chr(0x2C));           // 图像分隔符
-        fwrite($gif, pack('v', 0));        // 左边距
-        fwrite($gif, pack('v', 0));        // 上边距
-        fwrite($gif, pack('v', $width));   // 图像宽度
-        fwrite($gif, pack('v', $height));  // 图像高度
-        fwrite($gif, chr(0));              // 本地颜色表标志
-
-        // 图像数据编码
-        $imgData = ob_start();
-        imageinterlace($img, 0);
-        imagegif($img);
-        $imgDataContent = ob_get_clean();
-        
-        // 移除GIF头部
-        $imgDataContent = substr($imgDataContent, strpos($imgDataContent, ',') + 1);
-        
-        // 写入图像数据
-        fwrite($gif, $imgDataContent);
-
-        // 释放资源
-        imagedestroy($img);
-    }
-
-    // GIF文件结束
-    fwrite($gif, chr(0x3B));
-
-    // 关闭文件
-    fclose($gif);
-
-    return true;
-}
-
-
-    /**
- * 使用GD库将多张图片合成动态GIF
- * 
- * @param array $imagePaths 图片路径数组
- * @param string $outputPath 输出的GIF文件路径
- * @param int $delay 每帧之间的延迟时间（毫秒）
- */
-function createGifFromImages($imagePaths, $outputPath, $delay = 100) {
-    // 检查GD库是否已启用
-    if (!function_exists('imagecreatefromjpeg')) {
-        die('GD库未启用');
-    }
-
-    // 存储图像资源的数组
-    $images = $imagePaths;
-
-    // 获取第一张图片的尺寸作为基准
-    // $firstImage = imagecreatefromstring(file_get_contents($imagePaths[0]));
-    // $width = imagesx($firstImage);
-    // $height = imagesy($firstImage);
-
-    // 创建GIF编码器
-    // $gif = imagegif($firstImage);
-
-    // 加载所有图像
-    // foreach ($imagePaths as $path) {
-    //     // 根据文件扩展名选择正确的图像创建函数
-    //     $ext = strtolower(pathinfo($path, PATHINFO_EXTENSION));
-    //     switch ($ext) {
-    //         case 'jpg':
-    //         case 'jpeg':
-    //             $img = imagecreatefromjpeg($path);
-    //             break;
-    //         case 'png':
-    //             $img = imagecreatefrompng($path);
-    //             break;
-    //         case 'gif':
-    //             $img = imagecreatefromgif($path);
-    //             break;
-    //         case 'webp':
-    //             $img = imagecreatefromwebp($path);
-    //             break;
-    //         default:
-    //             throw new Exception("不支持的图像格式: $ext");
-    //     }
-
-    //     // 如果图像尺寸不一致，调整大小
-    //     if (imagesx($img) != $width || imagesy($img) != $height) {
-    //         $resized = imagecreatetruecolor($width, $height);
-    //         imagecopyresampled($resized, $img, 0, 0, 0, 0, $width, $height, imagesx($img), imagesy($img));
-    //         $img = $resized;
-    //     }
-
-    //     $images[] = $img;
-    // }
-
-    // 开始创建GIF
-    $gif = imagegif($images[0], $outputPath);
-
-    // 打开输出文件
-    $fp = fopen($outputPath, 'rb+');
-    fseek($fp, filesize($outputPath) - 1);
-
-    // 逐帧添加图像
-    foreach (array_slice($images, 1) as $img) {
-        // 生成临时帧
-        ob_start();
-        imagegif($img);
-        $framePart = ob_get_clean();
-
-        // 写入帧数据
-        fwrite($fp, $framePart);
-    }
-
-    // 关闭文件
-    fclose($fp);
-
-    // 释放内存
-    foreach ($images as $img) {
-        imagedestroy($img);
-    }
-
-    return true;
-}
+   
 
     #[PostMapping(path: "uploadFramesPic")]
     public function uploadFramesPic()
     {
-        $auth = $this->request->header('auth','tmp');
+        $auth = $this->request->header('auth', 'tmp');
         $files = $this->request->getUploadedFiles();
-        $frameIndex = $this->request->post("frameIndex",0);
+        $frameIndex = $this->request->post("frameIndex", 0);
         $path = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth;
         $fileName = $frameIndex . '.png';
-        if(!is_dir($path)){
+        if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
         foreach ($files as $file) {
             // 处理上传的文件
-            $file->moveTo( $path . DIRECTORY_SEPARATOR . $fileName);
+            $file->moveTo($path . DIRECTORY_SEPARATOR . $fileName);
         }
 
         return $this->success();
-
     }
 
 

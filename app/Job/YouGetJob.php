@@ -8,6 +8,7 @@ use Hyperf\Contract\StdoutLoggerInterface;
 use Hyperf\Redis\Redis;
 use Hyperf\Server\ServerFactory;
 use Hyperf\Context\ApplicationContext;
+use function Hyperf\Support\make;
 
 class YouGetJob extends Job
 {

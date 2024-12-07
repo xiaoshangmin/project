@@ -11,6 +11,7 @@ use Hyperf\Server\ServerFactory;
 use Hyperf\Utils\ApplicationContext;
 use League\Flysystem\StorageAttributes;
 use Symfony\Component\Process\Process;
+use function Hyperf\Support\make;
 use function Hyperf\Support\env;
 
 class OfficeJob extends Job

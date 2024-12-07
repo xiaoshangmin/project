@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Http\Service;
@@ -6,6 +7,7 @@ namespace App\Http\Service;
 use App\Job\OfficeJob;
 use App\Job\PdfToPicJob;
 use App\Job\YouGetJob;
+use App\Job\GifJob;
 use Hyperf\AsyncQueue\Driver\DriverFactory;
 use Hyperf\AsyncQueue\Driver\DriverInterface;
 
@@ -18,6 +20,19 @@ class QueueService
     {
         $this->driver = $driverFactory->get('default');
     }
+
+    /**
+     * 生产消息
+     * @param $params
+     * @param int $delay
+     * @return bool
+     */
+    public function toGif($params, int $delay = 0): bool
+    {
+        $params['format'] = 'gif';
+        return $this->driver->push(new GifJob($params), $delay);
+    }
+
 
     /**
      * 生产消息
@@ -64,5 +79,4 @@ class QueueService
     {
         return $this->driver->push($params, $delay);
     }
-
 }

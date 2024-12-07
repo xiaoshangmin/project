@@ -11,6 +11,7 @@ use Hyperf\Redis\Redis;
 use Hyperf\Server\ServerFactory;
 use Hyperf\Utils\ApplicationContext;
 use League\Flysystem\StorageAttributes;
+use function Hyperf\Support\make;
 use ZipArchive;
 
 class PdfToPicJob extends Job
