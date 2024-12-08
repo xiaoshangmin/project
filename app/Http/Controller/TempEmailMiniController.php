@@ -19,7 +19,6 @@ use Hyperf\HttpServer\Annotation\GetMapping;
 use App\Http\Service\QueueService;
 use Hyperf\Redis\Redis;
 use Qiniu\Auth;
-use App\Constants\ErrorCode;
 
 
 #[Controller(prefix: "api/mini/temp/email")]

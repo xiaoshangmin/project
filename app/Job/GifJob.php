@@ -1,4 +1,5 @@
 <?php
+
 declare(strict_types=1);
 
 namespace App\Job;
@@ -15,18 +16,18 @@ class GifJob extends Job
 
     protected int $maxAttempts = 2;
 
-
+    private $logger;
 
     public function __construct($params)
     {
         $this->params = $params;
+        $this->logger = make(StdoutLoggerInterface::class);
     }
 
     public function handle()
     {
         $auth = $this->params['auth'];
         $taskId = $this->params['taskId'];
-        $logger = make(StdoutLoggerInterface::class);
         $cache = make(Redis::class);
         $path = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR;
         $finalFileName = $path . $taskId . '.gif';
@@ -35,15 +36,86 @@ class GifJob extends Job
             $images[] = $path . "{$i}.png";
         }
         try {
-            $this->createAnimatedGif($images, $finalFileName);
-            $cache->set($taskId,1);
+            $this->createGifFromImages($images, $finalFileName);
+            $cache->set($taskId, 1,7200);
         } catch (\Throwable $e) {
             // 错误处理
-            $logger->error("GIF生成失败:[{$auth}':[{$taskId}]:" . $e->getMessage());
+            $this->logger->error("GIF生成失败:[{$auth}':[{$taskId}]:" . $e->getMessage());
         }
-    } 
+    }
 
-     /**
+
+    /**
+     * 使用 FFmpeg 将多张图片合成 GIF 动画
+     *
+     * @param array  $imageFiles 图片文件路径数组
+     * @param string $outputGif  输出 GIF 文件路径
+     * @param int    $frameRate  每秒帧数
+     * @return bool  成功返回 true，失败返回 false
+     */
+    function createGifFromImages(array $imageFiles, string $outputGif, int $frameRate = 60): bool
+    {
+        // 检查 FFmpeg 是否存在
+        $ffmpegPath = '/usr/bin/ffmpeg'; // 根据实际安装路径调整
+
+        // 获取图片宽高（以第一张图片为参考）
+        [$width, $height] = getimagesize($imageFiles[0]);
+        if (!$width || !$height) {
+            throw new \Exception("无法获取图片宽高: {$imageFiles[0]}");
+        }
+        $dir = dirname($imageFiles[0]);
+        // 创建临时文件名
+        // $tempVideo = tempnam(sys_get_temp_dir(), 'temp_video') . '.mp4';
+        $tempVideo = $dir . '/temp_video.mp4';
+
+        try {
+            // 合成视频命令
+            $cmdVideo = sprintf(
+                '%s -y -framerate %d -i %s -vf "scale=%d:%d" %s',
+                escapeshellcmd($ffmpegPath),
+                $frameRate,
+                escapeshellarg(dirname($imageFiles[0]) . '/%d.png'), // 图片按顺序命名格式（image1.jpg, image2.jpg...）
+                $width,
+                $height,
+                escapeshellarg($tempVideo)
+            );
+            $this->logger->info($cmdVideo);
+            // 运行命令生成视频
+            exec($cmdVideo, $output, $resultCode);
+            if ($resultCode !== 0) {
+                throw new \Exception("图片合成视频失败: " . implode("\n", $output));
+            }
+
+            // 视频转 GIF 命令
+            $cmdGif = sprintf(
+                '%s -y -i %s -vf "scale=%d:%d:flags=lanczos" %s',
+                escapeshellcmd($ffmpegPath),
+                escapeshellarg($tempVideo),
+                $width,
+                $height,
+                escapeshellarg($outputGif)
+            );
+            $this->logger->info($cmdGif);
+            // 运行命令生成 GIF
+            exec($cmdGif, $output, $resultCode);
+            if ($resultCode !== 0) {
+                throw new \Exception("视频转 GIF 失败: " . implode("\n", $output));
+            }
+
+            return true;
+        } catch (\Exception $e) {
+            // error_log($e->getMessage());
+            return false;
+        } finally {
+            // 删除临时视频文件
+            if (file_exists($tempVideo)) {
+                unlink($tempVideo);
+            }
+        }
+    }
+
+
+    /**
      * 使用ImageMagick将PNG图片转换为动态GIF
      * 
      * @param array $imagePaths PNG图片路径数组
@@ -94,5 +166,4 @@ class GifJob extends Job
             throw new \Exception('创建GIF失败：' . $e->getMessage());
         }
     }
-
 }
