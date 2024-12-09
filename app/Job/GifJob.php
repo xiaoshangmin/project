@@ -28,16 +28,18 @@ class GifJob extends Job
     {
         $auth = $this->params['auth'];
         $taskId = $this->params['taskId'];
+        $path = $this->params['path'];
         $cache = make(Redis::class);
-        $path = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR;
+        // $path = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR;
         $finalFileName = $path . $taskId . '.gif';
         $images = [];
         for ($i = 0; $i < 30; $i++) {
             $images[] = $path . "{$i}.png";
         }
         try {
+            $this->unlinkFile($path);
             $this->createGifFromImages($images, $finalFileName);
-            $cache->set($taskId, 1,7200);
+            $cache->set($taskId, 1, 7200);
         } catch (\Throwable $e) {
             // 错误处理
             $this->logger->error("GIF生成失败:[{$auth}':[{$taskId}]:" . $e->getMessage());
@@ -69,6 +71,16 @@ class GifJob extends Job
         // $tempVideo = $imageDir . '/temp_video.mp4';
         $tempPalette =  $imageDir . '/palette.png';
 
+        // 计算每张图片需要重复的次数
+        $framesPerImage = $frameRate / 30;
+
+        // 重命名并复制图片，确保有足够帧数
+
+//        foreach ($imageFiles as $index => $imagePath) {
+//            $newPath = sprintf('%s/%d.png', dirname($imagePath), $index + 30);
+//            copy($imagePath, $newPath);
+//        }
+
 
         try {
             // 合成视频命令
@@ -87,14 +99,15 @@ class GifJob extends Job
             if ($resultCode !== 0) {
                 throw new \Exception("生成调色板失败: " . implode("\n", $output));
             }
-    
+
             // 用调色板生成 GIF
             $cmdGif = sprintf(
-                '%s -y -framerate %d -i %s -i %s -lavfi "paletteuse" %s',
+                '%s -y -framerate %d -i %s -i %s -lavfi "fps=%d,paletteuse" %s',
                 escapeshellcmd($ffmpegPath),
                 $frameRate,
                 escapeshellarg($imageDir . '/%d.png'),
                 escapeshellarg($tempPalette),
+                $frameRate,
                 escapeshellarg($outputGif)
             );
             $this->logger->info($cmdGif);
@@ -102,7 +115,7 @@ class GifJob extends Job
             if ($resultCode !== 0) {
                 throw new \Exception("生成 GIF 失败: " . implode("\n", $output));
             }
-    
+
             return true;
         } catch (\Exception $e) {
             $this->logger->info($e->getMessage());
@@ -114,102 +127,67 @@ class GifJob extends Job
             }
         }
 
-        // try {
-        //     // 合成视频命令
-        //     $cmdVideo = sprintf(
-        //         '%s -y -framerate %d -i %s -vf "scale=%d:%d" %s',
-        //         escapeshellcmd($ffmpegPath),
-        //         $frameRate,
-        //         escapeshellarg(dirname($imageFiles[0]) . '/%d.png'), // 图片按顺序命名格式（image1.jpg, image2.jpg...）
-        //         $width,
-        //         $height,
-        //         escapeshellarg($tempVideo)
-        //     );
-        //     $this->logger->info($cmdVideo);
-        //     // 运行命令生成视频
-        //     exec($cmdVideo, $output, $resultCode);
-        //     if ($resultCode !== 0) {
-        //         throw new \Exception("图片合成视频失败: " . implode("\n", $output));
-        //     }
-
-        //     // 视频转 GIF 命令
-        //     $cmdGif = sprintf(
-        //         '%s -y -i %s -vf "scale=%d:%d:flags=lanczos" %s',
-        //         escapeshellcmd($ffmpegPath),
-        //         escapeshellarg($tempVideo),
-        //         $width,
-        //         $height,
-        //         escapeshellarg($outputGif)
-        //     );
-        //     $this->logger->info($cmdGif);
-        //     // 运行命令生成 GIF
-        //     exec($cmdGif, $output, $resultCode);
-        //     if ($resultCode !== 0) {
-        //         throw new \Exception("视频转 GIF 失败: " . implode("\n", $output));
-        //     }
-
-        //     return true;
-        // } catch (\Exception $e) {
-        //     // error_log($e->getMessage());
-        //     return false;
-        // } finally {
-        //     // 删除临时视频文件
-        //     if (file_exists($tempVideo)) {
-        //         unlink($tempVideo);
-        //     }
-        // }
     }
 
+    // try {
+    //     // 合成视频命令
+    //     $cmdVideo = sprintf(
+    //         '%s -y -framerate %d -i %s -vf "scale=%d:%d" %s',
+    //         escapeshellcmd($ffmpegPath),
+    //         $frameRate,
+    //         escapeshellarg(dirname($imageFiles[0]) . '/%d.png'), // 图片按顺序命名格式（image1.jpg, image2.jpg...）
+    //         $width,
+    //         $height,
+    //         escapeshellarg($tempVideo)
+    //     );
+    //     $this->logger->info($cmdVideo);
+    //     // 运行命令生成视频
+    //     exec($cmdVideo, $output, $resultCode);
+    //     if ($resultCode !== 0) {
+    //         throw new \Exception("图片合成视频失败: " . implode("\n", $output));
+    //     }
 
-    /**
-     * 使用ImageMagick将PNG图片转换为动态GIF
-     * 
-     * @param array $imagePaths PNG图片路径数组
-     * @param string $outputPath 输出的GIF文件路径
-     * @param int $delay 每帧延迟时间(毫秒) 2约等于60帧
-     */
-    private function createAnimatedGif($imagePaths, $outputPath, $delay = 2)
+    //     // 视频转 GIF 命令
+    //     $cmdGif = sprintf(
+    //         '%s -y -i %s -vf "scale=%d:%d:flags=lanczos" %s',
+    //         escapeshellcmd($ffmpegPath),
+    //         escapeshellarg($tempVideo),
+    //         $width,
+    //         $height,
+    //         escapeshellarg($outputGif)
+    //     );
+    //     $this->logger->info($cmdGif);
+    //     // 运行命令生成 GIF
+    //     exec($cmdGif, $output, $resultCode);
+    //     if ($resultCode !== 0) {
+    //         throw new \Exception("视频转 GIF 失败: " . implode("\n", $output));
+    //     }
+
+    //     return true;
+    // } catch (\Exception $e) {
+    //     // error_log($e->getMessage());
+    //     return false;
+    // } finally {
+    //     // 删除临时视频文件
+    //     if (file_exists($tempVideo)) {
+    //         unlink($tempVideo);
+    //     }
+    // }
+
+    private function unlinkFile($directory): void
     {
-        // 检查ImageMagick扩展是否可用
-        if (!extension_loaded('imagick')) {
-            throw new \Exception('ImageMagick扩展未安装');
-        }
+        // 查找目录下所有.png和.gif文件
+        // $pngFiles = glob($directory . '/*.png');
+        $gifFiles = glob($directory . '/*.gif');
 
-        try {
-            // 创建Imagick对象
-            $imagick = new \Imagick();
+        // 合并两个数组
+        $filesToDelete = $gifFiles; //array_merge($pngFiles, $gifFiles);
 
-            // 遍历图片并添加到gif
-            foreach ($imagePaths as $path) {
-                $frame = new \Imagick($path);
-
-                // 设置帧延迟 (ImageMagick使用1/100秒为单位)
-                $frame->setImageDelay($delay);
-
-                // 添加帧
-                $imagick->addImage($frame);
-
-                // 及时清理内存
-                $frame->clear();
+        // 循环删除文件
+        foreach ($filesToDelete as $file) {
+            if (file_exists($file)) {
+                unlink($file);
             }
-
-            // 合成gif
-            $imagick->setImageFormat('gif');
-
-            // 适度压缩
-            $imagick->setImageCompressionQuality(75);
-
-            // 优化gif
-            $imagick->optimizeImageLayers();
-
-            // 写入文件
-            $imagick->writeImages($outputPath, true);
-
-            // 清理资源
-            $imagick->clear();
-            $imagick->destroy();
-        } catch (\Exception $e) {
-            throw new \Exception('创建GIF失败：' . $e->getMessage());
         }
     }
 }

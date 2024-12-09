@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controller;
 
+use App\Http\Service\QueueService;
 use App\Middleware\Auth\MiniAuthMiddleware;
 use App\Model\Bullet;
 use DateTime;
@@ -13,10 +14,9 @@ use GuzzleHttp\Exception\RequestException;
 use Hyperf\Di\Annotation\Inject;
 use Hyperf\Guzzle\ClientFactory;
 use Hyperf\HttpServer\Annotation\Controller;
+use Hyperf\HttpServer\Annotation\GetMapping;
 use Hyperf\HttpServer\Annotation\Middleware;
 use Hyperf\HttpServer\Annotation\PostMapping;
-use Hyperf\HttpServer\Annotation\GetMapping;
-use App\Http\Service\QueueService;
 use Hyperf\Redis\Redis;
 use Qiniu\Auth;
 
@@ -714,12 +714,12 @@ class TempEmailMiniController extends BaseController
     public function toGif()
     {
         $auth = $this->request->header('auth');
-        if(empty($auth)){
+        if (empty($auth)) {
             return $this->fail();
         }
         $taskId = uniqid();
         //异步处理
-        $data =['auth' =>  $auth, 'taskId' => $taskId];
+        $data = ['auth' =>  $auth, 'taskId' => $taskId, 'path' => BASE_PATH . '/storage/' . $auth . DIRECTORY_SEPARATOR];
         $this->queueService->toGif($data);
         return $this->success($taskId);
     }
@@ -730,17 +730,16 @@ class TempEmailMiniController extends BaseController
     {
         $auth = $this->request->header('auth');
         $taskId = $this->request->post('id');
-        $file = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
+        $file = BASE_PATH . '/storage/' . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
         $isFinish = $this->cache->get($taskId);
-        if(file_exists($file) && $isFinish == 1){
-            $url = "https://doc.wowyou.cc/storage/" . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
+        if (file_exists($file) && $isFinish == 1) {
+            $url = "https://doc.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
             return $this->success($url);
         }
         return $this->fail();
-        
     }
 
-   
+
 
     #[PostMapping(path: "uploadFramesPic")]
     public function uploadFramesPic()
@@ -748,7 +747,7 @@ class TempEmailMiniController extends BaseController
         $auth = $this->request->header('auth', 'tmp');
         $files = $this->request->getUploadedFiles();
         $frameIndex = $this->request->post("frameIndex", 0);
-        $path = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth;
+        $path = BASE_PATH . '/storage/' . $auth;
         $fileName = $frameIndex . '.png';
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
