@@ -68,37 +68,17 @@ class GifJob extends Job
         $imageDir = dirname($imageFiles[0]);
         // 创建临时文件名
         // $tempVideo = tempnam(sys_get_temp_dir(), 'temp_video') . '.mp4';
-        // $tempVideo = $imageDir . '/temp_video.mp4';
+         $tempVideo = $imageDir . '/temp_video.mp4';
         $tempPalette =  $imageDir . '/palette.png';
 
 
         try {
-            // 合成视频命令
-            $cmdVideo = sprintf(
-                '%s -y -framerate %d -i %s -vf "scale=%d:%d:flags=lanczos,fps=%d,palettegen=max_colors=256:stats_mode=diff" %s',
-                escapeshellcmd($ffmpegPath),
-                $frameRate,
-                escapeshellarg($imageDir . '/%d.png'),
-                $width,
-                $height,
-                $frameRate,
-                escapeshellarg($tempPalette)
-            );
-            $this->logger->info($cmdVideo);
-            // 运行命令生成调色板
-            exec($cmdVideo, $output, $resultCode);
-            if ($resultCode !== 0) {
-                throw new \Exception("生成调色板失败: " . implode("\n", $output));
-            }
 
-            // 用调色板生成 GIF
             $cmdGif = sprintf(
-                '%s -y -framerate %d -i %s -i %s -lavfi "fps=%d,paletteuse=dither=sierra2_4a" -q:v 10 -preset veryslow -gifflags +transdiff -f gif %s',
+                '%s -y -framerate %d -i %s -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse,loop=0:32767:0,setpts=N/FRAME_RATE/TB" %s',
                 escapeshellcmd($ffmpegPath),
                 $frameRate,
                 escapeshellarg($imageDir . '/%d.png'),
-                escapeshellarg($tempPalette),
-                $frameRate,
                 escapeshellarg($outputGif)
             );
             $this->logger->info($cmdGif);
@@ -113,57 +93,106 @@ class GifJob extends Job
             return false;
         } finally {
             // 删除临时文件
-            if (file_exists($tempPalette)) {
-                unlink($tempPalette);
-            }
+//            if (file_exists($tempPalette)) {
+//                unlink($tempPalette);
+//            }
         }
+
+
+//        try {
+//            // 合成视频命令
+//            $cmdVideo = sprintf(
+//                '%s -y -framerate %d -i %s -vf "scale=%d:%d:flags=lanczos,fps=%d,palettegen=max_colors=256:stats_mode=diff" %s',
+//                escapeshellcmd($ffmpegPath),
+//                $frameRate,
+//                escapeshellarg($imageDir . '/%d.png'),
+//                $width,
+//                $height,
+//                $frameRate,
+//                escapeshellarg($tempPalette)
+//            );
+//            $this->logger->info($cmdVideo);
+//            // 运行命令生成调色板
+//            exec($cmdVideo, $output, $resultCode);
+//            if ($resultCode !== 0) {
+//                throw new \Exception("生成调色板失败: " . implode("\n", $output));
+//            }
+//
+//            // 用调色板生成 GIF
+//            $cmdGif = sprintf(
+//                '%s -y -framerate %d -i %s -i %s -lavfi "fps=%d,paletteuse=dither=sierra2_4a" -q:v 10 -preset veryslow -gifflags +transdiff -f gif %s',
+//                escapeshellcmd($ffmpegPath),
+//                $frameRate,
+//                escapeshellarg($imageDir . '/%d.png'),
+//                escapeshellarg($tempPalette),
+//                $frameRate,
+//                escapeshellarg($outputGif)
+//            );
+//            $this->logger->info($cmdGif);
+//            exec($cmdGif, $output, $resultCode);
+//            if ($resultCode !== 0) {
+//                throw new \Exception("生成 GIF 失败: " . implode("\n", $output));
+//            }
+//
+//            return true;
+//        } catch (\Exception $e) {
+//            $this->logger->info($e->getMessage());
+//            return false;
+//        } finally {
+//            // 删除临时文件
+//            if (file_exists($tempPalette)) {
+//                unlink($tempPalette);
+//            }
+//        }
+
+//         try {
+//             // 合成视频命令
+//             $cmdVideo = sprintf(
+//                 '%s -y -framerate %d -i %s -vf "scale=%d:%d" %s',
+//                 escapeshellcmd($ffmpegPath),
+//                 $frameRate,
+//                 escapeshellarg(dirname($imageFiles[0]) . '/%d.png'), // 图片按顺序命名格式（image1.jpg, image2.jpg...）
+//                 $width,
+//                 $height,
+//                 escapeshellarg($tempVideo)
+//             );
+//             $this->logger->info($cmdVideo);
+//             // 运行命令生成视频
+//             exec($cmdVideo, $output, $resultCode);
+//             if ($resultCode !== 0) {
+//                 throw new \Exception("图片合成视频失败: " . implode("\n", $output));
+//             }
+//
+//             // 视频转 GIF 命令
+//             $cmdGif = sprintf(
+//                 '%s -y -i %s -vf "scale=%d:%d:flags=lanczos" %s',
+//                 escapeshellcmd($ffmpegPath),
+//                 escapeshellarg($tempVideo),
+//                 $width,
+//                 $height,
+//                 escapeshellarg($outputGif)
+//             );
+//             $this->logger->info($cmdGif);
+//             // 运行命令生成 GIF
+//             exec($cmdGif, $output, $resultCode);
+//             if ($resultCode !== 0) {
+//                 throw new \Exception("视频转 GIF 失败: " . implode("\n", $output));
+//             }
+//
+//             return true;
+//         } catch (\Exception $e) {
+//             // error_log($e->getMessage());
+//             return false;
+//         } finally {
+//             // 删除临时视频文件
+//             if (file_exists($tempVideo)) {
+//                 unlink($tempVideo);
+//             }
+//         }
+
 
     }
 
-    // try {
-    //     // 合成视频命令
-    //     $cmdVideo = sprintf(
-    //         '%s -y -framerate %d -i %s -vf "scale=%d:%d" %s',
-    //         escapeshellcmd($ffmpegPath),
-    //         $frameRate,
-    //         escapeshellarg(dirname($imageFiles[0]) . '/%d.png'), // 图片按顺序命名格式（image1.jpg, image2.jpg...）
-    //         $width,
-    //         $height,
-    //         escapeshellarg($tempVideo)
-    //     );
-    //     $this->logger->info($cmdVideo);
-    //     // 运行命令生成视频
-    //     exec($cmdVideo, $output, $resultCode);
-    //     if ($resultCode !== 0) {
-    //         throw new \Exception("图片合成视频失败: " . implode("\n", $output));
-    //     }
-
-    //     // 视频转 GIF 命令
-    //     $cmdGif = sprintf(
-    //         '%s -y -i %s -vf "scale=%d:%d:flags=lanczos" %s',
-    //         escapeshellcmd($ffmpegPath),
-    //         escapeshellarg($tempVideo),
-    //         $width,
-    //         $height,
-    //         escapeshellarg($outputGif)
-    //     );
-    //     $this->logger->info($cmdGif);
-    //     // 运行命令生成 GIF
-    //     exec($cmdGif, $output, $resultCode);
-    //     if ($resultCode !== 0) {
-    //         throw new \Exception("视频转 GIF 失败: " . implode("\n", $output));
-    //     }
-
-    //     return true;
-    // } catch (\Exception $e) {
-    //     // error_log($e->getMessage());
-    //     return false;
-    // } finally {
-    //     // 删除临时视频文件
-    //     if (file_exists($tempVideo)) {
-    //         unlink($tempVideo);
-    //     }
-    // }
 
     private function unlinkFile($directory): void
     {
