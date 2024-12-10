@@ -55,7 +55,7 @@ class GifJob extends Job
      * @param int    $frameRate  每秒帧数
      * @return bool  成功返回 true，失败返回 false
      */
-    function createGifFromImages(array $imageFiles, string $outputGif, int $frameRate = 60): bool
+    function createGifFromImages(array $imageFiles, string $outputGif, int $frameRate = 30): bool
     {
         // 检查 FFmpeg 是否存在
         $ffmpegPath = '/usr/bin/ffmpeg'; // 根据实际安装路径调整
@@ -72,7 +72,7 @@ class GifJob extends Job
         $tempPalette =  $imageDir . '/palette.png';
 
         // 计算每张图片需要重复的次数
-        $framesPerImage = $frameRate / 30;
+//        $framesPerImage = $frameRate / 30;
 
         // 重命名并复制图片，确保有足够帧数
 
@@ -85,7 +85,7 @@ class GifJob extends Job
         try {
             // 合成视频命令
             $cmdVideo = sprintf(
-                '%s -y -framerate %d -i %s -vf "scale=%d:%d:flags=lanczos,palettegen" %s',
+                '%s -y -framerate %d -i %s -vf "scale=%d:%d:flags=lanczos,fps=30,palettegen=max_colors=256:stats_mode=diff" %s',
                 escapeshellcmd($ffmpegPath),
                 $frameRate,
                 escapeshellarg($imageDir . '/%d.png'),
@@ -102,7 +102,7 @@ class GifJob extends Job
 
             // 用调色板生成 GIF
             $cmdGif = sprintf(
-                '%s -y -framerate %d -i %s -i %s -lavfi "fps=%d,paletteuse" %s',
+                '%s -y -framerate %d -i %s -i %s -lavfi "fps=%d,paletteuse=dither=sierra2_4a" -q:v 10 -preset fast -f gif %s',
                 escapeshellcmd($ffmpegPath),
                 $frameRate,
                 escapeshellarg($imageDir . '/%d.png'),
