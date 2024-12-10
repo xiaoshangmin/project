@@ -93,7 +93,7 @@ class GifJob extends Job
 
             // 用调色板生成 GIF
             $cmdGif = sprintf(
-                '%s -y -framerate %d -i %s -i %s -lavfi "fps=%d,paletteuse=dither=sierra2_4a" -q:v 10 -preset veryslow -f gif %s',
+                '%s -y -framerate %d -i %s -i %s -lavfi "fps=%d,paletteuse=dither=sierra2_4a" -q:v 10 -preset veryslow -gifflags +transdiff -f gif %s',
                 escapeshellcmd($ffmpegPath),
                 $frameRate,
                 escapeshellarg($imageDir . '/%d.png'),
