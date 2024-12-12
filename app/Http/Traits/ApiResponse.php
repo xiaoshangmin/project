@@ -26,10 +26,10 @@ trait ApiResponse
 
     /**
      * @param int $code
-     * @param array|string $data
+     * @param array|string|int $data
      * @return PsrResponseInterface
      */
-    public function fail(int $code = ErrorCode::FAIL, array|string $data = []): PsrResponseInterface
+    public function fail(int $code = ErrorCode::FAIL, array|string|int $data = []): PsrResponseInterface
     {
         $response = \Hyperf\Support\make(ResponseInterface::class);
         $body = [
