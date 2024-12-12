@@ -13,7 +13,7 @@ trait ApiResponse
      * @param int $code
      * @return PsrResponseInterface
      */
-    public function success(array|string $data = [], int $code = ErrorCode::SUCCESS): PsrResponseInterface
+    public function success(mixed $data = [], int $code = ErrorCode::SUCCESS): PsrResponseInterface
     {
         $response = \Hyperf\Support\make(ResponseInterface::class);
         $body = [
@@ -29,7 +29,7 @@ trait ApiResponse
      * @param array|string|int $data
      * @return PsrResponseInterface
      */
-    public function fail(int $code = ErrorCode::FAIL, array|string|int $data = []): PsrResponseInterface
+    public function fail(int $code = ErrorCode::FAIL, mixed $data = []): PsrResponseInterface
     {
         $response = \Hyperf\Support\make(ResponseInterface::class);
         $body = [

@@ -30,9 +30,9 @@ class GifJob extends Job
         $taskId = $this->params['taskId'];
         $path = $this->params['path'];
         $cache = make(Redis::class);
-        // $path = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR;
+
         $finalFileName = $path . $taskId . '.gif';
-//        $this->logger->info(json_encode($this->params, JSON_UNESCAPED_UNICODE));
+
         $images = [];
         for ($i = 0; $i < 10; $i++) {
             $images[] = $path . "{$i}.png";
@@ -47,11 +47,11 @@ class GifJob extends Job
         $images = array_merge($images, $appendImage);
         try {
             $this->createGifFromImages($images, $finalFileName);
-            $cache->set($taskId, 1, 3600);
+            $cache->set($taskId, 'ok', 3600);
 //                        $this->unlinkFile($path);
         } catch (\Throwable $e) {
             // 错误处理
-            $cache->set($taskId, -1, 3600);
+            $cache->set($taskId, 'err', 3600);
             $this->logger->error("GIF生成失败:[{$auth}':[{$taskId}]:" . $e->getMessage());
         }
     }

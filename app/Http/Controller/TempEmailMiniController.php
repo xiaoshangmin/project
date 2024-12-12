@@ -733,11 +733,11 @@ class TempEmailMiniController extends BaseController
         $taskId = $this->request->post('id');
         $file = BASE_PATH . '/storage/' . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
         $isFinish = $this->cache->get($taskId);
-        if (file_exists($file) && $isFinish == 1) {
+        if (file_exists($file) && $isFinish == 'ok') {
             $url = "https://doc.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
             return $this->success($url);
         }
-        return $this->fail( ErrorCode::FAIL,$isFinish);
+        return $this->fail();
     }
 
 
@@ -745,8 +745,6 @@ class TempEmailMiniController extends BaseController
     #[PostMapping(path: "uploadFramesPic")]
     public function uploadFramesPic()
     {
-//        ini_set('display_errors', 1);
-//        error_reporting(E_ALL);
         $auth = $this->request->header('auth', 'tmp');
         $files = $this->request->getUploadedFiles();
         $frameIndex = $this->request->post("frameIndex", '0');
@@ -755,7 +753,6 @@ class TempEmailMiniController extends BaseController
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
-//        $this->logger->info(json_encode($_FILES));
         foreach ($files as $file) {
             // 处理上传的文件
             $file->moveTo($path . DIRECTORY_SEPARATOR . $fileName);
