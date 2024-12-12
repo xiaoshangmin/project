@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controller;
 
+use App\Constants\ErrorCode;
 use App\Http\Service\QueueService;
 use App\Middleware\Auth\MiniAuthMiddleware;
 use App\Model\Bullet;
@@ -736,7 +737,7 @@ class TempEmailMiniController extends BaseController
             $url = "https://doc.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
             return $this->success($url);
         }
-        return $this->fail();
+        return $this->fail( ErrorCode::FAIL,$isFinish);
     }
 
 
@@ -744,20 +745,23 @@ class TempEmailMiniController extends BaseController
     #[PostMapping(path: "uploadFramesPic")]
     public function uploadFramesPic()
     {
+//        ini_set('display_errors', 1);
+//        error_reporting(E_ALL);
         $auth = $this->request->header('auth', 'tmp');
         $files = $this->request->getUploadedFiles();
-        $frameIndex = $this->request->post("frameIndex", 0);
+        $frameIndex = $this->request->post("frameIndex", '0');
         $path = BASE_PATH . '/storage/' . $auth;
         $fileName = $frameIndex . '.png';
         if (!is_dir($path)) {
             mkdir($path, 0777, true);
         }
+//        $this->logger->info(json_encode($_FILES));
         foreach ($files as $file) {
             // 处理上传的文件
             $file->moveTo($path . DIRECTORY_SEPARATOR . $fileName);
         }
 
-        return $this->success();
+        return $this->success($frameIndex);
     }
 
 
