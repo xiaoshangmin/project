@@ -46,9 +46,10 @@ class GifJob extends Job
         }
         $images = array_merge($images, $appendImage);
         try {
+            $this->unlinkGifFile($path);
             $this->createGifFromImages($images, $finalFileName);
             $cache->set($taskId, 'ok', 3600);
-//                        $this->unlinkFile($path);
+
         } catch (\Throwable $e) {
             // 错误处理
             $cache->set($taskId, 'err', 3600);
@@ -204,14 +205,14 @@ class GifJob extends Job
     }
 
 
-    private function unlinkFile($directory): void
+    private function unlinkGifFile($directory): void
     {
         // 查找目录下所有.png和.gif文件
-        $pngFiles = glob($directory . '/*.png');
+//        $pngFiles = glob($directory . '/*.png');
         $gifFiles = glob($directory . '/*.gif');
 
         // 合并两个数组
-        $filesToDelete = array_merge($pngFiles, $gifFiles);
+        $filesToDelete = $gifFiles;//array_merge($pngFiles, $gifFiles);
 
         // 循环删除文件
         foreach ($filesToDelete as $file) {
