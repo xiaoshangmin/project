@@ -33,15 +33,24 @@ class GifJob extends Job
         // $path = BASE_PATH . '/storage/' . date("Ymd") . DIRECTORY_SEPARATOR . $auth . DIRECTORY_SEPARATOR;
         $finalFileName = $path . $taskId . '.gif';
         $images = [];
-        for ($i = 0; $i < 30; $i++) {
+        for ($i = 0; $i < 10; $i++) {
             $images[] = $path . "{$i}.png";
         }
+        $appendImage = [];
+        foreach ($images as $index=>$image) {
+            $newIndex = $index + 10;
+            $destination =  $path . "{$newIndex}.png";
+            copy($image, $destination);
+            $appendImage[$index] = $destination;
+        }
+        $images = array_merge($images, $appendImage);
         try {
             $this->unlinkFile($path);
             $this->createGifFromImages($images, $finalFileName);
             $cache->set($taskId, 1, 7200);
         } catch (\Throwable $e) {
             // 错误处理
+            $cache->set($taskId, -1, 7200);
             $this->logger->error("GIF生成失败:[{$auth}':[{$taskId}]:" . $e->getMessage());
         }
     }
@@ -50,9 +59,9 @@ class GifJob extends Job
     /**
      * 使用 FFmpeg 将多张图片合成 GIF 动画
      *
-     * @param array  $imageFiles 图片文件路径数组
-     * @param string $outputGif  输出 GIF 文件路径
-     * @param int    $frameRate  每秒帧数
+     * @param array $imageFiles 图片文件路径数组
+     * @param string $outputGif 输出 GIF 文件路径
+     * @param int $frameRate 每秒帧数
      * @return bool  成功返回 true，失败返回 false
      */
     function createGifFromImages(array $imageFiles, string $outputGif, int $frameRate = 20): bool
@@ -68,8 +77,8 @@ class GifJob extends Job
         $imageDir = dirname($imageFiles[0]);
         // 创建临时文件名
         // $tempVideo = tempnam(sys_get_temp_dir(), 'temp_video') . '.mp4';
-         $tempVideo = $imageDir . '/temp_video.mp4';
-        $tempPalette =  $imageDir . '/palette.png';
+        $tempVideo = $imageDir . '/temp_video.mp4';
+        $tempPalette = $imageDir . '/palette.png';
 
 
         try {
@@ -197,11 +206,11 @@ class GifJob extends Job
     private function unlinkFile($directory): void
     {
         // 查找目录下所有.png和.gif文件
-        // $pngFiles = glob($directory . '/*.png');
+        $pngFiles = glob($directory . '/*.png');
         $gifFiles = glob($directory . '/*.gif');
 
         // 合并两个数组
-        $filesToDelete = $gifFiles; //array_merge($pngFiles, $gifFiles);
+        $filesToDelete = array_merge($pngFiles, $gifFiles);
 
         // 循环删除文件
         foreach ($filesToDelete as $file) {
