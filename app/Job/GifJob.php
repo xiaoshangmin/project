@@ -18,10 +18,11 @@ class GifJob extends Job
 
     private $logger;
 
+    private $cache;
+
     public function __construct($params)
     {
         $this->params = $params;
-        $this->logger = make(StdoutLoggerInterface::class);
     }
 
     public function handle()
@@ -29,9 +30,12 @@ class GifJob extends Job
         $auth = $this->params['auth'];
         $taskId = $this->params['taskId'];
         $path = $this->params['path'];
-        $cache = make(Redis::class);
+
+        $this->logger = make(StdoutLoggerInterface::class);
+        $this->cache = make(Redis::class);
 
         $finalFileName = $path . $taskId . '.gif';
+        $finalOpFileName = $path . $taskId . '-op.gif';
 
         $images = [];
         for ($i = 0; $i < 10; $i++) {
@@ -47,12 +51,11 @@ class GifJob extends Job
         $images = array_merge($images, $appendImage);
         try {
             $this->unlinkGifFile($path);
-            $this->createGifFromImages($images, $finalFileName);
-            $cache->set($taskId, 'ok', 3600);
-
+            $res = $this->createGifFromImages($images, $finalFileName,$finalOpFileName);
+            $this->cache->set($taskId, $res, 3600);
         } catch (\Throwable $e) {
             // 错误处理
-            $cache->set($taskId, 'err', 3600);
+            $this->cache->set($taskId, 'err', 3600);
             $this->logger->error("GIF生成失败:[{$auth}':[{$taskId}]:" . $e->getMessage());
         }
     }
@@ -63,20 +66,22 @@ class GifJob extends Job
      *
      * @param array $imageFiles 图片文件路径数组
      * @param string $outputGif 输出 GIF 文件路径
+     * @param string $finalOpFileName 输出 优化的GIF 文件路径
      * @param int $frameRate 每秒帧数
      * @return bool  成功返回 true，失败返回 false
      */
-    function createGifFromImages(array $imageFiles, string $outputGif, int $frameRate = 20): bool
+    function createGifFromImages(array $imageFiles, string $outputGif, string $finalOpFileName,int $frameRate = 20)
     {
         // 检查 FFmpeg 是否存在
         $ffmpegPath = '/usr/bin/ffmpeg'; // 根据实际安装路径调整
 
         // 获取图片宽高（以第一张图片为参考）
-        [$width, $height] = getimagesize($imageFiles[0]);
-        if (!$width || !$height) {
-            throw new \Exception("无法获取图片宽高: {$imageFiles[0]}");
-        }
+//        [$width, $height] = getimagesize($imageFiles[0]);
+//        if (!$width || !$height) {
+//            throw new \Exception("无法获取图片宽高: {$imageFiles[0]}");
+//        }
         $imageDir = dirname($imageFiles[0]);
+//        $outputDir = dirname($outputGif[0]);
         // 创建临时文件名
         // $tempVideo = tempnam(sys_get_temp_dir(), 'temp_video') . '.mp4';
         $tempVideo = $imageDir . '/temp_video.mp4';
@@ -86,7 +91,7 @@ class GifJob extends Job
         try {
 
             $cmdGif = sprintf(
-                '%s -y -framerate %d -i %s -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse,loop=0:32767:0,setpts=N/FRAME_RATE/TB" %s',
+                '%s -y -framerate %d -i %s -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2,mpdecimate,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse,loop=0:32767:0,setpts=N/FRAME_RATE/TB" %s',
                 escapeshellcmd($ffmpegPath),
                 $frameRate,
                 escapeshellarg($imageDir . '/%d.png'),
@@ -97,10 +102,19 @@ class GifJob extends Job
             if ($resultCode !== 0) {
                 throw new \Exception("生成 GIF 失败: " . implode("\n", $output));
             }
-
-            return true;
+            //优化
+            $cmdOptimize =  sprintf("gifsicle --optimize=3 %s -o %s",
+                escapeshellarg($outputGif),
+                escapeshellarg($finalOpFileName)
+            );
+            exec($cmdOptimize, $output, $resultCode);
+            if ($resultCode !== 0) {
+                $msg = "优化 GIF 失败: " . implode("\n", $output);
+                $this->logger->info($msg);
+                return 'gif';
+            }
+            return 'op-gif';
         } catch (\Exception $e) {
-            $this->logger->info($e->getMessage());
             return false;
         } finally {
             // 删除临时文件

@@ -148,7 +148,6 @@ class TempEmailMiniController extends BaseController
     /**
      * 记录用户的输入
      *
-     * @return void
      * @author xsm
      * @since 2024-12-06
      */
@@ -160,7 +159,9 @@ class TempEmailMiniController extends BaseController
         $text = $this->request->post("text", "");
         $wxVersion = $this->request->post("wxversion", "");
         $sdkVersion = $this->request->post("sdkversion", "");
+        $openid = $this->request->header("auth", "");
         $type = $this->request->post("type", 1);
+        $adTime = $this->request->post("adtime");
         $bullet = new Bullet();
         $bullet->model = $model;
         $bullet->system = $system;
@@ -168,7 +169,12 @@ class TempEmailMiniController extends BaseController
         $bullet->wx_version = $wxVersion;
         $bullet->sdk_version = $sdkVersion;
         $bullet->type = $type;
+        $bullet->openid = $openid;
+        if (!empty($adTime)) {
+            $bullet->last_look_ad_time = $adTime;
+        }
         $bullet->save();
+        return $this->success();
     }
 
     #[GetMapping(path: "show")]
@@ -733,9 +739,18 @@ class TempEmailMiniController extends BaseController
         $taskId = $this->request->post('id');
         $file = BASE_PATH . '/storage/' . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
         $isFinish = $this->cache->get($taskId);
-        if (file_exists($file) && $isFinish == 'ok') {
-            $url = "https://doc.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
-            return $this->success($url);
+        if (file_exists($file)) {
+            if ($isFinish == 'gif'){
+                $url = "https://doc.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
+                return $this->success($url);
+            }
+            if ($isFinish == 'op-gif'){
+                $url = "https://doc.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '-op.gif';
+                return $this->success($url);
+            }
+        }
+        if ($isFinish=='err'){
+            return $this->success('err');
         }
         return $this->fail();
     }
