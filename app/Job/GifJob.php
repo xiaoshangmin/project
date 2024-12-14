@@ -91,7 +91,7 @@ class GifJob extends Job
         try {
 
             $cmdGif = sprintf(
-                '%s -y -framerate %d -i %s -vf "scale=trunc(iw/2):trunc(ih/2),mpdecimate,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse,loop=0:32767:0,setpts=N/FRAME_RATE/TB" %s',
+                '%s -y -framerate %d -i %s -vf "scale=trunc(iw/2)*2:trunc(ih/2)*2,mpdecimate,split[s0][s1];[s0]palettegen[p];[s1][p]paletteuse,loop=0:32767:0,setpts=N/FRAME_RATE/TB" %s',
                 escapeshellcmd($ffmpegPath),
                 $frameRate,
                 escapeshellarg($imageDir . '/%d.png'),
