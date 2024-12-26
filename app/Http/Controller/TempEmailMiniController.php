@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Controller;
 
-use App\Constants\ErrorCode;
 use App\Http\Service\QueueService;
 use App\Middleware\Auth\MiniAuthMiddleware;
 use App\Model\Bullet;
@@ -31,6 +30,8 @@ class TempEmailMiniController extends BaseController
     //TODO 移动到配置文件
     const  TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MTExNzY4NTcsImlkIjoiYzgzZmQyYjgtNjQ3Yi00MDMwLTkyMWYtOTU2ZmQxMWM2MGNkIn0.j5vx0pBUYkyvfQqndYhPpAYDThoJrH_Y6MxfLZRunnXlEY57H5DA8-JYD1sHHIn8Ah9NvpHRCnEqJWtzPoYBBg";
     const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
+
+    const HOST = "https://api.xx.yiyu.team";
 
     #[Inject]
     protected Redis $cache;
@@ -606,37 +607,37 @@ class TempEmailMiniController extends BaseController
         [
             "value" => "YuFanXiLiu",
             "name" => "宋体",
-            "url" => "https://doc.wowyou.cc/storage/YuFanXiLiu.otf",
+            "url" => self::HOST . "/storage/YuFanXiLiu.otf",
             "active" => false
         ],
         [
             "value" => "mushin",
             "name" => "手写",
-            "url" => "https://doc.wowyou.cc/storage/mushin.otf",
+            "url" => self::HOST ."/storage/mushin.otf",
             "active" => false
         ],
         [
             "value" => "kaiti",
             "name" => "楷体",
-            "url" => "https://doc.wowyou.cc/storage/FangZhengKaiTiJianTi-1.ttf",
+            "url" => self::HOST ."/storage/FangZhengKaiTiJianTi-1.ttf",
             "active" => false,
         ],
         [
             "value" => "Uranus_Pixel_11Px",
             "name" => "像素",
-            "url" => "https://doc.wowyou.cc/storage/Uranus_Pixel_11Px.ttf",
+            "url" => self::HOST ."/storage/Uranus_Pixel_11Px.ttf",
             "active" => false
         ],
         [
             "value" => "xiaobai",
             "name" => "小白",
-            "url" => "https://doc.wowyou.cc/storage/xiaobai.ttf",
+            "url" => self::HOST ."/storage/xiaobai.ttf",
             "active" => false
         ],
         [
             "value" => "Softbrush",
             "name" => "软笔",
-            "url" => "https://doc.wowyou.cc/storage/Softbrush.ttf",
+            "url" => self::HOST ."/storage/Softbrush.ttf",
             "active" => false
         ]
     ];
