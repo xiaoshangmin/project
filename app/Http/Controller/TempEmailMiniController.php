@@ -31,7 +31,7 @@ class TempEmailMiniController extends BaseController
     const  TOKEN = "eyJhbGciOiJFZERTQSIsInR5cCI6IkpXVCJ9.eyJhIjoicnciLCJpYXQiOjE3MTExNzY4NTcsImlkIjoiYzgzZmQyYjgtNjQ3Yi00MDMwLTkyMWYtOTU2ZmQxMWM2MGNkIn0.j5vx0pBUYkyvfQqndYhPpAYDThoJrH_Y6MxfLZRunnXlEY57H5DA8-JYD1sHHIn8Ah9NvpHRCnEqJWtzPoYBBg";
     const BASEURL = "https://femail-shawn.turso.io/v2/pipeline";
 
-    const HOST = "https://api.xx.yiyu.team";
+    const HOST = "https://api.wowyou.cc";
 
     #[Inject]
     protected Redis $cache;
@@ -589,7 +589,7 @@ class TempEmailMiniController extends BaseController
             "colorA" => "rgb(74, 79, 255)",
             "colorB" => "rgb(135, 255, 173)",
             "angle" => "45deg",
-        ],
+        ]
     ];
 
 
@@ -742,11 +742,11 @@ class TempEmailMiniController extends BaseController
         $isFinish = $this->cache->get($taskId);
         if (file_exists($file)) {
             if ($isFinish == 'gif'){
-                $url = "https://doc.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
+                $url = "https://api.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '.gif';
                 return $this->success($url);
             }
             if ($isFinish == 'op-gif'){
-                $url = "https://doc.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '-op.gif';
+                $url = "https://api.wowyou.cc/storage/" . $auth . DIRECTORY_SEPARATOR . $taskId . '-op.gif';
                 return $this->success($url);
             }
         }
