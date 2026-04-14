@@ -607,13 +607,13 @@ class TempEmailMiniController extends BaseController
         [
             "value" => "YuFanXiLiu",
             "name" => "宋体",
-            "url" => self::HOST . "/storage/YuFanXiLiu.otf",
+            "url" => self::HOST . "/storage/YuFanXiLiu.ttf",
             "active" => false
         ],
         [
             "value" => "mushin",
             "name" => "手写",
-            "url" => self::HOST ."/storage/mushin.otf",
+            "url" => self::HOST ."/storage/mushin.ttf",
             "active" => false
         ],
         [
